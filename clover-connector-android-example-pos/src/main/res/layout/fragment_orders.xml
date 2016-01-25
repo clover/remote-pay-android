@@ -1,0 +1,65 @@
+<!--
+  ~ Copyright (C) 2016 Clover Network, Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~
+  ~ You may obtain a copy of the License at
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context="com.clover.remote.client.lib.example.OrdersFragment">
+
+  <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:orientation="vertical"
+                android:layout_alignParentTop="true" android:layout_alignParentBottom="true">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight=".5"
+                  android:orientation="vertical">
+      <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Orders"
+                android:layout_weight="0"
+                android:background="@color/clover_green" android:textSize="@dimen/order_table_text_size"/>
+
+      <ListView android:layout_width="fill_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:id="@+id/OrdersListView"
+                android:layout_marginBottom="5dp">
+      </ListView>
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight=".5"
+                  android:orientation="horizontal">
+      <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:orientation="vertical"
+                    android:layout_weight=".5" android:id="@+id/itemsBox" android:layout_marginRight="3dp">
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Order Items"
+                  android:layout_weight="0"
+                  android:background="@color/clover_green" android:textSize="@dimen/order_table_text_size"/>
+        <ListView android:layout_width="match_parent"
+                  android:layout_weight="1"
+                  android:layout_height="0dp"
+                  android:id="@+id/ItemsGridView"
+                  android:layout_alignParentStart="true"></ListView>
+      </LinearLayout>
+      <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight=".5"
+                    android:id="@+id/paymentsBox" android:orientation="vertical" android:layout_marginLeft="3dp">
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Order Payments"
+                  android:layout_weight="0"
+                  android:background="@color/clover_green" android:textSize="@dimen/order_table_text_size"/>
+        <ListView android:layout_width="match_parent"
+                  android:layout_weight="1"
+                  android:layout_height="0dp"
+                  android:id="@+id/PaymentsGridView"
+                  android:layout_alignParentEnd="true"></ListView>
+      </LinearLayout>
+    </LinearLayout>
+  </LinearLayout>
+</RelativeLayout>
