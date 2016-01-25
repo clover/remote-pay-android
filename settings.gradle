@@ -1,0 +1,1 @@
+include ':clover-connector-android',':clover-connector-android-example-pos'

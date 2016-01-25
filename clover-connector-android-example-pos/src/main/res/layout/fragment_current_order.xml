@@ -1,0 +1,88 @@
+<!--
+  ~ Copyright (C) 2016 Clover Network, Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~
+  ~ You may obtain a copy of the License at
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:id="@+id/container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context=".RemoteLanLauncher"
+                tools:ignore="MergeRootFrame">
+  <LinearLayout android:layout_width="fill_parent" android:layout_height="50dp" android:id="@+id/linearLayout14">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent" android:text="Current Order: " android:textStyle="bold"
+        android:textSize="@dimen/text_size_list_item"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/CurrentOrderNumber"/>
+  </LinearLayout>
+  <ListView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:id="@+id/CurrentOrderItems"
+      android:layout_centerHorizontal="true"
+      android:layout_above="@+id/gridLayout"
+
+      android:layout_alignParentEnd="false" android:layout_below="@+id/linearLayout14"/>
+  <GridLayout
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content"
+      android:layout_above="@+id/linearLayout3"
+      android:layout_centerHorizontal="true"
+      android:columnCount="2"
+      android:rowCount="4"
+      android:id="@+id/gridLayout">
+    <TextView android:text="Subtotal:"/>
+    <TextView android:id="@+id/SubtotalLabel" android:layout_gravity="right"/>
+    <TextView android:text="Discounts:"/>
+    <TextView android:id="@+id/DiscountsLabel" android:layout_gravity="right"/>
+    <TextView android:text="Tax:"/>
+    <TextView android:id="@+id/TaxLabel" android:layout_gravity="right"/>
+    <TextView android:text="Total:" android:textSize="@dimen/text_size_status"/>
+    <TextView android:id="@+id/TotalLabel"
+              android:layout_gravity="right"/>
+  </GridLayout>
+  <LinearLayout android:layout_width="fill_parent" android:layout_height="50dp"
+                android:layout_alignParentBottom="true" android:id="@+id/linearLayout3">
+    <Button
+        android:text="New Order"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_weight=".2"
+        android:id="@+id/NewOrderButton"
+    />
+    <Button
+        android:text="Sale"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_weight=".4"
+        android:background="@drawable/button"
+        android:id="@+id/SaleButton"
+        android:layout_margin="4dp"/>
+    <Button
+        android:text="Auth"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_weight=".4"
+        android:background="@drawable/button"
+        android:id="@+id/AuthButton"
+        android:layout_margin="4dp"/>
+  </LinearLayout>
+
+
+</RelativeLayout>
