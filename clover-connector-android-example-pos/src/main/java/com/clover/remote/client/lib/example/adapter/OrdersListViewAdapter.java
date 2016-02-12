@@ -24,8 +24,10 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import com.clover.remote.client.lib.example.R;
 import com.clover.remote.client.lib.example.model.POSOrder;
+import com.clover.remote.client.lib.example.utils.CurrencyUtils;
 
 import java.util.List;
+import java.util.Locale;
 
 public class OrdersListViewAdapter extends ArrayAdapter<POSOrder> {
 
@@ -61,9 +63,9 @@ public class OrdersListViewAdapter extends ArrayAdapter<POSOrder> {
       idColumn.setText(posOrder.id);
       dateColumn.setText(posOrder.date.toString());
       statusColumn.setText(posOrder.status.toString());
-      subtotalColumn.setText("" + posOrder.getPreTaxSubTotal());
-      taxColumn.setText("" + posOrder.getTaxAmount());
-      totalColumn.setText("" + posOrder.getTotal());
+      subtotalColumn.setText(CurrencyUtils.format(posOrder.getPreTaxSubTotal(), Locale.getDefault()));
+      taxColumn.setText(CurrencyUtils.format(posOrder.getTaxAmount(), Locale.getDefault()));
+      totalColumn.setText(CurrencyUtils.format(posOrder.getTotal(), Locale.getDefault()));
     }
 
     return v;

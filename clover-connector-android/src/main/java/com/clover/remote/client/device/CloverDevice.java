@@ -64,11 +64,13 @@ public abstract class CloverDevice {
   /// </summary>
   /// <param name="payIntent"></param>
   /// <param name="order">can be null.  If it is, an order will implicitly be created on the other end</param>
-  public abstract void doTxStart(PayIntent payIntent, Order order);
+  public abstract void doTxStart(PayIntent payIntent, Order order, boolean suppressTipScreen);
 
   public abstract void doKeyPress(KeyPress keyPress);
 
   public abstract void doVoidPayment(Payment payment, VoidReason reason);
+
+  public abstract void doCaptureAuth(String paymentID, long amount, long tipAmount);
 
   public abstract void doOrderUpdate(DisplayOrder order, Object orderOperation); //OrderDeletedOperation, LineItemsDeletedOperation, LineItemsAddedOperation, DiscountsDeletedOperation, DiscountsAddedOperation,
 
@@ -97,5 +99,7 @@ public abstract class CloverDevice {
 
   public abstract void doCloseout();
 
-  public abstract void doCaptureCard(int cardEntryMethods);
+  public abstract void doVaultCard(int cardEntryMethods);
+
+
 }

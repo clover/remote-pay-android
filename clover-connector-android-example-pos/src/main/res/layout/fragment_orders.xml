@@ -26,7 +26,7 @@
                   android:orientation="vertical">
       <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Orders"
                 android:layout_weight="0"
-                android:background="@color/clover_green" android:textSize="@dimen/order_table_text_size"/>
+                android:background="@color/clover_green" android:textSize="@dimen/order_table_text_size" android:paddingLeft="3dp"/>
 
       <ListView android:layout_width="fill_parent"
                 android:layout_height="0dp"
@@ -36,12 +36,12 @@
       </ListView>
     </LinearLayout>
     <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight=".5"
-                  android:orientation="horizontal">
+                  android:orientation="horizontal" android:layout_marginTop="5dp">
       <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:orientation="vertical"
-                    android:layout_weight=".5" android:id="@+id/itemsBox" android:layout_marginRight="3dp">
+                    android:layout_weight=".5" android:id="@+id/itemsBox" android:layout_marginRight="5dp">
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Order Items"
                   android:layout_weight="0"
-                  android:background="@color/clover_green" android:textSize="@dimen/order_table_text_size"/>
+                  android:background="@color/clover_green" android:textSize="@dimen/order_table_text_size" android:paddingLeft="3dp"/>
         <ListView android:layout_width="match_parent"
                   android:layout_weight="1"
                   android:layout_height="0dp"
@@ -49,11 +49,11 @@
                   android:layout_alignParentStart="true"></ListView>
       </LinearLayout>
       <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight=".5"
-                    android:id="@+id/paymentsBox" android:orientation="vertical" android:layout_marginLeft="3dp">
+                    android:id="@+id/paymentsBox" android:orientation="vertical" android:layout_marginLeft="5dp">
 
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Order Payments"
                   android:layout_weight="0"
-                  android:background="@color/clover_green" android:textSize="@dimen/order_table_text_size"/>
+                  android:background="@color/clover_green" android:textSize="@dimen/order_table_text_size" android:paddingLeft="3dp"/>
         <ListView android:layout_width="match_parent"
                   android:layout_weight="1"
                   android:layout_height="0dp"

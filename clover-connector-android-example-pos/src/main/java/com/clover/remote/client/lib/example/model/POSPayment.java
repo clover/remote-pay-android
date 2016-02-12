@@ -77,4 +77,8 @@ public class POSPayment extends POSExchange {
   public void setTipAmount(long tipAmount) {
     this.tipAmount = tipAmount;
   }
+
+  public long getAmount() {
+    return super.getAmount() + getTipAmount();
+  }
 }

@@ -1,6 +1,6 @@
 # Clover SDK for Android PoS Integration
 
-Current version: 0.1
+Current version: 0.2
 
 ## Overview
 
@@ -12,6 +12,15 @@ The Android project includes both a connector and example. To effectively work w
 - An [IDE](http://developer.android.com/tools/studio/index.html), Android Studio works well .
 
 To complete a transaction end to end, we recommend getting a [Clover Mini Dev Kit](http://cloverdevkit.com/collections/devkits/products/clover-mini-dev-kit).
+
+## Release Notes
+
+# Version 0.2
+* Update example POS app; should demonstrate all library functions now
+* Update PreAuth, PreAuthCapture, and VaultCard methods in CloverConnector
+
+# Version 0.1
+* Initial capability
 
 ## Getting Connected
 

@@ -32,8 +32,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.clover.common2.clover.Clover;
+import com.clover.common2.payments.CardEntryMethods;
 import com.clover.remote.client.CloverConnector;
 import com.clover.remote.client.ICloverConnectorListener;
 import com.clover.remote.client.device.WebSocketCloverDeviceConfiguration;
@@ -41,13 +44,18 @@ import com.clover.remote.client.lib.example.model.POSCard;
 import com.clover.remote.client.lib.example.model.POSDiscount;
 import com.clover.remote.client.lib.example.model.POSExchange;
 import com.clover.remote.client.lib.example.model.POSItem;
+import com.clover.remote.client.lib.example.model.POSNakedRefund;
 import com.clover.remote.client.lib.example.model.POSOrder;
 import com.clover.remote.client.lib.example.model.POSPayment;
 import com.clover.remote.client.lib.example.model.POSRefund;
 import com.clover.remote.client.lib.example.model.POSStore;
+import com.clover.remote.client.messages.AuthRequest;
 import com.clover.remote.client.messages.AuthResponse;
 import com.clover.remote.client.messages.CaptureAuthResponse;
-import com.clover.remote.client.messages.CaptureCardResponse;
+import com.clover.remote.client.messages.ManualRefundRequest;
+import com.clover.remote.client.messages.PreAuthRequest;
+import com.clover.remote.client.messages.PreAuthResponse;
+import com.clover.remote.client.messages.VaultCardResponse;
 import com.clover.remote.client.messages.CloseoutResponse;
 import com.clover.remote.client.messages.CloverDeviceErrorEvent;
 import com.clover.remote.client.messages.CloverDeviceEvent;
@@ -61,18 +69,28 @@ import com.clover.remote.protocol.message.TipAddedMessage;
 import com.clover.remote.terminal.InputOption;
 import com.clover.remote.terminal.TxState;
 import com.clover.sdk.v3.payments.CardTransactionType;
+import com.clover.sdk.v3.payments.Credit;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.List;
 
-
-public class ExamplePOSActivity extends Activity implements CurrentOrderFragment.OnFragmentInteractionListener, AvailableItem.OnFragmentInteractionListener, OrdersFragment.OnFragmentInteractionListener, RegisterFragment.OnFragmentInteractionListener, SignatureFragment.OnFragmentInteractionListener, ProcessingFragment.OnFragmentInteractionListener {
+public class ExamplePOSActivity extends Activity implements CurrentOrderFragment.OnFragmentInteractionListener,
+    AvailableItem.OnFragmentInteractionListener, OrdersFragment.OnFragmentInteractionListener,
+    RegisterFragment.OnFragmentInteractionListener, SignatureFragment.OnFragmentInteractionListener,
+    CardsFragment.OnFragmentInteractionListener, ManualRefundsFragment.OnFragmentInteractionListener, MiscellaneousFragment.OnFragmentInteractionListener,
+    ProcessingFragment.OnFragmentInteractionListener, PreAuthFragment.OnFragmentInteractionListener {
 
   private static final String TAG = "ExamplePOSActivity";
   public static final String EXAMPLE_POS_SERVER_KEY = "clover_device_endpoint";
   public static final int WS_ENDPOINT_ACTIVITY = 123;
   public static final int SVR_ACTIVITY = 456;
 
+//  private int manualCardEntryMethod = 0;
+//  private int swipeCardEntryMethod = 0;
+//  private int chipCardEntryMethod = 0;
+//  private int contactlessCardEntryMethod = 0;
 
   String _checksURL = null;
 
@@ -174,6 +192,9 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
     return super.onOptionsItemSelected(item);
   }
 
+  protected int getCardEntryMethods() {
+    return CloverConnector.CARD_ENTRY_METHOD_MAG_STRIPE | CloverConnector.CARD_ENTRY_METHOD_ICC_CONTACT | CloverConnector.CARD_ENTRY_METHOD_MAG_STRIPE | CloverConnector.CARD_ENTRY_METHOD_NFC_CONTACTLESS;
+  }
 
   public void onClickWelcome(View view) {
     cloverConnector.showWelcomeScreen();
@@ -182,26 +203,6 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
   public void onClickThankYou(View view) {
     cloverConnector.showThankYouScreen();
   }
-    /*public void onSale(View view) {
-        SaleRequest saleRequest = new SaleRequest();
-        saleRequest.setAmount(2250L);
-
-        cloverConnector.sale(saleRequest);
-    }
-
-    public void onAuth(View view) {
-        AuthRequest authRequest = new AuthRequest(false);
-        authRequest.setAmount(5000L);
-
-        cloverConnector.auth(authRequest);
-    }
-
-    public void onPreAuth(View view) {
-        AuthRequest authRequest = new AuthRequest(true);
-        authRequest.setAmount(5000L);
-
-        cloverConnector.sale(authRequest);
-    }*/
 
   public void onClickStatus(View view) {
 
@@ -295,6 +296,8 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
               ((TextView) findViewById(R.id.DeviceStatus)).setText(deviceEvent.getMessage());
               //Toast.makeText(ExamplePOSActivity.this, deviceEvent.getMessage(), Toast.LENGTH_SHORT).show();
               LinearLayout ll = (LinearLayout) findViewById(R.id.DeviceOptionsPanel);
+              ll.removeAllViews();
+
               for (final InputOption io : deviceEvent.getInputOptions()) {
                 Button btn = new Button(ExamplePOSActivity.this);
                 btn.setText(io.description);
@@ -315,8 +318,7 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
           runOnUiThread(new Runnable() {
             @Override
             public void run() {
-              ((TextView) findViewById(R.id.DeviceStatus)).setText(deviceEvent.getMessage());
-              //Toast.makeText(ExamplePOSActivity.this, deviceEvent.getMessage(), Toast.LENGTH_SHORT).show();
+              ((TextView) findViewById(R.id.DeviceStatus)).setText("");
               LinearLayout ll = (LinearLayout) findViewById(R.id.DeviceOptionsPanel);
               ll.removeAllViews();
             }
@@ -348,6 +350,23 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
         }
 
         @Override
+        public void onPreAuthResponse(final PreAuthResponse response) {
+          runOnUiThread(new Runnable(){
+            @Override
+            public void run() {
+              POSPayment payment = new POSPayment(response.getPayment().getId(), response.getPayment().getOrder().getId(), "DFLTEMPLYEE", response.getPayment().getAmount());
+              payment.setPaymentStatus(CardTransactionType.PREAUTH.equals(response.getPayment().getCardTransaction().getType()) ? POSPayment.Status.AUTHORIZED : POSPayment.Status.PAID);
+
+              store.addPreAuth(payment);
+
+              cloverConnector.showWelcomeScreen();
+              //showRegister(null);
+              showPreAuths(null);
+            }
+          });
+        }
+
+        @Override
         public void onAuthTipAdjustResponse(TipAdjustAuthResponse response) {
           if (response.isSuccess()) {
 
@@ -374,23 +393,33 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
         }
 
         @Override
-        public void onAuthCaptureResponse(CaptureAuthResponse response) {
+        public void onPreAuthCaptureResponse(CaptureAuthResponse response) {
 
+          for(final POSPayment payment : store.getPreAuths()) {
+            if(payment.getPaymentID().equals(response.getPaymentID())) {
+              runOnUiThread(new Runnable(){
+                @Override public void run() {
+                  store.removePreAuth(payment);
+                  store.addPaymentToOrder(payment, store.getCurrentOrder());
+                  payment.setPaymentStatus(POSPayment.Status.PAID);
+                  store.getCurrentOrder().status = POSOrder.OrderStatus.CLOSED;
+
+                  //TODO: if order isn't fully paid, don't create a new order...
+                  store.createOrder();
+                  CurrentOrderFragment currentOrderFragment = (CurrentOrderFragment) getFragmentManager().findFragmentById(R.id.PendingOrder);
+                  currentOrderFragment.setOrder(store.getCurrentOrder());
+                  cloverConnector.showWelcomeScreen();
+
+                  showRegister(null);
+                }
+              });
+              break;
+            }
+          }
         }
 
         @Override
         public void onSignatureVerifyRequest(SignatureVerifyRequest request) {
-
-                    /*
-                    FragmentManager fragmentManager = getFragmentManager();
-                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-                    SignatureFragment signature = SignatureFragment.newInstance(request, cloverConnector);
-
-                    fragmentTransaction.replace(R.id.contentContainer, signature, "SIGNATURE");
-                    fragmentTransaction.commit();
-                    */
-
 
           FragmentManager fragmentManager = getFragmentManager();
           FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -441,10 +470,15 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
           runOnUiThread(new Runnable() {
             @Override
             public void run() {
-              Toast.makeText(ExamplePOSActivity.this, "Refund: " + response.getCredit().getAmount(), Toast.LENGTH_LONG);
+              if("SUCCESS".equals(response.getCode())) {
+                Credit credit = response.getCredit();
+                POSNakedRefund nakedRefund = new POSNakedRefund(null, credit.getAmount());
+                store.addRefund(nakedRefund);
+              } else {
+                Toast.makeText(ExamplePOSActivity.this, "Manual Refund Failed", Toast.LENGTH_LONG).show();
+              }
             }
           });
-          //store.refunds.add(new POSRefund(response.getCredit().getId(), response.getCredit().getOrderRef().getId(), "DFLTEMPLYEE", response.getCredit().getAmount()));
         }
 
         @Override
@@ -505,17 +539,23 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
         }
 
         @Override
-        public void onCaptureCardResponse(CaptureCardResponse response) {
+        public void onVaultCardResponse(final VaultCardResponse response) {
           if ("SUCCESS".equals(response.getCode())) {
             POSCard card = new POSCard();
             card.setFirst6(response.getCard().getFirst6());
             card.setLast4(response.getCard().getLast4());
-            card.setName(response.getCard().getFirstName() + response.getCard().getLastName());
+            card.setName(response.getCard().getCardholderName());
             card.setMonth(response.getCard().getExpirationDate().substring(0, 2));
             card.setYear(response.getCard().getExpirationDate().substring(2, 4));
             card.setToken(response.getCard().getToken());
 
             store.addCard(card);
+          } else {
+            runOnUiThread(new Runnable(){
+              @Override public void run() {
+                Toast.makeText(getBaseContext(), "Error capturing card: " + response.getCode(), Toast.LENGTH_LONG);
+              }
+            });
           }
         }
 
@@ -580,6 +620,79 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
     fragmentTransaction.commit();
   }
 
+  public void showRefunds(View view) {
+    FragmentManager fragmentManager = getFragmentManager();
+    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+    hideFragments(fragmentManager, fragmentTransaction);
+
+    Fragment fragment = fragmentManager.findFragmentByTag("REFUNDS");
+    if(fragment == null) {
+      fragment = ManualRefundsFragment.newInstance(store, cloverConnector);
+      fragmentTransaction.add(R.id.contentContainer, fragment, "REFUNDS");
+    } else {
+      fragmentTransaction.show(fragment);
+    }
+
+    fragmentTransaction.commit();
+  }
+
+  public void showCards(View view) {
+    FragmentManager fragmentManager = getFragmentManager();
+    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+    hideFragments(fragmentManager, fragmentTransaction);
+
+    Fragment fragment = fragmentManager.findFragmentByTag("CARDS");
+    if(fragment == null) {
+      fragment = CardsFragment.newInstance(store, cloverConnector);
+      ((CardsFragment)fragment).setCloverConnector(cloverConnector);
+      fragmentTransaction.add(R.id.contentContainer, fragment, "CARDS");
+    } else {
+      fragmentTransaction.show(fragment);
+    }
+    fragmentTransaction.commit();
+  }
+
+  public void showMisc(View view) {
+    FragmentManager fragmentManager = getFragmentManager();
+    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+    hideFragments(fragmentManager, fragmentTransaction);
+
+    Fragment fragment = fragmentManager.findFragmentByTag("MISC");
+
+    if(fragment == null) {
+      fragment = MiscellaneousFragment.newInstance(store, cloverConnector);
+      fragmentTransaction.add(R.id.contentContainer, fragment, "MISC");
+    } else {
+
+      fragmentTransaction.show(fragment);
+    }
+
+    fragmentTransaction.commit();
+  }
+
+  public void showPreAuths(View view) {
+    FragmentManager fragmentManager = getFragmentManager();
+    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+    hideFragments(fragmentManager, fragmentTransaction);
+
+    Fragment fragment = fragmentManager.findFragmentByTag("PRE_AUTHS");
+
+    if(fragment == null) {
+      fragment = PreAuthFragment.newInstance(store, cloverConnector);
+      ((PreAuthFragment)fragment).setStore(store);
+      fragmentTransaction.add(R.id.contentContainer, fragment, "PRE_AUTHS");
+    } else {
+
+      fragmentTransaction.show(fragment);
+    }
+
+    fragmentTransaction.commit();
+  }
+
   private void hideFragments(FragmentManager fragmentManager, FragmentTransaction fragmentTransaction) {
     Fragment fragment = fragmentManager.findFragmentByTag("ORDERS");
     if (fragment != null) {
@@ -593,6 +706,68 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
     if (fragment != null) {
       fragmentTransaction.hide(fragment);
     }
+    fragment = fragmentManager.findFragmentByTag("CARDS");
+    if(fragment != null) {
+      fragmentTransaction.hide(fragment);
+    }
+    fragment = fragmentManager.findFragmentByTag("MISC");
+    if(fragment != null) {
+      fragmentTransaction.hide(fragment);
+    }
+    fragment = fragmentManager.findFragmentByTag("REFUNDS");
+    if(fragment != null) {
+      fragmentTransaction.hide(fragment);
+    }
+    fragment = fragmentManager.findFragmentByTag("PRE_AUTHS");
+    if(fragment != null) {
+      fragmentTransaction.hide(fragment);
+    }
+  }
 
+  public void captureCardClick(View view) {
+    cloverConnector.vaultCard(CloverConnector.CARD_ENTRY_METHOD_MAG_STRIPE | CloverConnector.CARD_ENTRY_METHOD_ICC_CONTACT | CloverConnector.CARD_ENTRY_METHOD_MANUAL);
+  }
+
+  public void onManualRefundClick(View view) {
+    CharSequence val = ((TextView)findViewById(R.id.ManualRefundTextView)).getText();
+    try {
+      long refundAmount = Long.parseLong(val.toString());
+      ManualRefundRequest request = new ManualRefundRequest();
+      request.setAmount(refundAmount);
+      cloverConnector.manualRefund(request);
+    } catch(NumberFormatException nfe) {
+      Toast.makeText(getBaseContext(), "Invalid value. Must be an integer.", Toast.LENGTH_LONG);
+    }
+  }
+
+
+
+  public void showMessageClick(View view) {
+    cloverConnector.showMessage( ((TextView)findViewById(R.id.ShowMessageText)).getText().toString() );
+  }
+
+  public void printTextClick(View view) {
+    String[] textLines = ((TextView)findViewById(R.id.PrintTextText)).getText().toString().split("\n");
+    List<String> lines = Arrays.asList(textLines);
+    cloverConnector.printText(lines);
+  }
+
+  public void showWelcomeMessageClick(View view) {
+    cloverConnector.showWelcomeScreen();
+  }
+
+  public void showThankYouClick(View view) {
+    cloverConnector.showThankYouScreen();
+  }
+
+  public void onOpenCashDrawerClick(View view) {
+    cloverConnector.openCashDrawer("Test");
+  }
+
+  public void preauthCardClick(View view) {
+    PreAuthRequest request = new PreAuthRequest();
+    request.setAmount(5000);
+
+    cloverConnector.preAuth(request);
   }
 }

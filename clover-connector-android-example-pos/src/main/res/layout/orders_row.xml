@@ -15,29 +15,52 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="horizontal"
               android:paddingTop="3dp"
               android:paddingBottom="3dp"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
   <TextView android:layout_width="wrap_content" android:layout_weight="1" android:layout_height="wrap_content"
-            android:id="@+id/OrdersRowIdColumn" android:text="Name"
-            android:textSize="@dimen/order_table_text_size" android:textIsSelectable="false"/>
+            android:id="@+id/OrdersRowIdColumn" android:text="IDxxxx"
+            android:textSize="@dimen/table_primary_text_size" android:textIsSelectable="false" android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"/>
   <TextView android:layout_width="wrap_content" android:layout_weight="1" android:layout_height="wrap_content"
-            android:id="@+id/OrdersRowTotalColumn" android:text="$0.00"
-            android:textSize="@dimen/order_table_text_size"/>
+            android:id="@+id/OrdersRowTotalColumn" android:text="$0000000.00"
+            android:textSize="@dimen/order_table_text_size"
+            android:layout_alignParentTop="true" android:layout_alignParentEnd="true" android:textStyle="bold" android:textAlignment="viewEnd"/>
   <TextView android:layout_width="wrap_content" android:layout_weight="1" android:layout_height="wrap_content"
             android:id="@+id/OrdersRowDateColumn" android:text="Jan. 3, 2016"
-            android:textSize="@dimen/order_table_text_size"/>
+            android:textSize="@dimen/table_secondary_text_size"
+            android:layout_centerHorizontal="true" android:layout_alignBaseline="@+id/OrdersRowTaxColumn"
+            android:textColor="@color/secondary_table_text_color"/>
   <TextView android:layout_width="wrap_content" android:layout_weight="1" android:layout_height="wrap_content"
             android:id="@+id/OrdersRowStatusColumn" android:text="STATUS"
-            android:textSize="@dimen/order_table_text_size"/>
+            android:textSize="@dimen/order_table_text_size"
+            android:layout_alignParentStart="true" android:layout_alignBaseline="@+id/OrdersRowTaxColumn"/>
   <TextView android:layout_width="wrap_content" android:layout_weight="1" android:layout_height="wrap_content"
             android:id="@+id/OrdersRowSubtotalColumn" android:text="$0.00"
-            android:textSize="@dimen/order_table_text_size"/>
+            android:textSize="@dimen/table_tertiary_text_size"
+            android:textAlignment="viewEnd"
+            android:layout_below="@+id/OrdersRowTotalColumn" android:layout_alignParentEnd="true" android:textColor="@color/secondary_table_text_color"/>
   <TextView android:layout_width="wrap_content" android:layout_weight="1" android:layout_height="wrap_content"
             android:id="@+id/OrdersRowTaxColumn" android:text="$0.00"
-            android:textSize="@dimen/order_table_text_size"/>
+            android:textSize="@dimen/table_tertiary_text_size"
+            android:textAlignment="viewEnd" android:layout_below="@+id/OrdersRowSubtotalColumn"
+            android:layout_alignParentEnd="true" android:textColor="@color/secondary_table_text_color"/>
+  <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="Tax:"
+          android:id="@+id/textView" android:layout_toStartOf="@+id/OrdersRowTaxColumn"
+          android:layout_alignBaseline="@+id/OrdersRowTaxColumn" android:paddingRight="10dp" android:layout_alignEnd="@+id/textView2"
+          android:layout_alignRight="@+id/textView2" android:textSize="@dimen/table_tertiary_text_size" android:textColor="@color/secondary_table_text_color"/>
+  <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="Subtotal:"
+          android:id="@+id/textView2" android:layout_toStartOf="@+id/OrdersRowSubtotalColumn" android:layout_alignBaseline="@+id/OrdersRowSubtotalColumn"
+          android:layout_toLeftOf="@+id/OrdersRowTotalColumn" android:paddingRight="10dp" android:textSize="@dimen/table_tertiary_text_size"
+          android:textColor="@color/secondary_table_text_color"/>
 
-</LinearLayout>
+</RelativeLayout>

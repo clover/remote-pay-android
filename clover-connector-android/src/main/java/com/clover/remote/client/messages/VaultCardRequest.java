@@ -16,29 +16,10 @@
 
 package com.clover.remote.client.messages;
 
-import com.clover.common2.payments.PayIntent;
+public class VaultCardRequest extends BaseRequest {
+  int cardEntryMethods;
 
-public class AuthRequest extends SaleRequest {
-
-  private boolean isPreAuth = false;
-
-  public AuthRequest() {
-    this(false);
-  }
-
-  /**
-   * @deprecated - if passing in true, use preAuth with PreAuthRequest
-   * @param preAuth
-   */
-  public AuthRequest(boolean preAuth) {
-    isPreAuth = preAuth;
-  }
-
-  public boolean isPreAuth() {
-    return isPreAuth;
-  }
-
-  public PayIntent.TransactionType getType() {
-    return isPreAuth() ? PayIntent.TransactionType.AUTH : PayIntent.TransactionType.PAYMENT;
+  public VaultCardRequest(int cardEntryMethods) {
+    this.cardEntryMethods = cardEntryMethods;
   }
 }

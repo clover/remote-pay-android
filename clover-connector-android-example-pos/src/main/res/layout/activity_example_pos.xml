@@ -52,20 +52,30 @@
             android:layout_height="wrap_content"
             android:id="@+id/RefundButton"
             android:text="Refund"
+            android:onClick="showRefunds"
             android:layout_alignParentTop="true"
-            android:layout_toStartOf="@+id/CardsButton" android:visibility="invisible"/>
+            android:layout_toStartOf="@+id/CardsButton" android:visibility="visible"/>
     <Button android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/CardsButton"
             android:text="Cards"
+            android:onClick="showCards"
             android:layout_alignParentTop="true"
-            android:layout_toStartOf="@+id/TestButton" android:visibility="invisible"/>
+            android:layout_toStartOf="@+id/PreAuthButton" android:visibility="visible"/>
+    <Button android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/PreAuthButton"
+            android:text="PreAuth"
+            android:onClick="showPreAuths"
+            android:layout_alignParentTop="true"
+            android:layout_toStartOf="@+id/TestButton" android:visibility="visible"/>
     <Button android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/TestButton"
             android:text="Misc."
+            android:onClick="showMisc"
             android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true" android:visibility="invisible"/>
+            android:layout_alignParentEnd="true" android:visibility="visible"/>
   </RelativeLayout>
 
 

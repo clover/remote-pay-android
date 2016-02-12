@@ -16,12 +16,16 @@
 
 package com.clover.remote.client.lib.example.model;
 
+import java.util.Date;
+
 public class POSNakedRefund {
   public String EmployeeID;
+  public Date date;
   public long Amount;
 
   public POSNakedRefund(String employeeID, long amount) {
     EmployeeID = employeeID;
     Amount = amount;
+    date = new Date();
   }
 }
