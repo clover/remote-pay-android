@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+    <TextView android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:text="Pre Authorizations"
+              android:layout_weight="0"
+              android:background="@color/clover_green"
+              android:textSize="@dimen/order_table_text_size"
+              android:id="@+id/textView3"
+              android:paddingLeft="3dp"/>
+    <ListView android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:layout_weight="1"
+              android:id="@+id/PreAuthListView"
+              android:layout_below="@+id/textView3" android:layout_alignParentStart="true" android:layout_above="@+id/preauthButton"></ListView>
+    <Button android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PreAuth Card"
+            android:onClick="preauthCardClick"
+            android:layout_alignParentEnd="true" android:id="@+id/preauthButton" android:layout_alignParentBottom="true"/>
+</RelativeLayout>

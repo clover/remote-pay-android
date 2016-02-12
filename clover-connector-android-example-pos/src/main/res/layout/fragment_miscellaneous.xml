@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView android:layout_height="fill_parent" android:layout_width="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android">
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+    <EditText
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/ShowMessageText"
+            android:layout_alignBottom="@+id/ShowMessageButton"
+            android:layout_alignParentStart="true"
+            android:layout_alignEnd="@+id/PrintTextText" android:text="Hello Message!"/>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Show Message"
+            android:id="@+id/ShowMessageButton"
+            android:layout_alignParentTop="true"
+            android:onClick="showMessageClick"
+            android:layout_toEndOf="@+id/ShowMessageText"/>
+    <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:ems="10"
+            android:id="@+id/PrintTextText"
+            android:layout_alignBottom="@+id/button2"
+            android:layout_alignParentStart="true" android:text="Print This!!!!!"/>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Print Text"
+            android:id="@+id/button2"
+            android:onClick="printTextClick"
+            android:layout_below="@+id/ShowMessageText"
+            android:layout_alignEnd="@+id/ShowMessageButton"
+            android:layout_toEndOf="@+id/ShowMessageText"/>
+
+    <Button android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Show Welcome Message"
+            android:id="@+id/button3"
+            android:onClick="showWelcomeMessageClick"
+            android:layout_below="@+id/PrintTextText"
+            android:layout_alignParentStart="true"/>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Show Thank You"
+            android:id="@+id/button4"
+            android:onClick="showThankYouClick"
+            android:layout_below="@+id/button3"
+            android:layout_alignParentStart="true"
+            android:layout_alignEnd="@+id/button3"/>
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignEnd="@+id/button4"
+            android:layout_below="@+id/CashDrawerButton"
+            android:id="@+id/linearLayout2">
+        <Switch
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Manual"
+                android:id="@+id/ManualSwitch"/>
+        <Switch
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Swipe"
+                android:id="@+id/SwipeSwitch"/>
+        <Switch
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Chip"
+                android:id="@+id/ChipSwitch"/>
+        <Switch
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Contactless"
+                android:id="@+id/ContactlessSwitch"/>
+    </LinearLayout>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:onClick="onClickCancel"
+            android:id="@+id/CancelButton"
+            android:layout_below="@+id/button4"
+            android:layout_alignParentStart="true"
+            android:layout_alignEnd="@+id/button4"/>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Open Cash Drawer"
+            android:onClick="onOpenCashDrawerClick"
+            android:id="@+id/CashDrawerButton"
+            android:layout_below="@+id/CancelButton"
+            android:layout_alignParentStart="true"
+            android:layout_alignEnd="@+id/linearLayout2"/>
+    </RelativeLayout>
+</ScrollView>
