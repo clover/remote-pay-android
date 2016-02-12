@@ -23,14 +23,21 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridLayout;
+import android.widget.GridView;
+import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import com.clover.common.util.CurrencyUtils;
 import com.clover.remote.client.ICloverConnector;
+import com.clover.remote.client.lib.example.adapter.AvailableItemsAdapter;
 import com.clover.remote.client.lib.example.model.OrderObserver;
+import com.clover.remote.client.lib.example.model.POSCard;
 import com.clover.remote.client.lib.example.model.POSDiscount;
 import com.clover.remote.client.lib.example.model.POSExchange;
 import com.clover.remote.client.lib.example.model.POSItem;
 import com.clover.remote.client.lib.example.model.POSLineItem;
+import com.clover.remote.client.lib.example.model.POSNakedRefund;
 import com.clover.remote.client.lib.example.model.POSOrder;
 import com.clover.remote.client.lib.example.model.POSPayment;
 import com.clover.remote.client.lib.example.model.POSRefund;
@@ -102,20 +109,19 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
     // Inflate the layout for this fragment
     View view = inflater.inflate(R.layout.fragment_register, container, false);
 
-    GridLayout gv = (GridLayout) view.findViewById(R.id.AvailableItems);
+    GridView gv = (GridView)view.findViewById(R.id.AvailableItems);
 
     gv.setId(R.id.AvailableItems);
 
-    for (POSItem item : store.getAvailableItems()) {
+    final AvailableItemsAdapter availableItemsAdapter = new AvailableItemsAdapter(view.getContext(), R.id.AvailableItems, new ArrayList<POSItem>(store.getAvailableItems()), store);
+    gv.setAdapter(availableItemsAdapter);
 
-      AvailableItem ai = AvailableItem.newInstance();
-      ai.addListener(this);
-      ai.setItem(item);
-      getFragmentManager().beginTransaction().add(gv.getId(), ai, "ai").commit();
-
-      itemToAvailableItem.put(item, ai);
-    }
-
+    gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+      @Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        POSItem item = availableItemsAdapter.getItem(position);
+        onItemSelected(item);
+      }
+    });
 
     CurrentOrderFragment currentOrderFragment = ((CurrentOrderFragment) getFragmentManager().findFragmentById(R.id.PendingOrder));
     currentOrderFragment.setOrder(store.getCurrentOrder());
@@ -206,8 +212,9 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
   public void onAuthClicked() {
     AuthRequest request = new AuthRequest();
     request.setAmount(store.getCurrentOrder().getTotal());
-    request.setTippableAmount(store.getCurrentOrder().getTippableAmount());
-    cloverConnector.sale(request);
+    request.setTipAmount(null);
+    //request.setTippableAmount(store.getCurrentOrder().getTippableAmount());
+    cloverConnector.auth(request);
   }
 
   @Override
@@ -241,10 +248,24 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
       displayOrder.setLineItems(Collections.EMPTY_LIST);
       updateTotals(order, displayOrder);
 
-      // update badges...
-      for (AvailableItem ai : itemToAvailableItem.values()) {
-        ai.setQuantity(0);
-      }
+    }
+
+    @Override 
+    public void cardAdded(POSCard card) {
+
+    }
+
+    @Override public void refundAdded(POSNakedRefund refund) {
+
+    }
+
+
+    @Override public void preAuthAdded(POSPayment payment) {
+
+    }
+
+    @Override public void preAuthRemoved(POSPayment payment) {
+
     }
 
     @Override
@@ -266,11 +287,6 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
       updateTotals(posOrder, displayOrder);
       cloverConnector.displayOrderLineItemAdded(displayOrder, dli);
 
-      // update badges...
-      AvailableItem ai = itemToAvailableItem.get(lineItem.getItem());
-      if (ai != null) {
-        ai.setQuantity(lineItem.getQuantity());
-      }
     }
 
     @Override
@@ -315,11 +331,6 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
       updateTotals(posOrder, displayOrder);
       cloverConnector.displayOrder(displayOrder);
 
-      // update badges...
-      AvailableItem ai = itemToAvailableItem.get(lineItem.getItem());
-      if (ai != null) {
-        ai.setQuantity(lineItem.getQuantity());
-      }
     }
 
     private void updateTotals(POSOrder order, DisplayOrder displayOrder) {

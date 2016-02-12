@@ -30,6 +30,10 @@ import com.clover.remote.order.operation.LineItemsAddedOperation;
 import com.clover.remote.order.operation.LineItemsDeletedOperation;
 import com.clover.remote.order.operation.OrderDeletedOperation;
 import com.clover.remote.protocol.RemoteMessage;
+import com.clover.remote.protocol.message.CapturePreAuthMessage;
+import com.clover.remote.protocol.message.CapturePreAuthResponseMessage;
+import com.clover.remote.protocol.message.VaultCardMessage;
+import com.clover.remote.protocol.message.VaultCardResponseMessage;
 import com.clover.remote.protocol.message.CashbackSelectedMessage;
 import com.clover.remote.protocol.message.DiscoveryRequestMessage;
 import com.clover.remote.protocol.message.FinishOkMessage;
@@ -60,11 +64,11 @@ import com.clover.remote.terminal.KeyPress;
 import com.clover.sdk.v3.order.Order;
 import com.clover.sdk.v3.order.VoidReason;
 import com.clover.sdk.v3.payments.Payment;
+import com.clover.sdk.v3.payments.VaultedCard;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.List;
-
-//import com.clover.remote.client.messages.CaptureCardRequest;
 
 public class DefaultCloverDevice extends CloverDevice implements CloverTransportObserver {
   private static final String TAG = DefaultCloverDevice.class.getName();
@@ -168,7 +172,13 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
               TipAdjustResponseMessage tipAdjustMsg = (TipAdjustResponseMessage) Message.fromJsonString(rMessage.payload);
               notifyObserversTipAdjusted(tipAdjustMsg);
               break;
-                /**/
+            case VAULT_CARD_RESPONSE:
+              VaultCardResponseMessage vcrm = (VaultCardResponseMessage) Message.fromJsonString(rMessage.payload);
+              notifyObserverVaultCardResponse(vcrm);
+              break;
+            case CAPTURE_PREAUTH_RESPONSE:
+              CapturePreAuthResponseMessage cparm = (CapturePreAuthResponseMessage) Message.fromJsonString(rMessage.payload);
+              notifyObserversCapturePreAuth(cparm);
             case DISCOVERY_REQUEST:
               //Outbound no-op
               break;
@@ -385,18 +395,39 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
 
   }
 
-
-  public void notifyObserversUiState(final UiStateMessage uiStateMsg) {
+  public void notifyObserverVaultCardResponse(final VaultCardResponseMessage vaultCardResponseMessage) {
     new AsyncTask() {
       @Override
       protected Object doInBackground(Object[] params) {
+        for (CloverDeviceObserver observer : deviceObservers) {
+          observer.onVaultCardResponse(vaultCardResponseMessage.card, vaultCardResponseMessage.status.toString(), vaultCardResponseMessage.reason);
+        }
+        return null;
+      }
+    }.execute();
+  }
+
+  public void notifyObserversUiState(final UiStateMessage uiStateMsg) {
+    new AsyncTask() {
+      @Override protected Object doInBackground(Object[] params) {
         for (CloverDeviceObserver observer : deviceObservers) {
           observer.onUiState(uiStateMsg.uiState, uiStateMsg.uiText, uiStateMsg.uiDirection, uiStateMsg.inputOptions);
         }
         return null;
       }
     }.execute();
+  }
 
+  public void notifyObserversCapturePreAuth(final CapturePreAuthResponseMessage cparm) {
+    new AsyncTask() {
+      @Override
+      protected Object doInBackground(Object[] params) {
+        for (CloverDeviceObserver observer : deviceObservers) {
+          observer.onCapturePreAuth(cparm.status, cparm.reason, cparm.paymentId, cparm.amount, cparm.tipAmount);
+        }
+        return null;
+      }
+    }.execute();
   }
 
 
@@ -470,16 +501,15 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
   }
 
   public void doOpenCashDrawer(String reason) {
-    sendObjectMessage(new OpenCashDrawerMessage(reason) {
-    }); // TODO: fix OpenCashDrawerMessage ctor
+    sendObjectMessage(new OpenCashDrawerMessage(reason){}); // TODO: fix OpenCashDrawerMessage ctor
   }
 
   public void doCloseout() {
     //sendObjectMessage(new CloseoutMessage());
   }
 
-  public void doTxStart(PayIntent payIntent, Order order) {
-    sendObjectMessage(new TxStartRequestMessage(payIntent, order));
+  public void doTxStart(PayIntent payIntent, Order order, boolean suppressTipScreen) {
+    sendObjectMessage(new TxStartRequestMessage(payIntent, order, suppressTipScreen));
   }
 
   public void doTipAdjustAuth(String orderId, String paymentId, long amount) {
@@ -487,10 +517,7 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
   }
 
   public void doPrintText(List<String> textLines) {
-    TextPrintMessage tpm = new TextPrintMessage();
-    for (String line : textLines) {
-      tpm.textLines.add(line);
-    }
+    TextPrintMessage tpm = new TextPrintMessage(textLines);
     sendObjectMessage(tpm);
   }
 
@@ -517,9 +544,12 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
     sendObjectMessage(new RefundRequestMessage(orderId, paymentId, amount));
   }
 
-  public void doCaptureCard(int cardEntryMethods) {
-    // TODO: implement
-    //sendObjectMessage(new CaptureCardMessage(cardEntryMethods));
+  public void doVaultCard(int cardEntryMethods) {
+    sendObjectMessage(new VaultCardMessage(cardEntryMethods));
+  }
+
+  public void doCaptureAuth(String paymentId, long amount, long tipAmount) {
+    sendObjectMessage(new CapturePreAuthMessage(paymentId, amount, tipAmount));
   }
 
   public void doDiscoveryRequest() {

@@ -26,8 +26,10 @@ import com.clover.remote.client.lib.example.R;
 import com.clover.remote.client.lib.example.model.POSExchange;
 import com.clover.remote.client.lib.example.model.POSPayment;
 import com.clover.remote.client.lib.example.model.POSRefund;
+import com.clover.remote.client.lib.example.utils.CurrencyUtils;
 
 import java.util.List;
+import java.util.Locale;
 
 public class PaymentsListViewAdapter extends ArrayAdapter<POSExchange> {
 
@@ -54,22 +56,29 @@ public class PaymentsListViewAdapter extends ArrayAdapter<POSExchange> {
 
     if (posPayment != null) {
       TextView statusColumn = (TextView) v.findViewById(R.id.PaymentsRowStatusColumn);
-      TextView itemAmountColumn = (TextView) v.findViewById(R.id.PaymentsRowAmountColumn);
+      //TextView itemAmountColumn = (TextView) v.findViewById(R.id.PaymentsRowAmountColumn);
       TextView tipColumn = (TextView) v.findViewById(R.id.PaymentsRowTipColumn);
       TextView totalColumn = (TextView) v.findViewById(R.id.PaymentsRowTotalColumn);
+      TextView tipColumnLabel = (TextView) v.findViewById(R.id.PaymentsRowTipColumnLabel);
+      //TextView itemAmountColumnLabel = (TextView) v.findViewById(R.id.PaymentsRowItemAmountColumnLabel);
 
 
       if (posPayment instanceof POSPayment) {
 
         statusColumn.setText(((POSPayment) posPayment).getPaymentStatus() == null ? "" : "" + ((POSPayment) posPayment).getPaymentStatus());
-        itemAmountColumn.setText("" + ((POSPayment) posPayment).getOrder().getTotal());
-        tipColumn.setText("" + ((POSPayment) posPayment).getTipAmount());
-        totalColumn.setText("" + ((POSPayment) posPayment).getAmount());
+        //itemAmountColumn.setText(CurrencyUtils.format(((POSPayment) posPayment).getOrder().getTotal(), Locale.getDefault()));
+        tipColumn.setVisibility(View.VISIBLE);
+        totalColumn.setVisibility(View.VISIBLE);
+        tipColumn.setText(CurrencyUtils.format(((POSPayment) posPayment).getTipAmount(), Locale.getDefault()));
+        totalColumn.setText(CurrencyUtils.format(((POSPayment) posPayment).getAmount(), Locale.getDefault()));
+
       } else if (posPayment instanceof POSRefund) {
         statusColumn.setText("REFUND");
-        itemAmountColumn.setText("" + ((POSRefund) posPayment).getAmount());
-        tipColumn.setText("");
-        totalColumn.setText("");
+        //itemAmountColumn.setText(CurrencyUtils.format(((POSRefund) posPayment).getAmount(), Locale.getDefault()));
+        tipColumn.setVisibility(View.GONE);
+        //itemAmountColumn.setVisibility(View.INVISIBLE);
+        tipColumnLabel.setVisibility(View.GONE);
+        //itemAmountColumnLabel.setVisibility(View.INVISIBLE);
       }
     }
 

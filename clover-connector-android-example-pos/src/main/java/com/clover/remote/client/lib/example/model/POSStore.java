@@ -31,6 +31,8 @@ public class POSStore {
   private List<POSDiscount> availableDiscounts;
   private List<POSOrder> orders;
   private List<POSCard> cards;
+  private List<POSNakedRefund> refunds;
+  private List<POSPayment> preAuths;
   private POSOrder currentOrder;
 
   private transient Map<String, POSOrder> orderIdToOrder = new HashMap<String, POSOrder>();
@@ -43,7 +45,9 @@ public class POSStore {
     availableItems = new LinkedHashMap<String, POSItem>();
     availableDiscounts = new ArrayList<POSDiscount>();
     orders = new ArrayList<POSOrder>();
-    //refunds = new ArrayList<POSRefund>();
+    cards = new ArrayList<POSCard>();
+    refunds = new ArrayList<POSNakedRefund>();
+    preAuths = new ArrayList<POSPayment>();
   }
 
   public void createOrder() {
@@ -81,6 +85,9 @@ public class POSStore {
 
   public void addCurrentOrderObserver(OrderObserver observer) {
     this.orderObservers.add(observer);
+    if(currentOrder != null) {
+      currentOrder.addOrderObserver(observer);
+    }
   }
 
   public void addStoreObserver(StoreObserver storeObserver) {
@@ -106,13 +113,45 @@ public class POSStore {
 
   public void addCard(POSCard card) {
     cards.add(card);
+    for(StoreObserver so : storeObservers) {
+      so.cardAdded(card);
+    }
   }
 
-  public Collection<POSCard> getCards() {
-    return Collections.unmodifiableCollection(cards);
+  public List<POSCard> getCards() {
+    return Collections.unmodifiableList(cards);
   }
 
   public List<POSOrder> getOrders() {
     return orders;
+  }
+
+  public void addRefund(POSNakedRefund nakedRefund) {
+    refunds.add(nakedRefund);
+    for(StoreObserver so : storeObservers) {
+      so.refundAdded(nakedRefund);
+    }
+  }
+  public List<POSNakedRefund> getRefunds() {
+    return refunds;
+  }
+
+  public void addPreAuth(POSPayment payment) {
+    preAuths.add(payment);
+    for(StoreObserver so : storeObservers) {
+      so.preAuthAdded(payment);
+    }
+  }
+
+  public void removePreAuth(POSPayment payment) {
+    if(preAuths.remove(payment)) {
+      for(StoreObserver so : storeObservers) {
+        so.preAuthRemoved(payment);
+      }
+    }
+  }
+
+  public List<POSPayment> getPreAuths() {
+    return Collections.unmodifiableList(preAuths);
   }
 }

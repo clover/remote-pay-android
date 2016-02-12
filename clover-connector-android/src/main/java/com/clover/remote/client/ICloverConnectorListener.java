@@ -18,7 +18,8 @@ package com.clover.remote.client;
 
 import com.clover.remote.client.messages.AuthResponse;
 import com.clover.remote.client.messages.CaptureAuthResponse;
-import com.clover.remote.client.messages.CaptureCardResponse;
+import com.clover.remote.client.messages.PreAuthResponse;
+import com.clover.remote.client.messages.VaultCardResponse;
 import com.clover.remote.client.messages.CloseoutResponse;
 import com.clover.remote.client.messages.CloverDeviceErrorEvent;
 import com.clover.remote.client.messages.CloverDeviceEvent;
@@ -52,7 +53,7 @@ public interface ICloverConnectorListener {
 
   public void onAuthTipAdjustResponse(TipAdjustAuthResponse response);
 
-  public void onAuthCaptureResponse(CaptureAuthResponse response);
+  public void onPreAuthCaptureResponse(CaptureAuthResponse response);
 
   public void onSignatureVerifyRequest(SignatureVerifyRequest request);
 
@@ -60,17 +61,17 @@ public interface ICloverConnectorListener {
 
   public void onSaleResponse(SaleResponse response);
 
+  public void onPreAuthResponse(PreAuthResponse response);
+
   public void onManualRefundResponse(ManualRefundResponse response);
 
   public void onRefundPaymentResponse(RefundPaymentResponse response);
 
   public void onTipAdded(TipAddedMessage message);
 
-  //public void OnVoidTransactionResponse(VoidTransactionResponse response);
   public void onVoidPaymentResponse(VoidPaymentResponse response);
 
-  //public void OnDisplayReceiptOptionsResponse(DisplayReceiptOptionsResponse response);
-  public void onCaptureCardResponse(CaptureCardResponse response);
+  public void onVaultCardResponse(VaultCardResponse response);
 
   public void onTransactionState(TxState txState);
 }

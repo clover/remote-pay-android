@@ -19,12 +19,17 @@ package com.clover.remote.client.messages;
 import com.clover.common2.payments.PayIntent;
 
 public class AuthRequest extends SaleRequest {
+
   private boolean isPreAuth = false;
 
   public AuthRequest() {
     this(false);
   }
 
+  /**
+   * @deprecated - if passing in true, use preAuth with PreAuthRequest
+   * @param preAuth
+   */
   public AuthRequest(boolean preAuth) {
     isPreAuth = preAuth;
   }

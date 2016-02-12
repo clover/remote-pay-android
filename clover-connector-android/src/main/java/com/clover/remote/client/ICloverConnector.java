@@ -18,7 +18,9 @@ package com.clover.remote.client;
 
 import android.graphics.Bitmap;
 import com.clover.remote.client.messages.AuthRequest;
+import com.clover.remote.client.messages.CaptureAuthRequest;
 import com.clover.remote.client.messages.ManualRefundRequest;
+import com.clover.remote.client.messages.PreAuthRequest;
 import com.clover.remote.client.messages.RefundPaymentRequest;
 import com.clover.remote.client.messages.SaleRequest;
 import com.clover.remote.client.messages.SignatureVerifyRequest;
@@ -32,7 +34,6 @@ import com.clover.remote.terminal.InputOption;
 import java.util.List;
 
 public interface ICloverConnector {
-  //public void initialize(URI deviceEndpoint);
 
   /**
    * Sale method, aka "purchase"
@@ -63,11 +64,18 @@ public interface ICloverConnector {
   void auth(AuthRequest request);
 
   /// <summary>
+  /// PreAuth method to obtain a Pre-Auth for a card
+  /// </summary>
+  /// <param name="request"></param>
+  /// <returns></returns>
+  void preAuth(PreAuthRequest request);
+
+  /// <summary>
   /// Capture a previous Auth. Note: Should only be called if request's PaymentID is from an AuthResponse
   /// </summary>
   /// <param name="request"></param>
   /// <returns></returns>
-  //void captureAuth(CaptureAuthRequest request);
+  void captureAuth(CaptureAuthRequest request);
 
   /// <summary>
   /// Adjust the tip for a previous Auth. Note: Should only be called if request's PaymentID is from an AuthResponse
@@ -109,10 +117,11 @@ public interface ICloverConnector {
   void manualRefund(ManualRefundRequest request); // NakedRefund is a Transaction, with just negative amount
 
   /// <summary>
-  /// Capture Card information, including payment tokens
+  /// Vault card information. Requests the mini capture card information and request a payment token from the payment gateway.
+  /// The value returned in the response is a card, with all the information necessary to use for payment in a SaleRequest or AuthRequest
   /// </summary>
   /// <param name="cardEntryMethods">The card entry methods allowed to capture the payment token. null will provide default values</param>
-  void captureCard(Integer cardEntryMethods);
+  void vaultCard(Integer cardEntryMethods);
 
   /// <summary>
   /// Cancels the device from waiting for a payment card.
@@ -158,10 +167,13 @@ public interface ICloverConnector {
   /// </summary>
   void showThankYouScreen();
 
-  /// <summary>
-  /// Show the customer facing receipt option screen for the last order only.
-  /// </summary>
-  void displayReceiptOptions();
+  /**
+   * display the receipt screen for the orderId/paymentId combination. The parameters can be null
+   * to show the receipt screen for the last orderId/paymentId
+   * @param paymentId
+   * @param orderId
+   */
+  void displayReceiptOptions(String orderId, String paymentId);
 
   /// <summary>
   /// Will trigger cash drawer to open that is connected to Clover Mini

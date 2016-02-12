@@ -26,7 +26,7 @@ public class SaleRequest {
   private Long taxAmount;
   private Integer cardEntryMethods;
   private boolean cardNotPresent;
-  private VaultedCard VaultedCard;
+  private VaultedCard vaultedCard;
 
     /*
         public bool DisableCashback { get; set; } //
@@ -88,10 +88,10 @@ public class SaleRequest {
   }
 
   public com.clover.sdk.v3.payments.VaultedCard getVaultedCard() {
-    return VaultedCard;
+    return vaultedCard;
   }
 
   public void setVaultedCard(com.clover.sdk.v3.payments.VaultedCard vaultedCard) {
-    VaultedCard = vaultedCard;
+    this.vaultedCard = vaultedCard;
   }
 }

@@ -14,56 +14,102 @@
   ~ limitations under the License.
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="200dp"
+
+  <RelativeLayout
+                android:layout_width="195dp"
                 android:layout_height="100dp"
-                android:rowCount="2"
-                android:columnCount="1"
-                android:padding="5dp"
+                android:minWidth="195dp"
+                android:minHeight="100dp"
+                android:layout_margin="1dp"
+                android:padding="3dp"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
                 tools:context="com.clover.remote.client.lib.example.AvailableItem">
+    <!--<TextView
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentLeft="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/clover_orange"
+            android:id="@+id/background"
+            android:layout_alignParentBottom="true"/>-->
+    <RelativeLayout android:layout_width="wrap_content"
+                  android:layout_height="100dp"
+                  android:layout_marginTop="10dp"
+                  android:layout_marginRight="10dp"
+                  android:layout_alignParentTop="true"
+                  android:layout_alignParentBottom="true"
+                  android:layout_alignParentLeft="true"
+                  android:layout_alignParentRight="true"
+                  android:orientation="vertical"
+                  android:clipChildren="false"
+    >
 
-  <!-- TODO: Update blank fragment layout -->
-  <TextView
-      android:layout_marginTop="3dp"
-      android:layout_marginRight="3dp"
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-      android:id="@+id/ItemNameLabel"
-      android:text="Item Name"
-      android:layout_above="@+id/ItemNamePrice"
-      android:layout_alignParentTop="true"
-      android:clickable="true"
-      android:onClick="addItemToOrder"
-      android:textAlignment="center"
-      android:autoText="false"
-      android:gravity="center_vertical|center_horizontal"
-      android:background="@color/darkgrayishblue"/>
-  <TextView
-      android:layout_marginRight="3dp"
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-      android:id="@+id/ItemNamePrice"
-      android:text="0.00"
-      android:layout_alignParentBottom="true"
-      android:layout_alignParentStart="true"
-      android:clickable="true"
-      android:onClick="addItemToOrder"
-      android:background="@color/clover_green"
-      android:gravity="right"/>
+      <!-- background color panel -->
+      <TextView
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:layout_marginRight="10dp"
+              android:background="@color/darkgrayishblue"/>
+      <TextView
+              android:layout_width="fill_parent"
 
-  <TextView
-      android:id="@+id/ItemBadge"
-      android:layout_alignParentTop="true"
-      android:layout_alignParentRight="true"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="0"
-      android:textSize="14dp"
-      android:background="@drawable/badge"
-      android:textStyle="bold"
-      android:paddingStart="10dp"
-      android:paddingEnd="10dp"
-      android:visibility="gone"/>
+              android:layout_height="0dp"
+              android:text="New Text"
+              android:layout_gravity="center_horizontal|center_vertical"
+              android:id="@+id/ItemNameLabel"
+              android:layout_marginRight="10dp"
+              android:layout_alignParentStart="true"
+              android:layout_alignParentEnd="true"
+              android:layout_weight="2"
+              android:gravity="center_vertical|center_horizontal" android:layout_above="@+id/ItemNamePrice" android:layout_alignParentTop="true"
+              android:textSize="@dimen/availItemNameTextSize" android:textIsSelectable="false"/>
+      <TextView
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginLeft="11dp"
+              android:layout_marginRight="0dp"
+              android:paddingRight="5dp"
+              android:layout_weight="0"
+              android:layout_marginBottom="9dp"
+              android:id="@+id/ItemNamePriceBg"
+              android:layout_alignParentBottom="true"
+              android:layout_alignParentStart="true"
+              android:layout_alignParentEnd="true"
+              android:background="@color/darkgrayishblue"
+              android:gravity="center_vertical|end" android:text="0"/>
+      <TextView
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:text="$0.00"
+              android:layout_marginLeft="10dp"
+              android:layout_marginRight="1dp"
+              android:paddingRight="5dp"
+              android:layout_weight="0"
+              android:layout_marginBottom="10dp"
+              android:id="@+id/ItemNamePrice"
+              android:layout_alignParentBottom="true"
+              android:layout_alignParentStart="true"
+              android:layout_alignParentEnd="true"
+              android:background="@color/clover_green"
+              android:gravity="center_vertical|end" android:textStyle="bold"/>
+    </RelativeLayout>
 
-</RelativeLayout>
+    <TextView
+            android:id="@+id/ItemBadge"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textSize="14dp"
+            android:background="@drawable/badge"
+            android:textStyle="bold"
+            android:paddingStart="10dp"
+            android:layout_marginRight="5dp"
+            android:paddingEnd="10dp"
+            android:visibility="visible"
+    />
+  </RelativeLayout>
+

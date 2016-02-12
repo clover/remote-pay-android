@@ -16,6 +16,52 @@
 
 package com.clover.remote.client.messages;
 
+import com.clover.remote.terminal.ResultStatus;
+
 public class CaptureAuthResponse extends TransactionResponse {
-  // TODO: payment maybe?
+  ResultStatus status;
+  String reason;
+  String paymentID;
+  long amount;
+  long tipAmount;
+
+  public ResultStatus getStatus() {
+    return status;
+  }
+
+  public void setStatus(ResultStatus status) {
+    this.status = status;
+  }
+
+  public String getReason() {
+    return reason;
+  }
+
+  public void setReason(String reason) {
+    this.reason = reason;
+  }
+
+  public String getPaymentID() {
+    return paymentID;
+  }
+
+  public void setPaymentID(String paymentID) {
+    this.paymentID = paymentID;
+  }
+
+  public long getAmount() {
+    return amount;
+  }
+
+  public void setAmount(long amount) {
+    this.amount = amount;
+  }
+
+  public long getTipAmount() {
+    return tipAmount;
+  }
+
+  public void setTipAmount(long tipAmount) {
+    this.tipAmount = tipAmount;
+  }
 }

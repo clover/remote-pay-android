@@ -29,5 +29,6 @@ proguard/
 # IntelliJ files
 .idea
 *.iml
+.settings
 
 .DS_Store
