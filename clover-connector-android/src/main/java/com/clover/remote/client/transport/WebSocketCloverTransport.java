@@ -84,7 +84,7 @@ public class WebSocketCloverTransport extends CloverTransport {
             if (webSocket == null) {
                 return;
             }
-            Log.i(WebSocketCloverTransport.class.getName(), "pinging");
+//            Log.i(WebSocketCloverTransport.class.getName(), "pinging");
             webSocket.getConnection().sendFrame(PING);
             disconnectFuture = timerPool.schedule(disconnector, HEARTBEAT_INTERVAL, TimeUnit.MILLISECONDS);
         }
