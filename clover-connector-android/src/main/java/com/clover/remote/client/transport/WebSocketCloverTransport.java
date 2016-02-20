@@ -62,7 +62,6 @@ public class WebSocketCloverTransport extends CloverTransport {
                 return;
             }
 
-//            Log.e(WebSocketCloverTransport.class.getName(), "disconnecting due to timeout");
             setNotifyClose(false);
             if (observers != null) {
                 for (CloverTransportObserver observer : observers) {
@@ -165,7 +164,6 @@ public class WebSocketCloverTransport extends CloverTransport {
 
       @Override
       public void onOpen(ServerHandshake handshakedata) {
-        //Toast.makeText(CloverConnector.this, "Socket Open", Toast.LENGTH_SHORT).show();
         status = "Connected";
         webSocket = this;
           timerPool.schedule(pinger, HEARTBEAT_INTERVAL / 2L, TimeUnit.MILLISECONDS);
@@ -182,7 +180,6 @@ public class WebSocketCloverTransport extends CloverTransport {
       @Override
       public void onWebsocketPong(WebSocket conn, Framedata f) {
         super.onWebsocketPong(conn, f);
-//          Log.i(WebSocketCloverTransport.class.getName(), "received pong; scheduling pinger");
           disconnectFuture.cancel(true);
           timerPool.schedule(pinger, HEARTBEAT_INTERVAL / 2L, TimeUnit.MILLISECONDS);
       }
@@ -202,7 +199,6 @@ public class WebSocketCloverTransport extends CloverTransport {
 
       @Override
       public void onClose(int code, String reason, boolean remote) {
-        //Toast.makeText(CloverConnector.this, "Socket Closed", Toast.LENGTH_SHORT).show();
         Log.d(getClass().getName(), reason);
         status = "Disconnected";
           if (shouldNotifyClose()) {
