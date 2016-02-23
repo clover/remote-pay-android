@@ -99,10 +99,8 @@ public class WebSocketCloverTransport extends CloverTransport {
             if (webSocket == null) {
                 return;
             }
-            Log.i(WebSocketCloverTransport.class.getName(), "pinging");
             webSocket.getConnection().sendFrame(PING);
             disconnectFutures.add(timerPool.schedule(new DisconnectHandler(), HEARTBEAT_INTERVAL, TimeUnit.MILLISECONDS));
-            Log.i(WebSocketCloverTransport.class.getName(), "Adding new DisconnectHandler; disconnectFutures.size() = " + disconnectFutures.size());
         }
     };
 
@@ -245,7 +243,6 @@ public class WebSocketCloverTransport extends CloverTransport {
   }
 
     private void cancelAllDisconnectHandlers() {
-        Log.i(WebSocketCloverTransport.class.getName(), "Canceling all disconnectFutures; disconnectFutures.size() = " + disconnectFutures.size());
         Iterator<ScheduledFuture<?>> it = disconnectFutures.iterator();
         while (it.hasNext()) {
             ScheduledFuture<?> disconnectFuture = it.next();
@@ -271,7 +268,6 @@ public class WebSocketCloverTransport extends CloverTransport {
     if (shutdown) {
       return;
     }
-//      Log.i(WebSocketCloverTransport.class.getName(), "reconnecting");
     AsyncTask task = new AsyncTask() {
       @Override
       protected Object doInBackground(Object[] params) {
@@ -343,14 +339,12 @@ public class WebSocketCloverTransport extends CloverTransport {
             }
 
             if (retryCount > 0) {   // <-- retry mechanism allows for a tolerance before closing the connection
-                Log.i(WebSocketCloverTransport.class.getName(), "disconnect handler retrying: retryCount = " + retryCount);
                 retryCount--;
                 disconnectFutures.add(timerPool.schedule(this, HEARTBEAT_INTERVAL, TimeUnit.MILLISECONDS));
                 return;
             }
 
             try {
-                Log.i(WebSocketCloverTransport.class.getName(), "disconnect handler retryCount = " + retryCount + "; closing");
                 webSocket.closeBlocking();  // <-- synchronous close keeps from opening multiple connections to the same device
             } catch (InterruptedException ie) {
                 ie.printStackTrace();
