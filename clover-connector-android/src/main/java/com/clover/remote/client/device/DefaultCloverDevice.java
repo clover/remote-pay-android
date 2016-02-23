@@ -95,6 +95,10 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
     notifyObserversReady(device);
   }
 
+  @Override
+  public void onDeviceDisconnecting(CloverTransport transport) {
+    notifyObserversDisconnecting(transport);
+  }
 
   public void onMessage(String message) {
     try {
@@ -261,6 +265,18 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
       protected Object doInBackground(Object[] params) {
         for (final CloverDeviceObserver observer : deviceObservers) {
           observer.onDeviceDisconnected(transport);
+        }
+        return null;
+      }
+    }.execute();
+  }
+
+  private void notifyObserversDisconnecting(final CloverTransport device) {
+    new AsyncTask() {
+      @Override
+      protected Object doInBackground(Object[] params) {
+        for (final CloverDeviceObserver observer : deviceObservers) {
+          observer.onDeviceDisconnecting(device);
         }
         return null;
       }
