@@ -248,6 +248,16 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
 
         }
 
+        @Override
+        public void onDisconnecting() {
+          runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              ((TextView) findViewById(R.id.ConnectionStatusLabel)).setText("Disconnecting");
+            }
+          });
+        }
+
         public void onConnected() {
 
           runOnUiThread(new Runnable() {

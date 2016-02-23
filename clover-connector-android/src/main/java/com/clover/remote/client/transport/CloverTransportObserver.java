@@ -27,6 +27,14 @@ public interface CloverTransportObserver {
   /// </summary>
   void onDeviceReady(CloverTransport transport);
 
+  /**
+   * <p>
+   *     Device has either been told to disconnect or the keepalive has timed out
+   * </p>
+   * @param transport for talking to the clover device
+   */
+  void onDeviceDisconnecting(CloverTransport transport);
+
   /// <summary>
   /// Device is not there anymore
   /// </summary>

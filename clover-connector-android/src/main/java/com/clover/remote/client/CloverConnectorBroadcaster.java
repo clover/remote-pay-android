@@ -99,6 +99,12 @@ public class CloverConnectorBroadcaster extends ArrayList<ICloverConnectorListen
     }
   }
 
+  public void notifyOnDisconnecting() {
+    for (ICloverConnectorListener listener : this) {
+      listener.onDisconnecting();
+    }
+  }
+
   public void notifyOnDisconnect() {
     for (ICloverConnectorListener listener : this) {
       listener.onDisconnected();

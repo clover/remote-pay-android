@@ -744,6 +744,11 @@ public class CloverConnector implements ICloverConnector {
       cloverConnector.broadcaster.notifyOnReady();
     }
 
+    @Override
+    public void onDeviceDisconnecting(CloverTransport transport) {
+      cloverConnector.broadcaster.notifyOnDisconnecting();
+    }
+
     public void onDeviceDisconnected(CloverTransport transport) {
       cloverConnector.broadcaster.notifyOnDisconnect();
     }

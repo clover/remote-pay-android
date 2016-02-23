@@ -18,21 +18,95 @@ package com.clover.remote.client.transport;
 
 import android.os.AsyncTask;
 import android.util.Log;
+
 import com.google.gson.Gson;
 import org.java_websocket.WebSocket;
 import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.exceptions.InvalidFrameException;
 import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.java_websocket.framing.Framedata;
 import org.java_websocket.handshake.ServerHandshake;
 
 import java.net.URI;
+import java.nio.ByteBuffer;
+import java.util.Iterator;
 import java.util.Timer;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class WebSocketCloverTransport extends CloverTransport {
+
+    /**
+     * <p>
+     *     PingFramedata is the minimal {@link Framedata} necessary to elicit a response of
+     *     {@link org.java_websocket.framing.Framedata.Opcode#PONG} from the other end of the
+     *     web socket connection.
+     * </p>
+     */
+    private static final Framedata PING = new Framedata() {
+        private final ByteBuffer buf = ByteBuffer.allocate(0);
+
+        @Override
+        public boolean isFin() {
+            return true;  // <-- data is less than 127 bytes, so this is the final message in the payload
+        }
+
+        @Override
+        public boolean getTransfereMasked() {
+            return true;  // <-- mask all frames being sent to server unless closing the connection
+        }
+
+        @Override
+        public Opcode getOpcode() {
+            return Opcode.PING;
+        }
+
+        @Override
+        public ByteBuffer getPayloadData() {
+            return buf; // <-- an empty buffer because this is just a heartbeat
+        }
+
+        @Override
+        public void append(Framedata nextframe) throws InvalidFrameException {
+            //do nothing
+        }
+    };
+    private static final long HEARTBEAT_INTERVAL = 5000L;
+    private static final int MAX_RETRIES = 4;
+
+    /**
+     * <p>
+     *     Holds the tasks to perform disconnection should be canceled in the case of a timely
+     *     pong message. Once a future is canceled, it should be removed from the list.
+     * </p>
+     */
+    private CopyOnWriteArrayList<ScheduledFuture<?>> disconnectFutures = new CopyOnWriteArrayList<>();
+
+    /**
+     * <p>
+     *     tracks when there has been a ping timeout. This allows the onPongMessage callback to
+     *     notify ready whenever a late pong message arrives.
+     * </p>
+     */
+    private volatile boolean pingTimeoutState = false;
+
+    private final Runnable pinger = new Runnable() {
+
+        @Override
+        public void run() {
+            if (webSocket == null) {
+                return;
+            }
+            webSocket.getConnection().sendFrame(PING);
+            disconnectFutures.add(timerPool.schedule(new DisconnectHandler(), HEARTBEAT_INTERVAL, TimeUnit.MILLISECONDS));
+        }
+    };
+
   Gson gson = new Gson();
-  WebSocketClient webSocket;
-  String status = "Disconnected";
+  WebSocketClient webSocket;        // TODO: investigate whether the assignment in the onClose callback could cause problems
+  String status = "Disconnected";   // TODO: investigate whether the assignment in the onClose callback could cause problems
   boolean shutdown = false;
   URI endpoint;
   Timer pingTimer = new Timer();
@@ -105,10 +179,10 @@ public class WebSocketCloverTransport extends CloverTransport {
 
       @Override
       public void onOpen(ServerHandshake handshakedata) {
-        //Toast.makeText(CloverConnector.this, "Socket Open", Toast.LENGTH_SHORT).show();
         status = "Connected";
         webSocket = this;
-        // TODO: add PING/PONG timer thread...
+          setPingTimeoutState(false);
+          timerPool.schedule(pinger, HEARTBEAT_INTERVAL, TimeUnit.MILLISECONDS);
         for (CloverTransportObserver listener : observers) {
           listener.onDeviceReady(WebSocketCloverTransport.this);
         }
@@ -122,12 +196,19 @@ public class WebSocketCloverTransport extends CloverTransport {
       @Override
       public void onWebsocketPong(WebSocket conn, Framedata f) {
         super.onWebsocketPong(conn, f);
+          cancelAllDisconnectHandlers();
+          if (isPingTimeoutState()) {
+              setPingTimeoutState(false);
+              for (CloverTransportObserver observer : observers) {
+                  observer.onDeviceReady(WebSocketCloverTransport.this);
+              }
+          }
+          timerPool.schedule(pinger, HEARTBEAT_INTERVAL, TimeUnit.MILLISECONDS);
       }
 
       @Override
       public void onWebsocketClosing(WebSocket conn, int code, String reason, boolean remote) {
         super.onWebsocketClosing(conn, code, reason, remote);
-        pingTimer.cancel();
       }
 
       @Override
@@ -140,18 +221,18 @@ public class WebSocketCloverTransport extends CloverTransport {
 
       @Override
       public void onClose(int code, String reason, boolean remote) {
-        //Toast.makeText(CloverConnector.this, "Socket Closed", Toast.LENGTH_SHORT).show();
         Log.d(getClass().getName(), reason);
         status = "Disconnected";
-        for (CloverTransportObserver listener : observers) {
-          listener.onDeviceDisconnected(WebSocketCloverTransport.this);
-        }
+          for (CloverTransportObserver listener : observers) {
+              listener.onDeviceDisconnected(WebSocketCloverTransport.this);
+          }
         webSocket = null;
         reconnect();
       }
 
       @Override
       public void onError(Exception ex) {
+          Log.e(getClass().getName(), "onError", ex);
         for (CloverTransportObserver listener : observers) {
           //listener.onDevice
         }
@@ -161,11 +242,24 @@ public class WebSocketCloverTransport extends CloverTransport {
     tempWebSocket.connect();
   }
 
-  public void dispose() {
+    private void cancelAllDisconnectHandlers() {
+        Iterator<ScheduledFuture<?>> it = disconnectFutures.iterator();
+        while (it.hasNext()) {
+            ScheduledFuture<?> disconnectFuture = it.next();
+            disconnectFuture.cancel(true);
+            disconnectFutures.remove(disconnectFuture); // <-- once canceled, there is no reason to keep the future
+        }
+    }
+
+    public void dispose() {
     shutdown = true;
+        for (CloverTransportObserver observer : observers) {
+            observer.onDeviceDisconnecting(this);
+        }
+        // TODO: investigate why the listeners are cleared here
     clearListeners();
     if (webSocket != null) {
-      webSocket.close();
+        webSocket.close();
     }
   }
 
@@ -212,4 +306,49 @@ public class WebSocketCloverTransport extends CloverTransport {
     };
     task.execute();
   }
+
+    private void setPingTimeoutState(boolean pingTimeoutState) {
+        synchronized (this) {
+            this.pingTimeoutState = pingTimeoutState;
+        }
+    }
+
+    private boolean isPingTimeoutState() {
+        synchronized (this) {
+            return pingTimeoutState;
+        }
+    }
+
+    private final class DisconnectHandler implements Runnable {
+
+        private int retryCount = MAX_RETRIES;
+
+        @Override
+        public void run() {
+            if (webSocket == null) {
+                return;
+            }
+
+            // notify observers only on the first time through this disconnection handler's run method
+            if (observers != null && retryCount == MAX_RETRIES) {
+                setPingTimeoutState(true);
+                for (CloverTransportObserver observer : observers) {
+                    // sending the connected state should signify that the device is not ready
+                    observer.onDeviceDisconnecting(WebSocketCloverTransport.this);
+                }
+            }
+
+            if (retryCount > 0) {   // <-- retry mechanism allows for a tolerance before closing the connection
+                retryCount--;
+                disconnectFutures.add(timerPool.schedule(this, HEARTBEAT_INTERVAL, TimeUnit.MILLISECONDS));
+                return;
+            }
+
+            try {
+                webSocket.closeBlocking();  // <-- synchronous close keeps from opening multiple connections to the same device
+            } catch (InterruptedException ie) {
+                ie.printStackTrace();
+            }
+        }
+    }
 }

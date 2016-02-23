@@ -34,6 +34,8 @@ import com.clover.remote.terminal.TxState;
 public interface ICloverConnectorListener {
   public void onDisconnected();
 
+  void onDisconnecting();
+
   public void onConnected();
 
   public void onReady();
