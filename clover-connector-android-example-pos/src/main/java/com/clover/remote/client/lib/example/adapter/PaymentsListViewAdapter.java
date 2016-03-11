@@ -60,6 +60,7 @@ public class PaymentsListViewAdapter extends ArrayAdapter<POSExchange> {
       TextView tipColumn = (TextView) v.findViewById(R.id.PaymentsRowTipColumn);
       TextView totalColumn = (TextView) v.findViewById(R.id.PaymentsRowTotalColumn);
       TextView tipColumnLabel = (TextView) v.findViewById(R.id.PaymentsRowTipColumnLabel);
+      TextView externalIdColumn = (TextView) v.findViewById(R.id.PaymentRowExternalPaymentId);
       //TextView itemAmountColumnLabel = (TextView) v.findViewById(R.id.PaymentsRowItemAmountColumnLabel);
 
 
@@ -71,7 +72,8 @@ public class PaymentsListViewAdapter extends ArrayAdapter<POSExchange> {
         totalColumn.setVisibility(View.VISIBLE);
         tipColumn.setText(CurrencyUtils.format(((POSPayment) posPayment).getTipAmount(), Locale.getDefault()));
         totalColumn.setText(CurrencyUtils.format(((POSPayment) posPayment).getAmount(), Locale.getDefault()));
-
+        String externalPaymentId = ((POSPayment) posPayment).getExternalPaymentId();
+        externalIdColumn.setText(externalPaymentId != null ? externalPaymentId : "<unset>");
       } else if (posPayment instanceof POSRefund) {
         statusColumn.setText("REFUND");
         //itemAmountColumn.setText(CurrencyUtils.format(((POSRefund) posPayment).getAmount(), Locale.getDefault()));

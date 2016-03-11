@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package com.clover.remote.client.messages;
+package com.clover.remote.client;
 
+public class MerchantInfo {
+  DeviceInfo deviceInfo = new DeviceInfo();
 
-import com.clover.sdk.v3.customers.Card;
+  String merchantID;
 
-public class CaptureCardResponse extends BaseResponse {
-  private Card card;
+  boolean supportsAuths;
+  boolean supportsPreAuths;
+  boolean supportsSales;
+  boolean supportsVaultCards;
+  boolean supportsManualRefunds;
+  boolean supportsVoids;
 
-  public CaptureCardResponse(Card card) {
-    this.card = card;
-  }
-
-  public Card getCard() {
-    return card;
-  }
-
-  public void setCard(Card card) {
-    this.card = card;
+  static class DeviceInfo {
+    String name;
+    String serial;
+    String model;
   }
 }

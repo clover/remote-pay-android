@@ -1,5 +1,5 @@
 group = 'com.clover.sdk'
-version = '0.2'
+version = '0.3'
 
 apply plugin: 'com.android.application'
 
@@ -18,6 +18,11 @@ android {
   defaultConfig {
     minSdkVersion 17
     targetSdkVersion 17
+  }
+
+  packagingOptions {
+    exclude 'META-INF/NOTICE'
+    exclude 'META-INF/LICENSE'
   }
 }
 

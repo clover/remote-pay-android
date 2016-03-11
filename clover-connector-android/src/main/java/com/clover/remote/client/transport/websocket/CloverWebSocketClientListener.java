@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-package com.clover.remote.client.messages;
+package com.clover.remote.client.transport.websocket;
 
-public class CaptureCardRequest extends BaseRequest {
-  int cardEntryMethods;
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
 
-  public CaptureCardRequest(int cardEntryMethods) {
-    this.cardEntryMethods = cardEntryMethods;
-  }
+public interface CloverWebSocketClientListener /*extends WebSocketClient*/{
+  public void onOpen(WebSocketClient ws, ServerHandshake handshakedata);
+  public void onNotResponding(WebSocketClient ws);
+  public void onPingResponding(WebSocketClient ws);
+  public void onClose(WebSocketClient ws, int code, String reason, boolean remote);
+  public void onMessage(WebSocketClient ws, String message);
+
 }

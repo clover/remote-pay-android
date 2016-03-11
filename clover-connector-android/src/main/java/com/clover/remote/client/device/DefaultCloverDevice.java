@@ -32,6 +32,9 @@ import com.clover.remote.order.operation.OrderDeletedOperation;
 import com.clover.remote.protocol.RemoteMessage;
 import com.clover.remote.protocol.message.CapturePreAuthMessage;
 import com.clover.remote.protocol.message.CapturePreAuthResponseMessage;
+import com.clover.remote.protocol.message.CloseoutRequestMessage;
+import com.clover.remote.protocol.message.CloseoutResponseMessage;
+import com.clover.remote.protocol.message.DiscoveryResponseMessage;
 import com.clover.remote.protocol.message.VaultCardMessage;
 import com.clover.remote.protocol.message.VaultCardResponseMessage;
 import com.clover.remote.protocol.message.CashbackSelectedMessage;
@@ -64,10 +67,9 @@ import com.clover.remote.terminal.KeyPress;
 import com.clover.sdk.v3.order.Order;
 import com.clover.sdk.v3.order.VoidReason;
 import com.clover.sdk.v3.payments.Payment;
-import com.clover.sdk.v3.payments.VaultedCard;
 import com.google.gson.Gson;
 
-import java.util.ArrayList;
+import java.nio.channels.NotYetConnectedException;
 import java.util.List;
 
 public class DefaultCloverDevice extends CloverDevice implements CloverTransportObserver {
@@ -75,6 +77,7 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
   Gson gson = new Gson();
   private static int id = 0;
   private RefundResponseMessage refRespMsg;
+
 
   public DefaultCloverDevice(CloverDeviceConfiguration configuration) {
     this(configuration.getMessagePackageName(), configuration.getCloverTransport());
@@ -95,8 +98,11 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
   }
 
 
-  public void onDeviceReady(CloverTransport device) {
-    notifyObserversReady(device);
+  public void onDeviceReady(CloverTransport transport) {
+    // now that the device is ready, let's send it a discovery request. the discovery response should trigger
+    // the callback for the device observer that it is connected and able to communicate
+    Log.d(getClass().getSimpleName(), "Sending Discovery Request");
+    doDiscoveryRequest();
   }
 
 
@@ -118,6 +124,9 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
               notifyObserversCashbackSelected(cbsMessage);
               break;
             case DISCOVERY_RESPONSE:
+              Log.d(getClass().getSimpleName(), "Got a Discovery Response");
+              DiscoveryResponseMessage drm = (DiscoveryResponseMessage) Message.fromJsonString(rMessage.payload);
+              notifyObserversReady(transport, drm);
               break;
             case FINISH_CANCEL:
               notifyObserversFinishCancel();
@@ -179,6 +188,9 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
             case CAPTURE_PREAUTH_RESPONSE:
               CapturePreAuthResponseMessage cparm = (CapturePreAuthResponseMessage) Message.fromJsonString(rMessage.payload);
               notifyObserversCapturePreAuth(cparm);
+            case CLOSEOUT_RESPONSE:
+              CloseoutResponseMessage crm = (CloseoutResponseMessage) Message.fromJsonString(rMessage.payload);
+              notifyObserversCloseout(crm);
             case DISCOVERY_REQUEST:
               //Outbound no-op
               break;
@@ -258,7 +270,7 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
       @Override
       protected Object doInBackground(Object[] params) {
         for (final CloverDeviceObserver observer : deviceObservers) {
-          observer.onDeviceConnected(transport);
+          observer.onDeviceConnected(DefaultCloverDevice.this);
         }
         return null;
       }
@@ -270,19 +282,19 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
       @Override
       protected Object doInBackground(Object[] params) {
         for (final CloverDeviceObserver observer : deviceObservers) {
-          observer.onDeviceDisconnected(transport);
+          observer.onDeviceDisconnected(DefaultCloverDevice.this);
         }
         return null;
       }
     }.execute();
   }
 
-  private void notifyObserversReady(final CloverTransport device) {
+  private void notifyObserversReady(final CloverTransport transport, final DiscoveryResponseMessage drm) {
     new AsyncTask() {
       @Override
       protected Object doInBackground(Object[] params) {
         for (final CloverDeviceObserver observer : deviceObservers) {
-          observer.onDeviceReady(device);
+          observer.onDeviceReady(DefaultCloverDevice.this, drm);
         }
         return null;
       }
@@ -430,6 +442,19 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
     }.execute();
   }
 
+  public void notifyObserversCloseout(final CloseoutResponseMessage crm) {
+    new AsyncTask() {
+      @Override
+      protected Object doInBackground(Object[] params) {
+        for (CloverDeviceObserver observer : deviceObservers) {
+
+          observer.onCloseoutResponse(crm.status, crm.reason, crm.batch);
+        }
+        return null;
+      }
+    }.execute();
+  }
+
 
   public void notifyObserversTxState(final TxStateMessage txStateMsg) {
     new AsyncTask() {
@@ -504,8 +529,8 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
     sendObjectMessage(new OpenCashDrawerMessage(reason){}); // TODO: fix OpenCashDrawerMessage ctor
   }
 
-  public void doCloseout() {
-    //sendObjectMessage(new CloseoutMessage());
+  public void doCloseout(boolean allowOpenTabs, String batchId) {
+    sendObjectMessage(new CloseoutRequestMessage(allowOpenTabs, batchId));
   }
 
   public void doTxStart(PayIntent payIntent, Order order, boolean suppressTipScreen) {
@@ -577,8 +602,11 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
   }
 
   public void dispose() {
+    deviceObservers.clear();
+    refRespMsg = null;
     if (transport != null) {
       transport.dispose();
+      transport = null;
     }
   }
 
