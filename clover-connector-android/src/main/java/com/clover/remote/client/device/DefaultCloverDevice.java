@@ -230,9 +230,6 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
             case SHOW_ORDER_SCREEN:
               //Outbound no-op
               break;
-            case SHOW_RECEIPT_SCREEN:
-              //Outbound no-op
-              break;
             case SHOW_THANK_YOU_SCREEN:
               //Outbound no-op
               break;
