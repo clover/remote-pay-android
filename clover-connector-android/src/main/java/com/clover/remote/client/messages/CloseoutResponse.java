@@ -16,5 +16,25 @@
 
 package com.clover.remote.client.messages;
 
+import com.clover.sdk.v3.payments.Batch;
+
 public class CloseoutResponse extends BaseResponse {
+  private String reason;
+  private Batch batch;
+
+  public String getReason() {
+    return reason;
+  }
+
+  public void setReason(String reason) {
+    this.reason = reason;
+  }
+
+  public Batch getBatch() {
+    return batch;
+  }
+
+  public void setBatch(Batch batch) {
+    this.batch = batch;
+  }
 }

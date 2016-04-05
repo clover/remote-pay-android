@@ -16,12 +16,16 @@
 
 package com.clover.remote.client.transport;
 
+import com.clover.remote.protocol.message.DiscoveryResponseMessage;
+
+import java.nio.channels.NotYetConnectedException;
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class CloverTransport {
   protected List<CloverTransportObserver> observers = new ArrayList<CloverTransportObserver>();
   boolean ready = false;
+  private DiscoveryResponseMessage lastDiscoverResponseMessage;
 
   protected void onDeviceConnected() {
     for (CloverTransportObserver obs : observers) {
@@ -30,7 +34,7 @@ public abstract class CloverTransport {
 
   }
 
-  protected void onDeviceReady() {
+  protected void onDeviceReady(DiscoveryResponseMessage drm) {
     ready = true;
     for (CloverTransportObserver obs : observers) {
       obs.onDeviceReady(this);
@@ -56,6 +60,7 @@ public abstract class CloverTransport {
 
   public void Subscribe(CloverTransportObserver observer) {
     CloverTransport me = this;
+    // to notify if the device has already reported as ready
     if (ready) {
       for (CloverTransportObserver obs : observers) {
         obs.onDeviceReady(this);
@@ -76,6 +81,6 @@ public abstract class CloverTransport {
 
 
   // Implement this to send info
-  public abstract int sendMessage(String message);
+  public abstract int sendMessage(String message) throws NotYetConnectedException;
 }
 

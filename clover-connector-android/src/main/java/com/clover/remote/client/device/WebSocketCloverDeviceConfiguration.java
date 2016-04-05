@@ -17,15 +17,61 @@
 package com.clover.remote.client.device;
 
 import com.clover.remote.client.transport.CloverTransport;
-import com.clover.remote.client.transport.WebSocketCloverTransport;
+import com.clover.remote.client.transport.websocket.WebSocketCloverTransport;
 
 import java.net.URI;
 
 public class WebSocketCloverDeviceConfiguration implements CloverDeviceConfiguration {
   private URI uri = null;
+  /**
+   * ping heartbeat interval in milliseconds
+   */
+  private long heartbeatInterval = 1000L;
+
+  /**
+   * delay before attempting a reconnect in milliseconds, so after a disconnect, the client will
+   * try to establish a connection every <i>reconnectDelay</i> milliseconds
+   */
+  private long reconnectDelay = 3000L;
+
+  /**
+   * the number of missed pong response periods before a reconnect is executed.
+   * Effectively, it will timeout after pingRetryCountBeforeReconnect * heartbeatInterval
+   */
+  private int pingRetryCountBeforeReconnect = 4;
 
   public WebSocketCloverDeviceConfiguration(URI endpoint) {
     uri = endpoint;
+  }
+
+  public WebSocketCloverDeviceConfiguration(URI endpoint, long heartbeatInterval, long reconnectDelay) {
+    this(endpoint);
+    this.heartbeatInterval = Math.max(100, heartbeatInterval);
+    this.reconnectDelay = Math.max(0, reconnectDelay);
+  }
+
+  public Long getHeartbeatInterval() {
+    return heartbeatInterval;
+  }
+
+  public void setHeartbeatInterval(Long heartbeatInterval) {
+    this.heartbeatInterval = heartbeatInterval;
+  }
+
+  public Long getReconnectDelay() {
+    return reconnectDelay;
+  }
+
+  public void setReconnectDelay(Long reconnectDelay) {
+    this.reconnectDelay = reconnectDelay;
+  }
+
+  public int getPingRetryCountBeforeReconnect() {
+    return pingRetryCountBeforeReconnect;
+  }
+
+  public void setPingRetryCountBeforeReconnect(int pingRetryCountBeforeReconnect) {
+    this.pingRetryCountBeforeReconnect = pingRetryCountBeforeReconnect;
   }
 
   @Override
@@ -45,6 +91,6 @@ public class WebSocketCloverDeviceConfiguration implements CloverDeviceConfigura
 
   @Override
   public CloverTransport getCloverTransport() {
-    return new WebSocketCloverTransport(uri);
+    return new WebSocketCloverTransport(uri, heartbeatInterval, reconnectDelay, pingRetryCountBeforeReconnect);
   }
 }

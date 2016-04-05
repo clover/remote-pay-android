@@ -22,6 +22,7 @@ public class POSPayment extends POSExchange {
   private long cashBackAmount;
   private String orderId;
   private transient POSOrder order;
+  private String externalPaymentId;
 
   public enum Status {
     PAID, VOIDED, REFUNDED, AUTHORIZED
@@ -32,12 +33,17 @@ public class POSPayment extends POSExchange {
   }
 
   public POSPayment(String paymentID, String orderID, String employeeID, long amount, long tip, long cashBack) {
+    this(paymentID, null, orderID, employeeID, amount, tip, cashBack);
 
+
+  }
+
+  public POSPayment(String paymentID, String externalPaymentId, String orderID, String employeeID, long amount, long tip, long cashBack) {
     super(paymentID, orderID, employeeID, amount);
 
-    tipAmount = tip;
-    cashBackAmount = cashBack;
-
+    this.tipAmount = tip;
+    this.cashBackAmount = cashBack;
+    this.externalPaymentId = externalPaymentId;
   }
 
   private Status _status;
@@ -81,4 +87,13 @@ public class POSPayment extends POSExchange {
   public long getAmount() {
     return super.getAmount() + getTipAmount();
   }
+
+  public void setExternalPaymentId(String externalPaymentId) {
+    this.externalPaymentId = externalPaymentId;
+  }
+
+  public String getExternalPaymentId() {
+    return externalPaymentId;
+  }
+
 }

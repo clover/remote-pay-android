@@ -97,7 +97,7 @@ public abstract class CloverDevice {
 
   public abstract void dispose();
 
-  public abstract void doCloseout();
+  public abstract void doCloseout(boolean allowOpenTabs, String batchId);
 
   public abstract void doVaultCard(int cardEntryMethods);
 

@@ -36,4 +36,7 @@
   <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tip:" android:id="@+id/PaymentsRowTipColumnLabel"
             android:layout_alignBaseline="@+id/PaymentsRowTipColumn" android:textSize="@dimen/table_tertiary_text_size"
             android:textColor="@color/secondary_table_text_color" android:layout_toStartOf="@+id/PaymentsRowTotalColumn"/>
+  <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="@dimen/table_tertiary_text_size"
+            android:id="@+id/PaymentRowExternalPaymentId" android:layout_weight="2" android:text="ABC123DEF456G" android:textColor="@color/secondary_table_text_color"
+            android:layout_below="@+id/PaymentsRowStatusColumn" android:layout_alignParentStart="true"/>
 </RelativeLayout>

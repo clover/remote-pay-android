@@ -19,14 +19,10 @@ package com.clover.remote.client.messages;
 import com.clover.common2.payments.PayIntent;
 import com.clover.sdk.v3.payments.VaultedCard;
 
-public class SaleRequest {
-  private long amount;
-  private Long tipAmount;
+public class SaleRequest extends TxRequest{
   private Long tippableAmount;
   private Long taxAmount;
-  private Integer cardEntryMethods;
   private boolean cardNotPresent;
-  private VaultedCard vaultedCard;
 
     /*
         public bool DisableCashback { get; set; } //
@@ -37,22 +33,6 @@ public class SaleRequest {
 
   public PayIntent.TransactionType getType() {
     return PayIntent.TransactionType.PAYMENT;
-  }
-
-  public long getAmount() {
-    return amount;
-  }
-
-  public void setAmount(long amount) {
-    this.amount = amount;
-  }
-
-  public Long getTipAmount() {
-    return tipAmount;
-  }
-
-  public void setTipAmount(Long tipAmount) {
-    this.tipAmount = tipAmount;
   }
 
   public Long getTippableAmount() {
@@ -71,27 +51,4 @@ public class SaleRequest {
     this.taxAmount = taxAmount;
   }
 
-  public Integer getCardEntryMethods() {
-    return cardEntryMethods;
-  }
-
-  public void setCardEntryMethods(Integer cardEntryMethods) {
-    this.cardEntryMethods = cardEntryMethods;
-  }
-
-  public boolean isCardNotPresent() {
-    return cardNotPresent;
-  }
-
-  public void setCardNotPresent(boolean cardNotPresent) {
-    this.cardNotPresent = cardNotPresent;
-  }
-
-  public com.clover.sdk.v3.payments.VaultedCard getVaultedCard() {
-    return vaultedCard;
-  }
-
-  public void setVaultedCard(com.clover.sdk.v3.payments.VaultedCard vaultedCard) {
-    this.vaultedCard = vaultedCard;
-  }
 }
