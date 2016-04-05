@@ -16,7 +16,7 @@
 
 package com.clover.remote.client.messages;
 
-import com.clover.common2.Signature2;
+import com.clover.sdk.internal.Signature2;
 import com.clover.sdk.v3.payments.Payment;
 
 public class AuthResponse extends BaseResponse {

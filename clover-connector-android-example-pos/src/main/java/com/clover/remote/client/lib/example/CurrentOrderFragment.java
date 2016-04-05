@@ -17,18 +17,27 @@
 package com.clover.remote.client.lib.example;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-import com.clover.common.util.CurrencyUtils;
+import com.clover.remote.client.lib.example.model.OrderObserver;
+import com.clover.remote.client.lib.example.model.POSDiscount;
+import com.clover.remote.client.lib.example.model.POSExchange;
 import com.clover.remote.client.lib.example.model.POSLineItem;
 import com.clover.remote.client.lib.example.model.POSOrder;
+import com.clover.remote.client.lib.example.model.POSPayment;
+import com.clover.remote.client.lib.example.model.POSRefund;
+import com.clover.remote.client.lib.example.model.POSStore;
+import com.clover.remote.client.lib.example.utils.CurrencyUtils;
 
 import java.util.ArrayList;
 import java.util.Currency;
@@ -44,7 +53,7 @@ import java.util.Locale;
  * Use the {@link CurrentOrderFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class CurrentOrderFragment extends Fragment {
+public class CurrentOrderFragment extends Fragment implements OrderObserver {
 
   POSOrder order = new POSOrder();
   List<CurrentOrderFragmentListener> listeners = new ArrayList<CurrentOrderFragmentListener>(5);
@@ -91,6 +100,29 @@ public class CurrentOrderFragment extends Fragment {
         onAuthClicked();
       }
     });
+    final ListView currentOrderItemsListView = (ListView) v.findViewById(R.id.CurrentOrderItems);
+
+    currentOrderItemsListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
+      @Override public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        // prompt for delete...
+        final POSLineItem lineItem = (POSLineItem)currentOrderItemsListView.getItemAtPosition(position);
+        String thisTheseLabel = lineItem.getQuantity() == 1 ? "this" : "these";
+
+        new AlertDialog.Builder(getActivity())
+            .setTitle("Delete?")
+            .setMessage(String.format("Do you want to remove %s items from the order?", thisTheseLabel))
+            .setPositiveButton("Yes", new DialogInterface.OnClickListener(){
+              @Override public void onClick(DialogInterface dialog, int which) {
+                order.remoteAllItems(lineItem);
+              }
+            })
+            .setNegativeButton("No", null)
+            .show();
+        return true; // consume the event
+      }
+    });
+
+
     return v;
   }
 
@@ -115,10 +147,14 @@ public class CurrentOrderFragment extends Fragment {
   private void updateListView() {
 
     if (getView() != null) {
-      ListView listView = (ListView) getView().findViewById(R.id.CurrentOrderItems);
-      POSLineItem[] itemArray = new POSLineItem[order.getItems().size()];
-      AvailableItemListViewAdapter items = new AvailableItemListViewAdapter(listView.getContext(), R.layout.listitem_order_item, order.getItems().toArray(itemArray));
-      listView.setAdapter(items);
+      getView().post(new Runnable(){
+        @Override public void run() {
+          ListView listView = (ListView) getView().findViewById(R.id.CurrentOrderItems);
+          POSLineItem[] itemArray = new POSLineItem[order.getItems().size()];
+          AvailableItemListViewAdapter items = new AvailableItemListViewAdapter(listView.getContext(), R.layout.listitem_order_item, order.getItems().toArray(itemArray));
+          listView.setAdapter(items);
+        }
+      });
     }
   }
 
@@ -149,12 +185,16 @@ public class CurrentOrderFragment extends Fragment {
 
   private void updateTotals() {
     if (getView() != null) {
-      String subtotalFormatted = CurrencyUtils.longToAmountString(Currency.getInstance(Locale.getDefault()), order.getPreTaxSubTotal());
-      ((TextView) getView().findViewById(R.id.SubtotalLabel)).setText(subtotalFormatted);
-      String taxFormatted = CurrencyUtils.longToAmountString(Currency.getInstance(Locale.getDefault()), order.getTaxAmount());
-      ((TextView) getView().findViewById(R.id.TaxLabel)).setText(taxFormatted);
-      String totalFormatted = CurrencyUtils.longToAmountString(Currency.getInstance(Locale.getDefault()), order.getTotal());
-      ((TextView) getView().findViewById(R.id.TotalLabel)).setText(totalFormatted);
+      getView().post(new Runnable(){
+        @Override public void run() {
+          String subtotalFormatted = CurrencyUtils.format(order.getPreTaxSubTotal(), Locale.getDefault());
+          ((TextView) getView().findViewById(R.id.SubtotalLabel)).setText(subtotalFormatted);
+          String taxFormatted = CurrencyUtils.format(order.getTaxAmount(), Locale.getDefault());
+          ((TextView) getView().findViewById(R.id.TaxLabel)).setText(taxFormatted);
+          String totalFormatted = CurrencyUtils.format(order.getTotal(), Locale.getDefault());
+          ((TextView) getView().findViewById(R.id.TotalLabel)).setText(totalFormatted);
+        }
+      });
     }
   }
 
@@ -163,9 +203,52 @@ public class CurrentOrderFragment extends Fragment {
   }
 
   public void setOrder(POSOrder order) {
+    this.order.removeObserver(this);
     this.order = order;
+    this.order.addOrderObserver(this);
     updateCurrentOrder();
     updateTotals();
   }
+
+  @Override public void lineItemAdded(POSOrder posOrder, POSLineItem lineItem) {
+    updateCurrentOrder();
+  }
+
+  @Override public void lineItemRemoved(POSOrder posOrder, POSLineItem lineItem) {
+    updateCurrentOrder();
+
+  }
+
+  @Override public void lineItemChanged(POSOrder posOrder, POSLineItem lineItem) {
+    updateCurrentOrder();
+
+  }
+
+  @Override public void paymentAdded(POSOrder posOrder, POSPayment payment) {
+    updateCurrentOrder();
+
+  }
+
+  @Override public void refundAdded(POSOrder posOrder, POSRefund refund) {
+    updateCurrentOrder();
+
+  }
+
+  @Override public void paymentChanged(POSOrder posOrder, POSExchange pay) {
+    updateCurrentOrder();
+
+  }
+
+  @Override public void discountAdded(POSOrder posOrder, POSDiscount discount) {
+    updateCurrentOrder();
+
+  }
+
+  @Override public void discountChanged(POSOrder posOrder, POSDiscount discount) {
+    updateCurrentOrder();
+
+  }
+
+
 
 }

@@ -16,12 +16,10 @@
 
 package com.clover.remote.client.transport.websocket;
 
-import android.util.Log;
-
 import com.clover.remote.client.transport.CloverTransport;
 import com.clover.remote.client.transport.CloverTransportObserver;
-import com.clover.remote.client.transport.websocket.CloverWebSocketClient;
-import com.clover.remote.client.transport.websocket.CloverWebSocketClientListener;
+
+import android.util.Log;
 import com.google.gson.Gson;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.exceptions.WebsocketNotConnectedException;
@@ -58,8 +56,9 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverW
 
 
   private final Runnable reconnector = new Runnable() {
-    @Override public void run() {
-      if(!shutdown) {
+    @Override
+    public void run() {
+      if (!shutdown) {
         try {
           initialize(endpoint);
         } catch (Exception e) {
@@ -100,15 +99,15 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverW
   }
 
   private synchronized void clearWebsocket() {
-    if(webSocket != null) {
+    if (webSocket != null) {
       webSocket.clearListener();
     }
     webSocket = null;
   }
 
   private synchronized void initialize(URI deviceEndpoint) {
-    if(webSocket != null) {
-      if(webSocket.getConnection().isOpen() || webSocket.getConnection().isConnecting()) {
+    if (webSocket != null) {
+      if (webSocket.getConnection().isOpen() || webSocket.getConnection().isConnecting()) {
         return;
       } else {
         clearWebsocket();
@@ -148,7 +147,7 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverW
   }
 
   public synchronized void onClose(CloverWebSocketClient ws) {
-    if(webSocket == ws) {
+    if (webSocket == ws) {
       clearWebsocket();
       reconnect();
     }
@@ -156,7 +155,7 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverW
 
   @Override
   public void onNotResponding(WebSocketClient ws) {
-    if(webSocket == ws) {
+    if (webSocket == ws) {
       for (CloverTransportObserver observer : observers) {
         Log.d(getClass().getName(), "onNotResponding");
         observer.onDeviceDisconnected(this);
@@ -166,7 +165,7 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverW
 
   @Override
   public void onPingResponding(WebSocketClient ws) {
-    if(webSocket == ws) {
+    if (webSocket == ws) {
       for (CloverTransportObserver observer : observers) {
         Log.d(getClass().getName(), "onPingResponding");
         observer.onDeviceReady(this);
@@ -176,7 +175,7 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverW
 
   @Override
   public void onOpen(WebSocketClient ws, ServerHandshake handshakedata) {
-    if(webSocket == ws) {
+    if (webSocket == ws) {
       // notify connected
       // notify ready
       for (CloverTransportObserver observer : observers) {
@@ -192,7 +191,7 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverW
 
   @Override
   public void onClose(WebSocketClient ws, int code, String reason, boolean remote) {
-    if(webSocket == ws) {
+    if (webSocket == ws) {
       clearWebsocket();
       for (CloverTransportObserver observer : observers) {
         Log.d(getClass().getName(), "onClose");
@@ -206,7 +205,7 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverW
 
   @Override
   public void onMessage(WebSocketClient ws, String message) {
-    if(webSocket == ws) {
+    if (webSocket == ws) {
       for (CloverTransportObserver observer : observers) {
         Log.d(getClass().getName(), "Got message: " + message);
         observer.onMessage(message);

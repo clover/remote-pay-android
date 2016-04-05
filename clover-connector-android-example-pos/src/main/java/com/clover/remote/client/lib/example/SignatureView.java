@@ -22,8 +22,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
-import com.clover.common2.Signature2;
-import com.clover.common2.Signature2.Point;
+import com.clover.sdk.internal.Signature2;
+import com.clover.sdk.internal.Signature2.Point;
 
 public class SignatureView extends View {
 
@@ -58,5 +58,11 @@ public class SignatureView extends View {
 
   public void setSignature(Signature2 signature) {
     this.signature = signature;
+
+    post(new Runnable(){
+      @Override public void run() {
+        invalidate();
+      }
+    });
   }
 }

@@ -16,7 +16,7 @@
 
 package com.clover.remote.client.transport;
 
-import com.clover.remote.protocol.message.DiscoveryResponseMessage;
+import com.clover.remote.message.DiscoveryResponseMessage;
 
 import java.nio.channels.NotYetConnectedException;
 import java.util.ArrayList;
@@ -27,21 +27,20 @@ public abstract class CloverTransport {
   boolean ready = false;
   private DiscoveryResponseMessage lastDiscoverResponseMessage;
 
-  protected void onDeviceConnected() {
+  protected void notifyDeviceConnected() {
     for (CloverTransportObserver obs : observers) {
       obs.onDeviceConnected(this);
     }
-
   }
 
-  protected void onDeviceReady(DiscoveryResponseMessage drm) {
+  protected void notifyDeviceReady() {
     ready = true;
     for (CloverTransportObserver obs : observers) {
       obs.onDeviceReady(this);
     }
   }
 
-  protected void onDeviceDisconnected() {
+  protected void notifyDeviceDisconnected() {
     ready = false;
     for (CloverTransportObserver obs : observers) {
       obs.onDeviceDisconnected(this);

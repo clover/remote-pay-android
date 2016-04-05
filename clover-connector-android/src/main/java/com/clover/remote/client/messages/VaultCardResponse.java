@@ -40,11 +40,13 @@ public class VaultCardResponse extends BaseResponse {
     this.card = card;
   }
 
-  @Override public String getCode() {
+  @Override
+  public String getCode() {
     return code;
   }
 
-  @Override public void setCode(String code) {
+  @Override
+  public void setCode(String code) {
     this.code = code;
   }
 

@@ -16,60 +16,60 @@
 
 package com.clover.remote.client.device;
 
-import android.graphics.Bitmap;
-import android.os.AsyncTask;
-import android.util.Log;
-import com.clover.common2.payments.PayIntent;
+import com.clover.remote.KeyPress;
 import com.clover.remote.client.CloverDeviceObserver;
 import com.clover.remote.client.transport.CloverTransport;
 import com.clover.remote.client.transport.CloverTransportObserver;
+import com.clover.remote.message.CapturePreAuthMessage;
+import com.clover.remote.message.CapturePreAuthResponseMessage;
+import com.clover.remote.message.CashbackSelectedMessage;
+import com.clover.remote.message.CloseoutRequestMessage;
+import com.clover.remote.message.CloseoutResponseMessage;
+import com.clover.remote.message.DiscoveryRequestMessage;
+import com.clover.remote.message.DiscoveryResponseMessage;
+import com.clover.remote.message.FinishOkMessage;
+import com.clover.remote.message.ImagePrintMessage;
+import com.clover.remote.message.KeyPressMessage;
+import com.clover.remote.message.Message;
+import com.clover.remote.message.Method;
+import com.clover.remote.message.OpenCashDrawerMessage;
+import com.clover.remote.message.OrderUpdateMessage;
+import com.clover.remote.message.PartialAuthMessage;
+import com.clover.remote.message.RefundRequestMessage;
+import com.clover.remote.message.RefundResponseMessage;
+import com.clover.remote.message.RemoteMessage;
+import com.clover.remote.message.ShowPaymentReceiptOptionsMessage;
+import com.clover.remote.message.SignatureVerifiedMessage;
+import com.clover.remote.message.TerminalMessage;
+import com.clover.remote.message.TextPrintMessage;
+import com.clover.remote.message.ThankYouMessage;
+import com.clover.remote.message.TipAddedMessage;
+import com.clover.remote.message.TipAdjustMessage;
+import com.clover.remote.message.TipAdjustResponseMessage;
+import com.clover.remote.message.TxStartRequestMessage;
+import com.clover.remote.message.TxStateMessage;
+import com.clover.remote.message.UiStateMessage;
+import com.clover.remote.message.VaultCardMessage;
+import com.clover.remote.message.VaultCardResponseMessage;
+import com.clover.remote.message.VerifySignatureMessage;
+import com.clover.remote.message.VoidPaymentMessage;
+import com.clover.remote.message.WelcomeMessage;
 import com.clover.remote.order.DisplayOrder;
 import com.clover.remote.order.operation.DiscountsAddedOperation;
 import com.clover.remote.order.operation.DiscountsDeletedOperation;
 import com.clover.remote.order.operation.LineItemsAddedOperation;
 import com.clover.remote.order.operation.LineItemsDeletedOperation;
 import com.clover.remote.order.operation.OrderDeletedOperation;
-import com.clover.remote.protocol.RemoteMessage;
-import com.clover.remote.protocol.message.CapturePreAuthMessage;
-import com.clover.remote.protocol.message.CapturePreAuthResponseMessage;
-import com.clover.remote.protocol.message.CloseoutRequestMessage;
-import com.clover.remote.protocol.message.CloseoutResponseMessage;
-import com.clover.remote.protocol.message.DiscoveryResponseMessage;
-import com.clover.remote.protocol.message.VaultCardMessage;
-import com.clover.remote.protocol.message.VaultCardResponseMessage;
-import com.clover.remote.protocol.message.CashbackSelectedMessage;
-import com.clover.remote.protocol.message.DiscoveryRequestMessage;
-import com.clover.remote.protocol.message.FinishOkMessage;
-import com.clover.remote.protocol.message.ImagePrintMessage;
-import com.clover.remote.protocol.message.KeyPressMessage;
-import com.clover.remote.protocol.message.Message;
-import com.clover.remote.protocol.message.Method;
-import com.clover.remote.protocol.message.OpenCashDrawerMessage;
-import com.clover.remote.protocol.message.OrderUpdateMessage;
-import com.clover.remote.protocol.message.PartialAuthMessage;
-import com.clover.remote.protocol.message.RefundRequestMessage;
-import com.clover.remote.protocol.message.RefundResponseMessage;
-import com.clover.remote.protocol.message.ShowPaymentReceiptOptionsMessage;
-import com.clover.remote.protocol.message.SignatureVerifiedMessage;
-import com.clover.remote.protocol.message.TerminalMessage;
-import com.clover.remote.protocol.message.TextPrintMessage;
-import com.clover.remote.protocol.message.ThankYouMessage;
-import com.clover.remote.protocol.message.TipAddedMessage;
-import com.clover.remote.protocol.message.TipAdjustMessage;
-import com.clover.remote.protocol.message.TipAdjustResponseMessage;
-import com.clover.remote.protocol.message.TxStartRequestMessage;
-import com.clover.remote.protocol.message.TxStateMessage;
-import com.clover.remote.protocol.message.UiStateMessage;
-import com.clover.remote.protocol.message.VerifySignatureMessage;
-import com.clover.remote.protocol.message.VoidPaymentMessage;
-import com.clover.remote.protocol.message.WelcomeMessage;
-import com.clover.remote.terminal.KeyPress;
+import com.clover.sdk.internal.PayIntent;
 import com.clover.sdk.v3.order.Order;
 import com.clover.sdk.v3.order.VoidReason;
 import com.clover.sdk.v3.payments.Payment;
+
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
+import android.util.Log;
 import com.google.gson.Gson;
 
-import java.nio.channels.NotYetConnectedException;
 import java.util.List;
 
 public class DefaultCloverDevice extends CloverDevice implements CloverTransportObserver {
@@ -418,7 +418,8 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
 
   public void notifyObserversUiState(final UiStateMessage uiStateMsg) {
     new AsyncTask() {
-      @Override protected Object doInBackground(Object[] params) {
+      @Override
+      protected Object doInBackground(Object[] params) {
         for (CloverDeviceObserver observer : deviceObservers) {
           observer.onUiState(uiStateMsg.uiState, uiStateMsg.uiText, uiStateMsg.uiDirection, uiStateMsg.inputOptions);
         }
@@ -499,7 +500,7 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
   }
 
   public void doShowReceiptScreen() {
-    sendObjectMessage(new ShowPaymentReceiptOptionsMessage(null, null));
+    sendObjectMessage(new ShowPaymentReceiptOptionsMessage(null, null, 1));
   }
 
   public void doKeyPress(KeyPress keyPress) {
@@ -523,7 +524,8 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
   }
 
   public void doOpenCashDrawer(String reason) {
-    sendObjectMessage(new OpenCashDrawerMessage(reason){}); // TODO: fix OpenCashDrawerMessage ctor
+    sendObjectMessage(new OpenCashDrawerMessage(reason) {
+    }); // TODO: fix OpenCashDrawerMessage ctor
   }
 
   public void doCloseout(boolean allowOpenTabs, String batchId) {
@@ -563,7 +565,7 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
   }
 
   public void doPaymentRefund(String orderId, String paymentId, long amount) {
-    sendObjectMessage(new RefundRequestMessage(orderId, paymentId, amount));
+    sendObjectMessage(new RefundRequestMessage(orderId, paymentId, amount, false));
   }
 
   public void doVaultCard(int cardEntryMethods) {

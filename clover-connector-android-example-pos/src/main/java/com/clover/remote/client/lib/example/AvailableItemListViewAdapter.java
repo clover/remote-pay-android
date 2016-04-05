@@ -23,8 +23,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
-import com.clover.common.util.CurrencyUtils;
 import com.clover.remote.client.lib.example.model.POSLineItem;
+import com.clover.remote.client.lib.example.utils.CurrencyUtils;
 
 import java.util.Locale;
 
@@ -65,10 +65,10 @@ public class AvailableItemListViewAdapter extends ArrayAdapter<POSLineItem> {
     POSLineItem lineItem = data[position];
     holder.itemName.setText(lineItem.getItem().getName());
     holder.itemQuantity.setText(lineItem.getQuantity() + "");
-    holder.itemPrice.setText(CurrencyUtils.longToAmountString(java.util.Currency.getInstance(Locale.getDefault()), lineItem.getPrice()));
+    holder.itemPrice.setText(CurrencyUtils.format(lineItem.getPrice(), Locale.getDefault()));
     if (lineItem.getDiscount() != null) {
       holder.itemDiscount.setText(lineItem.getDiscount().getName());
-      holder.itemDiscountPrice.setText(CurrencyUtils.longToAmountString(java.util.Currency.getInstance(Locale.getDefault()), lineItem.getDiscount().getValue(lineItem.getItem().getPrice())));
+      holder.itemDiscountPrice.setText(CurrencyUtils.format(lineItem.getDiscount().getValue(lineItem.getItem().getPrice()), Locale.getDefault()));
     } else {
       holder.itemDiscount.setText("");
       holder.itemDiscountPrice.setText("");

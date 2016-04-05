@@ -127,7 +127,7 @@ public class POSOrder {
     boolean exists = false;
     POSLineItem targetItem = null;
     for (POSLineItem lineI : items) {
-      if (lineI.getItem().getId() == i.getId()) {
+      if (lineI.getItem().getId().equals(i.getId())) {
         exists = true;
         lineI.incrementQuantity(quantity);
         targetItem = lineI;
@@ -144,6 +144,26 @@ public class POSOrder {
     return targetItem;
   }
 
+  public boolean removeItem(POSLineItem li, int quantity) {
+    if(li.getQuantity() <= quantity) {
+      return remoteAllItems(li);
+    } else {
+      li.setQuantity(li.getQuantity()-quantity);
+      notifyObserverItemChanged(li);
+    }
+    return true;
+  }
+
+  public boolean remoteAllItems(POSLineItem li) {
+    boolean removed = items.remove(li);
+    if(removed) {
+      notifyObserverItemRemoved(li);
+    }
+    return removed;
+  }
+
+
+
 
   void addPayment(POSPayment payment) {
     payments.add(payment);
@@ -155,7 +175,7 @@ public class POSOrder {
   void addRefund(POSRefund refund) {
     for (POSExchange pay : payments) {
       if (pay instanceof POSPayment) {
-        if (pay.paymentID == refund.getPaymentID()) {
+        if (pay.paymentID.equals(refund.getPaymentID())) {
           ((POSPayment) pay).setPaymentStatus(POSPayment.Status.REFUNDED);
           notifyObserverPaymentChanged(pay);
         }
@@ -215,7 +235,7 @@ public class POSOrder {
     }
   }
 
-  void notifyObserverPaymentChanged(POSExchange pay) {
+  public void notifyObserverPaymentChanged(POSExchange pay) {
     for (OrderObserver observer : observers) {
       observer.paymentChanged(this, pay);
     }

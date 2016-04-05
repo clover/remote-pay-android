@@ -1,5 +1,35 @@
-<manifest package="com.clover.remote.client.lib">
+<manifest package="com.clover.remote.client.lib" xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <application/>
+    <uses-feature android:name="android.hardware.usb.host" android:required="true"/>
 
+    <application>
+        <service android:name="com.clover.remote.client.transport.usb.pos.PosUsbRemoteProtocolService"
+                 android:exported="true"
+                 android:label="CloverUSBService">
+            <intent-filter>
+                <action android:name="com.clover.remote.client.transport.usb.pos.PosUsbRemoteProtocolService"></action>
+            </intent-filter>
+        </service>
+
+        <!-- the receiver is required for detached, per documentation and experimentation -->
+        <receiver android:name="com.clover.remote.client.transport.usb.pos.PosUsbBroadcastReceiver">
+            <intent-filter>
+                <!--<action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"/>-->
+                <action android:name="android.hardware.usb.action.USB_DEVICE_DETACHED"/>
+            </intent-filter>
+            <meta-data android:resource="@xml/device_filter" android:name="android.hardware.usb.action.USB_DEVICE_DETACHED"/>
+        </receiver>
+
+        <!-- The activity is required for attached so it can prompt for permission -->
+        <activity android:name="com.clover.remote.client.transport.usb.pos.UsbActivity">
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"/>
+                <!--<action android:name="android.hardware.usb.action.USB_DEVICE_DETACHED"/>-->
+            </intent-filter>
+            <meta-data android:resource="@xml/device_filter" android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"/>
+            <!--<meta-data android:resource="@xml/device_filter" android:name="android.hardware.usb.action.USB_DEVICE_DETACHED"/>-->
+        </activity>
+
+    </application>
 </manifest>
+

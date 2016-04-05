@@ -22,9 +22,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
-import com.clover.common.util.CurrencyUtils;
 import com.clover.remote.client.lib.example.R;
 import com.clover.remote.client.lib.example.model.POSLineItem;
+import com.clover.remote.client.lib.example.utils.CurrencyUtils;
 
 import java.util.Currency;
 import java.util.List;
@@ -60,7 +60,7 @@ public class ItemsListViewAdapter extends ArrayAdapter<POSLineItem> {
 
       quantityColumn.setText("" + posLI.getQuantity());
       descriptionColumn.setText(posLI.getItem().getName());
-      priceColumn.setText(CurrencyUtils.longToAmountString(Currency.getInstance(Locale.getDefault()), posLI.getItem().getPrice()));
+      priceColumn.setText(CurrencyUtils.format(posLI.getItem().getPrice(), Locale.getDefault()));
     }
 
     return v;

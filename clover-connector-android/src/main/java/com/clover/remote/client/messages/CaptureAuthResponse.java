@@ -16,7 +16,7 @@
 
 package com.clover.remote.client.messages;
 
-import com.clover.remote.terminal.ResultStatus;
+import com.clover.remote.ResultStatus;
 
 public class CaptureAuthResponse extends TransactionResponse {
   ResultStatus status;

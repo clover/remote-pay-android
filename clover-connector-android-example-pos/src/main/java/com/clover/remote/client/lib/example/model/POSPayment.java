@@ -54,6 +54,9 @@ public class POSPayment extends POSExchange {
 
   public void setPaymentStatus(Status status) {
     _status = status;
+    if(order != null) { // will be null at ctor time, but don't want to notify of a change at that point anyway
+      order.notifyObserverPaymentChanged(this);
+    }
   }
 
   public boolean isVoided() {

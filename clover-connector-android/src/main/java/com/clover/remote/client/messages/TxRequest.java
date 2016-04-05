@@ -16,7 +16,7 @@
 
 package com.clover.remote.client.messages;
 
-import com.clover.common2.payments.PayIntent;
+import com.clover.sdk.internal.PayIntent;
 import com.clover.sdk.v3.payments.VaultedCard;
 
 public abstract class TxRequest {
@@ -26,6 +26,7 @@ public abstract class TxRequest {
   private boolean cardNotPresent;
   private VaultedCard vaultedCard;
   private String externalPaymentId;
+
 
   public abstract PayIntent.TransactionType getType();
 
@@ -76,4 +77,5 @@ public abstract class TxRequest {
   public void setExternalPaymentId(String externalPaymentId) {
     this.externalPaymentId = externalPaymentId;
   }
+
 }
