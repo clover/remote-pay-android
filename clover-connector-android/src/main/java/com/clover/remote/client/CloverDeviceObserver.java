@@ -16,15 +16,14 @@
 
 package com.clover.remote.client;
 
-import com.clover.common2.Signature2;
+import com.clover.remote.InputOption;
+import com.clover.remote.KeyPress;
+import com.clover.remote.ResultStatus;
+import com.clover.remote.TxState;
+import com.clover.remote.UiState;
 import com.clover.remote.client.device.CloverDevice;
-import com.clover.remote.client.transport.CloverTransportObserver;
-import com.clover.remote.protocol.message.DiscoveryResponseMessage;
-import com.clover.remote.terminal.InputOption;
-import com.clover.remote.terminal.KeyPress;
-import com.clover.remote.terminal.ResultStatus;
-import com.clover.remote.terminal.TxState;
-import com.clover.remote.terminal.UiState;
+import com.clover.remote.message.DiscoveryResponseMessage;
+import com.clover.sdk.internal.Signature2;
 import com.clover.sdk.v3.order.VoidReason;
 import com.clover.sdk.v3.payments.Batch;
 import com.clover.sdk.v3.payments.Credit;
@@ -80,6 +79,8 @@ public interface CloverDeviceObserver {
   void onTxStartResponse(boolean success);
 
   void onDeviceDisconnected(CloverDevice device);
+
   void onDeviceConnected(CloverDevice device);
+
   void onDeviceReady(CloverDevice device, DiscoveryResponseMessage drm);
 }

@@ -78,8 +78,10 @@ public class PaymentsListViewAdapter extends ArrayAdapter<POSExchange> {
         statusColumn.setText("REFUND");
         //itemAmountColumn.setText(CurrencyUtils.format(((POSRefund) posPayment).getAmount(), Locale.getDefault()));
         tipColumn.setVisibility(View.GONE);
+        totalColumn.setText(CurrencyUtils.format(((POSRefund)posPayment).getAmount(), Locale.getDefault()));
         //itemAmountColumn.setVisibility(View.INVISIBLE);
         tipColumnLabel.setVisibility(View.GONE);
+        externalIdColumn.setVisibility(View.GONE);
         //itemAmountColumnLabel.setVisibility(View.INVISIBLE);
       }
     }

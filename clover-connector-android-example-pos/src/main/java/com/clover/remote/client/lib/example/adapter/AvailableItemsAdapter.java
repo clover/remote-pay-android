@@ -38,7 +38,6 @@ import com.clover.remote.client.lib.example.model.POSRefund;
 import com.clover.remote.client.lib.example.model.POSStore;
 import com.clover.remote.client.lib.example.model.StoreObserver;
 import com.clover.remote.client.lib.example.utils.CurrencyUtils;
-import com.clover.remote.terminal.Intents;
 
 import java.util.HashMap;
 import java.util.List;
@@ -69,7 +68,8 @@ public class AvailableItemsAdapter extends ArrayAdapter<POSItem>
       }
 
       @Override public void lineItemRemoved(POSOrder posOrder, POSLineItem lineItem) {
-
+        itemToCount.remove(lineItem.getItem());
+        notifyDataSetChanged();
       }
 
       @Override public void lineItemChanged(POSOrder posOrder, POSLineItem lineItem) {

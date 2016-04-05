@@ -16,7 +16,6 @@
 
 package com.clover.remote.client.transport;
 
-import com.clover.remote.protocol.message.DiscoveryResponseMessage;
 
 public interface CloverTransportObserver {
   /// <summary>

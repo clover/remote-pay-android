@@ -47,7 +47,6 @@ import com.clover.remote.client.lib.example.model.POSPayment;
 import com.clover.remote.client.lib.example.model.POSRefund;
 import com.clover.remote.client.lib.example.model.POSStore;
 import com.clover.remote.client.lib.example.model.StoreObserver;
-import com.clover.remote.client.lib.example.adapter.OrdersListViewAdapter;
 import com.clover.remote.client.messages.RefundPaymentRequest;
 import com.clover.remote.client.messages.TipAdjustAuthRequest;
 import com.clover.remote.client.messages.VoidPaymentRequest;
@@ -66,7 +65,7 @@ import java.util.List;
  * Use the {@link OrdersFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class OrdersFragment extends Fragment {
+public class OrdersFragment extends Fragment implements OrderObserver {
   private static final String ARG_STORE = "store";
 
   private POSStore store;
@@ -77,6 +76,7 @@ public class OrdersFragment extends Fragment {
   private ListView itemsListView;
   private View view;
   private ListView ordersListView;
+  POSOrder selectedOrder = null;
 
   /**
    * Use this factory method to create a new instance of
@@ -105,6 +105,13 @@ public class OrdersFragment extends Fragment {
     super.onCreate(savedInstanceState);
   }
 
+  @Override public void onDestroy() {
+    super.onDestroy();
+    if(selectedOrder != null) {
+      selectedOrder.removeObserver(this);
+    }
+  }
+
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
@@ -125,19 +132,24 @@ public class OrdersFragment extends Fragment {
     ordersListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
       @Override
       public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        if(selectedOrder != null) {
+          selectedOrder.removeObserver(OrdersFragment.this);
+        }
         POSOrder posOrder = (POSOrder) ordersListView.getItemAtPosition(position);
-        itemsListViewAdapter.clear();
-        ItemsListViewAdapter itemsListViewAdapter = new ItemsListViewAdapter(view.getContext(), R.id.ItemsGridView, posOrder.getItems());
-        itemsListView.setAdapter(itemsListViewAdapter);
-        PaymentsListViewAdapter paymentsListViewAdapter = new PaymentsListViewAdapter(view.getContext(), R.id.PaymentsGridView, posOrder.getPayments());
-        paymentsListView.setAdapter(paymentsListViewAdapter);
+        selectedOrder = posOrder;
+        posOrder.addOrderObserver(OrdersFragment.this);
+        updateDisplaysForOrder(posOrder);
       }
     });
 
     paymentsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
       @Override
       public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        final POSPayment posPayment = (POSPayment) paymentsListView.getItemAtPosition(position);
+        Object itemAtPosition = paymentsListView.getItemAtPosition(position);
+        if(itemAtPosition instanceof POSRefund) {
+          return;
+        }
+        final POSPayment posPayment = (POSPayment) itemAtPosition;
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         String[] paymentOptions = null;
 
@@ -163,7 +175,6 @@ public class OrdersFragment extends Fragment {
                       vpr.setOrderId(posPayment.getOrderId());
                       vpr.setVoidReason(VoidReason.USER_CANCEL.name());
                       cloverConnector.voidPayment(vpr);
-                      //dlg.disiss();
                       break;
                     }
                     case 1: {
@@ -218,6 +229,31 @@ public class OrdersFragment extends Fragment {
     return view;
   }
 
+  private void updateDisplaysForOrder(POSOrder posOrder) {
+    updateItems(posOrder);
+    updatePayments(posOrder);
+  }
+
+  private void updateItems(final POSOrder posOrder) {
+    getView().post(new Runnable(){
+      @Override public void run() {
+        final ListView itemsListView = (ListView) view.findViewById(R.id.ItemsGridView);
+        ItemsListViewAdapter itemsListViewAdapter = new ItemsListViewAdapter(view.getContext(), R.id.ItemsGridView, posOrder.getItems());
+        itemsListView.setAdapter(itemsListViewAdapter);
+      }
+    });
+  }
+
+  private void updatePayments(final POSOrder posOrder) {
+    getView().post(new Runnable() {
+      @Override public void run() {
+        final ListView paymentsListView = (ListView) view.findViewById(R.id.PaymentsGridView);
+        PaymentsListViewAdapter paymentsListViewAdapter = new PaymentsListViewAdapter(view.getContext(), R.id.PaymentsGridView, posOrder.getPayments());
+        paymentsListView.setAdapter(paymentsListViewAdapter);
+      }
+    });
+  }
+
   // TODO: Rename method, update argument and hook method into UI event
   public void onButtonPressed(Uri uri) {
     if (mListener != null) {
@@ -251,7 +287,7 @@ public class OrdersFragment extends Fragment {
         List<POSOrder> orders = new ArrayList<POSOrder>(store.getOrders().size());
         List<POSOrder> storeOrders = store.getOrders();
         for(int i=storeOrders.size()-1; i>=0; i--) {
-          orders.add(storeOrders.get(i));
+          orders.add(0, storeOrders.get(i)); // newest first...
         }
         OrdersListViewAdapter listViewAdapter = new OrdersListViewAdapter(view.getContext(), R.id.ItemsGridView, orders);
         ordersListView.setAdapter(listViewAdapter);
@@ -274,47 +310,38 @@ public class OrdersFragment extends Fragment {
       }
     });
 
-    store.addCurrentOrderObserver(new OrderObserver() {
-      @Override
-      public void lineItemAdded(POSOrder posOrder, POSLineItem lineItem) {
+  }
 
-      }
+  @Override public void lineItemAdded(POSOrder posOrder, POSLineItem lineItem) {
 
-      @Override
-      public void lineItemRemoved(POSOrder posOrder, POSLineItem lineItem) {
+  }
 
-      }
+  @Override public void lineItemRemoved(POSOrder posOrder, POSLineItem lineItem) {
 
-      @Override
-      public void lineItemChanged(POSOrder posOrder, POSLineItem lineItem) {
+  }
 
-      }
+  @Override public void lineItemChanged(POSOrder posOrder, POSLineItem lineItem) {
 
-      @Override
-      public void paymentAdded(POSOrder posOrder, POSPayment payment) {
+  }
 
-      }
+  @Override public void paymentAdded(POSOrder posOrder, POSPayment payment) {
 
-      @Override
-      public void refundAdded(POSOrder posOrder, POSRefund refund) {
+  }
 
-      }
+  @Override public void refundAdded(POSOrder posOrder, POSRefund refund) {
+    updateDisplaysForOrder(posOrder);
+  }
 
-      @Override
-      public void paymentChanged(POSOrder posOrder, POSExchange pay) {
+  @Override public void paymentChanged(POSOrder posOrder, POSExchange pay) {
+    updatePayments(posOrder);
+  }
 
-      }
+  @Override public void discountAdded(POSOrder posOrder, POSDiscount discount) {
 
-      @Override
-      public void discountAdded(POSOrder posOrder, POSDiscount discount) {
+  }
 
-      }
+  @Override public void discountChanged(POSOrder posOrder, POSDiscount discount) {
 
-      @Override
-      public void discountChanged(POSOrder posOrder, POSDiscount discount) {
-
-      }
-    });
   }
 
   /**

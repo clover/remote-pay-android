@@ -22,6 +22,10 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -36,10 +40,13 @@ import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.clover.common2.clover.Clover;
-import com.clover.common2.payments.CardEntryMethods;
+import com.clover.remote.InputOption;
+import com.clover.remote.ResultStatus;
+import com.clover.remote.TxState;
 import com.clover.remote.client.CloverConnector;
 import com.clover.remote.client.ICloverConnectorListener;
+import com.clover.remote.client.MerchantInfo;
+import com.clover.remote.client.device.USBCloverDeviceConfiguration;
 import com.clover.remote.client.device.WebSocketCloverDeviceConfiguration;
 import com.clover.remote.client.lib.example.model.POSCard;
 import com.clover.remote.client.lib.example.model.POSDiscount;
@@ -50,7 +57,6 @@ import com.clover.remote.client.lib.example.model.POSOrder;
 import com.clover.remote.client.lib.example.model.POSPayment;
 import com.clover.remote.client.lib.example.model.POSRefund;
 import com.clover.remote.client.lib.example.model.POSStore;
-import com.clover.remote.client.messages.AuthRequest;
 import com.clover.remote.client.messages.AuthResponse;
 import com.clover.remote.client.messages.CaptureAuthResponse;
 import com.clover.remote.client.messages.ManualRefundRequest;
@@ -66,14 +72,12 @@ import com.clover.remote.client.messages.SaleResponse;
 import com.clover.remote.client.messages.SignatureVerifyRequest;
 import com.clover.remote.client.messages.TipAdjustAuthResponse;
 import com.clover.remote.client.messages.VoidPaymentResponse;
-import com.clover.remote.protocol.message.TipAddedMessage;
-import com.clover.remote.terminal.InputOption;
-import com.clover.remote.terminal.ResultStatus;
-import com.clover.remote.terminal.TxState;
+import com.clover.remote.message.TipAddedMessage;
 import com.clover.sdk.v3.payments.CardTransactionType;
 import com.clover.sdk.v3.payments.Credit;
 import com.clover.sdk.v3.payments.Payment;
 
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
@@ -89,6 +93,8 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
   public static final String EXAMPLE_POS_SERVER_KEY = "clover_device_endpoint";
   public static final int WS_ENDPOINT_ACTIVITY = 123;
   public static final int SVR_ACTIVITY = 456;
+
+  boolean usb = true;
 
 //  private int manualCardEntryMethod = 0;
 //  private int swipeCardEntryMethod = 0;
@@ -106,7 +112,7 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_example_pos);
 
-    if (loadBaseURL()) {
+    if (usb || loadBaseURL()) {
 
       initialize();
 
@@ -124,8 +130,9 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
 
 
     // initialize store...
-    store.addAvailableItem(new POSItem("1", "Hamburger", 759, true, true));
-    store.addAvailableItem(new POSItem("2", "Cheeseburger", 699, true, true));
+    store.addAvailableItem(new POSItem("0", "Chicken Nuggets", 539, true, true));
+    store.addAvailableItem(new POSItem("1", "Hamburger", 699, true, true));
+    store.addAvailableItem(new POSItem("2", "Cheeseburger", 759, true, true));
     store.addAvailableItem(new POSItem("3", "Double Hamburger", 819, true, true));
     store.addAvailableItem(new POSItem("4", "Double Cheeseburger", 899, true, true));
     store.addAvailableItem(new POSItem("5", "Bacon Cheeseburger", 999, true, true));
@@ -138,8 +145,9 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
     store.addAvailableItem(new POSItem("12", "Chocolate Milkshake", 449, true, true));
     store.addAvailableItem(new POSItem("13", "Vanilla Milkshake", 419, true, true));
     store.addAvailableItem(new POSItem("14", "Strawberry Milkshake", 439, true, true));
-    store.addAvailableItem(new POSItem("15", "$25 Gift Card", 2500, false, false));
-    store.addAvailableItem(new POSItem("16", "$50 Gift Card", 5000, false, false));
+    store.addAvailableItem(new POSItem("15", "Ice Cream Cone", 189, true, true));
+    store.addAvailableItem(new POSItem("16", "$25 Gift Card", 2500, false, false));
+    store.addAvailableItem(new POSItem("17", "$50 Gift Card", 5000, false, false));
 
     store.addAvailableDiscount(new POSDiscount("10% Off", 0.1f));
     store.addAvailableDiscount(new POSDiscount("$5 Off", 500));
@@ -149,6 +157,9 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
   }
 
   private boolean loadBaseURL() {
+    if(usb) {
+      return true;
+    }
     String _serverBaseURL = PreferenceManager.getDefaultSharedPreferences(this).getString(EXAMPLE_POS_SERVER_KEY, null);
 
     if (_serverBaseURL == null || "".equals(_serverBaseURL.trim())) {
@@ -166,10 +177,10 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     if (requestCode == WS_ENDPOINT_ACTIVITY) {
-
-      loadBaseURL();
-      initialize();
-
+      if (!usb) {
+        loadBaseURL();
+        initialize();
+      }
     }
   }
 
@@ -239,7 +250,7 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
       if (cloverConnector != null) {
         cloverConnector.dispose();
       }
-      uri = new URI(_checksURL);
+
 //      if(cloverConnector == null) {
 
 //      }
@@ -266,11 +277,11 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
           });
         }
 
-        public void onReady() {
+        public void onReady(final MerchantInfo merchantInfo) {
           runOnUiThread(new Runnable() {
             public void run() {
               Toast.makeText(ExamplePOSActivity.this, "Ready!", Toast.LENGTH_SHORT).show();
-              ((TextView) findViewById(R.id.ConnectionStatusLabel)).setText("Connected");
+              ((TextView) findViewById(R.id.ConnectionStatusLabel)).setText(String.format("Connected: %s (%s)", merchantInfo.getDeviceInfo().getSerial(), merchantInfo.getMerchantName()));
             }
           });
         }
@@ -592,7 +603,12 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
 
       };
 
-      cloverConnector = new CloverConnector(new WebSocketCloverDeviceConfiguration(uri, 10000, 2000), ccListener);
+      if(usb) {
+        cloverConnector = new CloverConnector(new USBCloverDeviceConfiguration(this), ccListener);
+      } else {
+        uri = new URI(_checksURL);
+        cloverConnector = new CloverConnector(new WebSocketCloverDeviceConfiguration(uri, 10000, 2000), ccListener);
+      }
 
       updateComponentsWithNewCloverConnector();
 
@@ -602,6 +618,12 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
 
   }
 
+  @Override protected void onDestroy() {
+    super.onDestroy();
+    if(cloverConnector != null) {
+      cloverConnector.dispose();
+    }
+  }
 
   @Override
   public void onFragmentInteraction(Uri uri) {
@@ -609,8 +631,10 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
   }
 
   public void showSettings(MenuItem item) {
-    Intent intent = new Intent(this, ExamplePOSSettingsActivity.class);
-    startActivityForResult(intent, WS_ENDPOINT_ACTIVITY);
+    if(!usb) {
+      Intent intent = new Intent(this, ExamplePOSSettingsActivity.class);
+      startActivityForResult(intent, WS_ENDPOINT_ACTIVITY);
+    }
   }
 
   private void updateComponentsWithNewCloverConnector() {
@@ -830,5 +854,11 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
 
   public void onClickCloseout(View view) {
     cloverConnector.closeout(false, null);
+  }
+
+
+  public void printImageClick(View view) {
+    Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.clover_horizontal);
+    cloverConnector.printImage(bitmap);
   }
 }

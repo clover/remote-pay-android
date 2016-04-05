@@ -38,6 +38,31 @@
             android:layout_toEndOf="@+id/ShowMessageText"/>
         <LinearLayout
                 android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:id="@+id/CloseoutBox"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/CancelCashBox"
+                android:layout_toStartOf="@+id/button2" android:layout_alignEnd="@+id/WelcomeThankYouBox">
+            <Button
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:text="Closeout Orders"
+                    android:layout_weight=".5"
+                    android:onClick="onClickCloseout"
+                    android:id="@+id/CloseoutButton"
+                    android:layout_below="@+id/button4"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignEnd="@+id/button3"/>
+            <Button android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".5"
+                    android:text="Print Image"
+                    android:onClick="printImageClick"
+                    android:id="@+id/PrintImageButton"
+            />
+        </LinearLayout>
+        <LinearLayout
+                android:orientation="horizontal"
                 android:layout_width="fill_parent"
                 android:id="@+id/WelcomeThankYouBox"
                 android:layout_height="wrap_content"
@@ -84,25 +109,6 @@
                     android:id="@+id/CashDrawerButton"
                     android:layout_below="@+id/button3" android:layout_alignStart="@+id/button4"/>
         </LinearLayout>
-        <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:id="@+id/CloseoutBox"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/CancelCashBox"
-                android:layout_toStartOf="@+id/button2" android:layout_alignEnd="@+id/WelcomeThankYouBox">
-            <Button
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:text="Closeout Orders"
-                    android:layout_weight=".5"
-                    android:onClick="onClickCloseout"
-                    android:id="@+id/CloseoutButton"
-                    android:layout_below="@+id/button4"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignEnd="@+id/button3"/>
-            <Button android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight=".5" android:visibility="invisible"/>
-        </LinearLayout>
 
         <LinearLayout
             android:orientation="vertical"
@@ -132,6 +138,17 @@
                 android:layout_height="wrap_content"
                 android:text="Contactless"
                 android:id="@+id/ContactlessSwitch"/>
+        <Switch
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Allow Offline Payment"
+                android:id="@+id/AllowOfflineSwitch"/>
+        <Switch
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Approve Offline Without Prompt"
+                android:enabled="false"
+                android:id="@+id/ApproveOfflinePaymentsWithoutPromptSwitch"/>
         </LinearLayout>
 
 

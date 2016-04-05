@@ -17,28 +17,16 @@
 package com.clover.remote.client.lib.example;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.Fragment;
-import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Switch;
-import android.widget.Toast;
-import com.clover.common2.payments.CardEntryMethods;
 import com.clover.remote.client.CloverConnector;
 import com.clover.remote.client.ICloverConnector;
-import com.clover.remote.client.lib.example.adapter.ItemsListViewAdapter;
-import com.clover.remote.client.lib.example.adapter.OrdersListViewAdapter;
-import com.clover.remote.client.lib.example.adapter.PaymentsListViewAdapter;
 import com.clover.remote.client.lib.example.model.OrderObserver;
 import com.clover.remote.client.lib.example.model.POSDiscount;
 import com.clover.remote.client.lib.example.model.POSExchange;
@@ -47,14 +35,8 @@ import com.clover.remote.client.lib.example.model.POSOrder;
 import com.clover.remote.client.lib.example.model.POSPayment;
 import com.clover.remote.client.lib.example.model.POSRefund;
 import com.clover.remote.client.lib.example.model.POSStore;
-import com.clover.remote.client.lib.example.model.StoreObserver;
-import com.clover.remote.client.messages.RefundPaymentRequest;
-import com.clover.remote.client.messages.TipAdjustAuthRequest;
-import com.clover.remote.client.messages.VoidPaymentRequest;
-import com.clover.sdk.v3.order.VoidReason;
 
 import java.lang.ref.WeakReference;
-import java.util.Collections;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -80,6 +62,8 @@ public class MiscellaneousFragment extends Fragment {
   private Switch swipeSwitch;
   private Switch chipSwitch;
   private Switch contactlessSwitch;
+  private Switch allowOffline;
+  private Switch approveOfflineNoPrompt;
 
   /**
    * Use this factory method to create a new instance of
@@ -150,6 +134,8 @@ public class MiscellaneousFragment extends Fragment {
     swipeSwitch = ((Switch)view.findViewById(R.id.SwipeSwitch));
     chipSwitch = ((Switch)view.findViewById(R.id.ChipSwitch));
     contactlessSwitch = ((Switch)view.findViewById(R.id.ContactlessSwitch));
+    allowOffline = ((Switch)view.findViewById(R.id.AllowOfflineSwitch));
+    approveOfflineNoPrompt = ((Switch)view.findViewById(R.id.ApproveOfflinePaymentsWithoutPromptSwitch));
 
     manualSwitch.setTag(CloverConnector.CARD_ENTRY_METHOD_MANUAL);
     swipeSwitch.setTag(CloverConnector.CARD_ENTRY_METHOD_MAG_STRIPE);
@@ -159,7 +145,14 @@ public class MiscellaneousFragment extends Fragment {
     CompoundButton.OnCheckedChangeListener changeListener = new CompoundButton.OnCheckedChangeListener() {
       @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if(!updatingSwitches) {
-          ((CloverConnector)cloverConnectorWeakReference.get()).setCardEntryMethods(getCardEntryMethodStates());
+          if(buttonView == allowOffline) {
+            ((CloverConnector)cloverConnectorWeakReference.get()).setAllowOfflinePayment(buttonView.isChecked());
+          } else if(buttonView == approveOfflineNoPrompt) {
+            ((CloverConnector)cloverConnectorWeakReference.get()).setApproveOfflinePaymentWithoutPrompt(buttonView.isChecked());
+          } else {
+            ((CloverConnector)cloverConnectorWeakReference.get()).setCardEntryMethods(getCardEntryMethodStates());
+          }
+
         }
       }
     };
@@ -169,7 +162,8 @@ public class MiscellaneousFragment extends Fragment {
     swipeSwitch.setOnCheckedChangeListener(changeListener);
     chipSwitch.setOnCheckedChangeListener(changeListener);
     contactlessSwitch.setOnCheckedChangeListener(changeListener);
-
+    allowOffline.setOnCheckedChangeListener(changeListener);
+    approveOfflineNoPrompt.setOnCheckedChangeListener(changeListener);
 
     return view;
   }
@@ -245,6 +239,8 @@ public class MiscellaneousFragment extends Fragment {
       contactlessSwitch.setChecked((((CloverConnector)cloverConnectorWeakReference.get()).getCardEntryMethods() & CloverConnector.CARD_ENTRY_METHOD_NFC_CONTACTLESS) != 0);
       chipSwitch.setChecked((((CloverConnector)cloverConnectorWeakReference.get()).getCardEntryMethods() & CloverConnector.CARD_ENTRY_METHOD_ICC_CONTACT) != 0);
       swipeSwitch.setChecked((((CloverConnector)cloverConnectorWeakReference.get()).getCardEntryMethods() & CloverConnector.CARD_ENTRY_METHOD_MAG_STRIPE) != 0);
+      allowOffline.setChecked(((CloverConnector)cloverConnectorWeakReference.get()).isAllowOfflinePayment());
+      approveOfflineNoPrompt.setChecked(((CloverConnector)cloverConnectorWeakReference.get()).isApproveOfflinePaymentWithoutPrompt());
       updatingSwitches = false;
     }
 

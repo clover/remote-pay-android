@@ -20,6 +20,8 @@ public class MerchantInfo {
   DeviceInfo deviceInfo = new DeviceInfo();
 
   String merchantID;
+  String merchantMID;
+  String merchantName;
 
   boolean supportsAuths;
   boolean supportsPreAuths;
@@ -28,9 +30,63 @@ public class MerchantInfo {
   boolean supportsManualRefunds;
   boolean supportsVoids;
 
-  static class DeviceInfo {
+  public static class DeviceInfo {
     String name;
     String serial;
     String model;
+
+    public String getName() {
+      return name;
+    }
+
+    public String getSerial() {
+      return serial;
+    }
+
+    public String getModel() {
+      return model;
+    }
   }
+
+
+  public DeviceInfo getDeviceInfo() {
+    return deviceInfo;
+  }
+
+  public String getMerchantID() {
+    return merchantID;
+  }
+
+  public String getMerchantMID() {
+    return merchantMID;
+  }
+
+  public String getMerchantName() {
+    return merchantName;
+  }
+
+  public boolean isSupportsAuths() {
+    return supportsAuths;
+  }
+
+  public boolean isSupportsPreAuths() {
+    return supportsPreAuths;
+  }
+
+  public boolean isSupportsSales() {
+    return supportsSales;
+  }
+
+  public boolean isSupportsVaultCards() {
+    return supportsVaultCards;
+  }
+
+  public boolean isSupportsManualRefunds() {
+    return supportsManualRefunds;
+  }
+
+  public boolean isSupportsVoids() {
+    return supportsVoids;
+  }
+
 }

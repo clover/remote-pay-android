@@ -55,4 +55,5 @@ public class MiscellaneousActivity extends Activity {
   public void captureCardClick(View view) {
 
   }
+
 }

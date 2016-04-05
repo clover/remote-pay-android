@@ -16,14 +16,15 @@
 
 package com.clover.remote.client.messages;
 
-import com.clover.common2.payments.PayIntent;
+import com.clover.sdk.internal.PayIntent;
 
 /**
  * Created by blakewilliams on 2/2/16.
  */
-public class PreAuthRequest extends TxRequest{
+public class PreAuthRequest extends TxRequest {
 
-  @Override public PayIntent.TransactionType getType() {
+  @Override
+  public PayIntent.TransactionType getType() {
     return PayIntent.TransactionType.AUTH;
   }
 }

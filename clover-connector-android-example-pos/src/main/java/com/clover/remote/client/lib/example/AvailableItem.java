@@ -24,8 +24,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import com.clover.common.util.CurrencyUtils;
 import com.clover.remote.client.lib.example.model.POSItem;
+import com.clover.remote.client.lib.example.utils.CurrencyUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -93,7 +93,7 @@ public class AvailableItem extends Fragment {
         }
       });
       tv = (TextView) v.findViewById(R.id.ItemNamePrice);
-      tv.setText(CurrencyUtils.longToAmountString(java.util.Currency.getInstance(Locale.getDefault()), item.getPrice()));
+      tv.setText(CurrencyUtils.format(item.getPrice(), Locale.getDefault()));
       tv.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {

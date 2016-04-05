@@ -16,7 +16,7 @@
 
 package com.clover.remote.client.messages;
 
-import com.clover.remote.terminal.InputOption;
+import com.clover.remote.InputOption;
 
 public class CloverDeviceEvent {
 
