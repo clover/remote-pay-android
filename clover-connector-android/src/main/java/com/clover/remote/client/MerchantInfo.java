@@ -16,7 +16,22 @@
 
 package com.clover.remote.client;
 
+import com.clover.remote.message.DiscoveryResponseMessage;
+
 public class MerchantInfo {
+  public MerchantInfo(){}
+  public MerchantInfo(DiscoveryResponseMessage drm) {
+    merchantID = drm.merchantId;
+    merchantMID = drm.merchantMId;
+    merchantName = drm.merchantName;
+    deviceInfo.name = drm.name;
+    deviceInfo.model = drm.model;
+    deviceInfo.serial = drm.serial;
+    supportsPreAuths = drm.supportsTipAdjust;
+    supportsManualRefunds = drm.supportsManualRefund;
+    supportsTipAdjust = drm.supportsTipAdjust;
+    supportsVaultCards = drm.supportsManualRefund;
+  }
   DeviceInfo deviceInfo = new DeviceInfo();
 
   String merchantID;
@@ -29,6 +44,7 @@ public class MerchantInfo {
   boolean supportsVaultCards;
   boolean supportsManualRefunds;
   boolean supportsVoids;
+  boolean supportsTipAdjust;
 
   public static class DeviceInfo {
     String name;
@@ -87,6 +103,10 @@ public class MerchantInfo {
 
   public boolean isSupportsVoids() {
     return supportsVoids;
+  }
+
+  public boolean isSupportsTipAdjust() {
+    return supportsTipAdjust;
   }
 
 }

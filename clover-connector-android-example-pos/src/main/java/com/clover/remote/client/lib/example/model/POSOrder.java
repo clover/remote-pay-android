@@ -131,7 +131,7 @@ public class POSOrder {
         exists = true;
         lineI.incrementQuantity(quantity);
         targetItem = lineI;
-        notifyObserverItemChanged(targetItem);
+        //notifyObserverItemChanged(targetItem);
         break;
       }
     }

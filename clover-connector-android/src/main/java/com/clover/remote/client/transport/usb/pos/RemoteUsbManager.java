@@ -32,11 +32,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
-//import com.clover.remote.client.transport.RemoteStringConduit;
-//import com.clover.remote.client.transport.usb.UsbCloverManager;
 
-
-public class RemoteUsbManager extends UsbCloverManager<Void> /*implements RemoteStringConduit*/ {
+public class RemoteUsbManager extends UsbCloverManager<Void> {
 
   private final String TAG = getClass().getSimpleName();
 
@@ -177,13 +174,13 @@ public class RemoteUsbManager extends UsbCloverManager<Void> /*implements Remote
         // Start packet
         final int startInt = dis.readInt();
         if (startInt != REMOTE_STRING_MAGIC_START_TOKEN) {
-//          mCounters.increment("pos.error.processinputdata.starttoken");
+          Log.e(TAG, "Invalid start token: " + Integer.toHexString(startInt));
           throw new IOException("Unexpected start token: 0x" + Integer.toHexString(startInt));
         }
 
         final int totalStringLength = dis.readInt();
         if (totalStringLength <= 0 || totalStringLength > REMOTE_STRING_LENGTH_MAX) {
-//          mCounters.increment("pos.error.processinputdata.length");
+          Log.e(TAG, "Invalid length of message: " + totalStringLength + " bytes");
           throw new IOException("Illegal string length: " + totalStringLength + " bytes");
         }
 
@@ -219,10 +216,11 @@ public class RemoteUsbManager extends UsbCloverManager<Void> /*implements Remote
     final int stringByteLength = stringBytes.length;
     if (stringByteLength <= 0 || stringByteLength > REMOTE_STRING_LENGTH_MAX) {
       if (stringByteLength <= 0) {
-//        mCounters.increment("pos.error.sendstring.bytelength.zero");
+        Log.w(TAG, "sending a 0 lenght message");
       } else {
-//        mCounters.increment("pos.error.sendstring.bytelength.max");
+        Log.w(TAG, "message exceeds max length");
       }
+
       throw new IllegalArgumentException("String byte length " + stringByteLength + " bytes outside limits");
     }
 

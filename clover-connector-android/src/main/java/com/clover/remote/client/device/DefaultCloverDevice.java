@@ -20,6 +20,7 @@ import com.clover.remote.KeyPress;
 import com.clover.remote.client.CloverDeviceObserver;
 import com.clover.remote.client.transport.CloverTransport;
 import com.clover.remote.client.transport.CloverTransportObserver;
+import com.clover.remote.message.BreakMessage;
 import com.clover.remote.message.CapturePreAuthMessage;
 import com.clover.remote.message.CapturePreAuthResponseMessage;
 import com.clover.remote.message.CashbackSelectedMessage;
@@ -39,6 +40,8 @@ import com.clover.remote.message.RefundRequestMessage;
 import com.clover.remote.message.RefundResponseMessage;
 import com.clover.remote.message.RemoteMessage;
 import com.clover.remote.message.ShowPaymentReceiptOptionsMessage;
+//import com.clover.remote.message.ShowRefundReceiptOptionsMessage;
+//import com.clover.remote.message.ShowManualRefundReceiptOptionsMessage;
 import com.clover.remote.message.SignatureVerifiedMessage;
 import com.clover.remote.message.TerminalMessage;
 import com.clover.remote.message.TextPrintMessage;
@@ -246,6 +249,39 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
               //Outbound no-op
               break;
             case VOID_PAYMENT:
+              //Outbound no-op
+              break;
+            case CAPTURE_PREAUTH:
+              //Outbound no-op
+              break;
+            case LAST_MSG_REQUEST:
+              //Outbound no-op
+              break;
+            case LAST_MSG_RESPONSE:
+              //Outbound no-op
+              break;
+            case TIP_ADJUST:
+              //Outbound no-op
+              break;
+            case OPEN_CASH_DRAWER:
+              //Outbound no-op
+              break;
+            case SHOW_PAYMENT_RECEIPT_OPTIONS:
+              //Outbound no-op
+              break;
+//            case SHOW_REFUND_RECEIPT_OPTIONS:
+//              //Outbound no-op
+//              break;
+//            case SHOW_MANUAL_REFUND_RECEIPT_OPTIONS:
+//              //Outbound no-op
+//              break;
+            case REFUND_PRINT_PAYMENT:
+              //Outbound no-op
+              break;
+            case VAULT_CARD:
+              //Outbound no-op
+              break;
+            case CLOSEOUT_REQUEST:
               //Outbound no-op
               break;
           }
@@ -499,9 +535,17 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
 
   }
 
-  public void doShowReceiptScreen() {
-    sendObjectMessage(new ShowPaymentReceiptOptionsMessage(null, null, 1));
+  public void doShowPaymentReceiptScreen(String orderId, String paymentId) {
+    sendObjectMessage(new ShowPaymentReceiptOptionsMessage(orderId, paymentId, 2));
   }
+
+//  public void doShowRefundReceiptScreen(String orderId, String refundId) {
+//    sendObjectMessage(new ShowRefundReceiptOptionsMessage(orderId, refundId));
+//  }
+
+//  public void doShowManualRefundReceiptScreen(String orderId, String creditId) {
+//    sendObjectMessage(new ShowManualRefundReceiptOptionsMessage(orderId, creditId));
+//  }
 
   public void doKeyPress(KeyPress keyPress) {
     sendObjectMessage(new KeyPressMessage(keyPress));
@@ -598,6 +642,11 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
     }
 
     sendObjectMessage(updateMessage);
+  }
+
+  @Override
+  public void doResetDevice() {
+    sendObjectMessage(new BreakMessage());
   }
 
   public void dispose() {

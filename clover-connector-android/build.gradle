@@ -1,5 +1,5 @@
 group = 'com.clover.sdk'
-version = '0.4'
+version = '0.5'
 
 apply plugin: 'com.android.library'
 
@@ -32,8 +32,8 @@ android {
 defaultTasks 'install'
 
 dependencies {
-  compile(name: 'clover-remote-interface', ext: 'aar')
-  compile(name: 'clover-android-sdk', ext: 'aar')
+  compile(name: 'clover-remote-interface-164', ext: 'aar')
+  compile(name: 'clover-android-sdk-136', ext: 'aar')
   compile 'com.google.code.gson:gson:2.3.1'
   compile 'org.java-websocket:Java-WebSocket:1.3.0'
 }

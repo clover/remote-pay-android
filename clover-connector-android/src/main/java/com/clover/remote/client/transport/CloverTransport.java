@@ -23,6 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class CloverTransport {
+
+  public static final String DEVICE_CONNECTED = "com.clover.remotepay.DEVICE_CONNECTED";
+  public static final String DEVICE_READY = "com.clover.remotepay.DEVICE_READY";
+  public static final String DEVICE_DISCONNECTED = "com.clover.remotepay.DEVICE_DISCONNECTED";
+
   protected List<CloverTransportObserver> observers = new ArrayList<CloverTransportObserver>();
   boolean ready = false;
   private DiscoveryResponseMessage lastDiscoverResponseMessage;

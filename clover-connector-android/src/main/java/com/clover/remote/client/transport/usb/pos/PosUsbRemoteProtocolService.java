@@ -16,6 +16,7 @@
 
 package com.clover.remote.client.transport.usb.pos;
 
+import com.clover.remote.client.transport.CloverTransport;
 import com.clover.remote.client.transport.usb.USBCloverTransportService;
 import com.clover.remote.client.transport.usb.UsbCloverManager;
 
@@ -43,8 +44,6 @@ import java.util.concurrent.Executors;
 public class PosUsbRemoteProtocolService extends PosRemoteProtocolService implements USBCloverTransportService {
 
   private static final String TAG = PosUsbRemoteProtocolService.class.getSimpleName();
-
-  private static final int NOTIFICATION_ID = 0xfbc15321;
 
   public static final String ACTION_USB_SETUP = "com.clover.remote.usb.intent.ACTION_USB_SETUP";
   public static final String ACTION_USB_CONNECT = "com.clover.remote.usb.intent.ACTION_USB_CONNECT";
@@ -112,6 +111,13 @@ public class PosUsbRemoteProtocolService extends PosRemoteProtocolService implem
       }
     });
 
+    if(sendQueue != null) {
+      sendQueue.stop();
+    }
+    if(readQueue != null) {
+      readQueue.stop();
+    }
+
     super.onDestroy();
 
     try {
@@ -170,7 +176,6 @@ public class PosUsbRemoteProtocolService extends PosRemoteProtocolService implem
     public void run() {
       if (setupUsb()) {
         // need to check the connect...
-        currentStatus = RemoteTerminalStatus.TERMINAL_CONNECTED_NOT_READY;
       }
     }
   };
@@ -189,7 +194,7 @@ public class PosUsbRemoteProtocolService extends PosRemoteProtocolService implem
     }
   };
 
-  private boolean setupUsb() {
+  private synchronized boolean setupUsb() {
     if (mRemoteUsbManager != null && mRemoteUsbManager.isConnected()) {
       return false;
     }
@@ -199,6 +204,10 @@ public class PosUsbRemoteProtocolService extends PosRemoteProtocolService implem
     try {
       UsbAccessorySetupUsbManager setupUsbManager = new UsbAccessorySetupUsbManager(getContext());
       setupUsbManager.startAccessoryMode();
+
+      currentStatus = RemoteTerminalStatus.TERMINAL_CONNECTED_NOT_READY;
+      getContext().sendBroadcast(new Intent(CloverTransport.DEVICE_CONNECTED));
+
       return true;
     } catch (Exception e) {
       Log.w(TAG, "Terminal setup failed", e);
@@ -207,7 +216,7 @@ public class PosUsbRemoteProtocolService extends PosRemoteProtocolService implem
     return false;
   }
 
-  private void connectUsb() {
+  private synchronized void connectUsb() {
     if (mRemoteUsbManager != null && mRemoteUsbManager.isConnected()) {
       Log.d(TAG, "Already have a connection, just return.");
       return; // ready!
@@ -230,16 +239,10 @@ public class PosUsbRemoteProtocolService extends PosRemoteProtocolService implem
       readQueue.start();
 
       currentStatus = RemoteTerminalStatus.TERMINAL_CONNECTED_READY;
-//      connectionStatus = ConnectionStatus.READY;
+
       Log.d(TAG, "send ready message");
-      getContext().sendBroadcast(new Intent(RemoteTerminalStatus.TERMINAL_CONNECTED_READY.name()));
+      getContext().sendBroadcast(new Intent(CloverTransport.DEVICE_READY));
 
-//      setRemoteProtocolUsbPaymentDevice(getContext());
-//      startForeground();
-
-      /*if (PacketFlood.ENABLED) {
-        new PacketFlood(mAsyncRemoteMessageConduit, getPackageName()).start();
-      }*/
     } catch (Exception e) {
       boolean quiet = e instanceof UsbCloverManager.UsbDeviceNotFoundException;
       if (quiet) {
@@ -252,7 +255,13 @@ public class PosUsbRemoteProtocolService extends PosRemoteProtocolService implem
     }
   }
 
-  private void disconnectUsb() {
+  private synchronized void disconnectUsb() {
+    if(sendQueue != null) {
+      sendQueue.stop();
+    }
+    if(readQueue != null) {
+      readQueue.stop();
+    }
     if (mRemoteUsbManager == null) {
       return;
     }
@@ -263,56 +272,19 @@ public class PosUsbRemoteProtocolService extends PosRemoteProtocolService implem
       mRemoteUsbManager.disconnect();
       mRemoteUsbManager = null;
     }
+
     currentStatus = RemoteTerminalStatus.TERMINAL_DISCONNECTED;
     Log.d(TAG, "send disconnect message");
-    getContext().sendBroadcast(new Intent(RemoteTerminalStatus.TERMINAL_DISCONNECTED.name()));
+    getContext().sendBroadcast(new Intent(CloverTransport.DEVICE_DISCONNECTED));
 
-//    unsetRemoteProtocolUsbPaymentDevice(getContext()); // TODO: don't think I need this
-//    stopForeground(true);
     stopSelf();
   }
 
-  /*public static void setRemoteProtocolUsbPaymentDevice(Context context) {
-    Log.d(TAG, String.format("Setting payment device to %s", PaymentDevice.REMOTE_PROTOCOL_USB));
-//    PaymentDevice.REMOTE_PROTOCOL_USB.setDefault(context);
-  }
-
-  public static void unsetRemoteProtocolUsbPaymentDevice(Context context) {
-    if (PaymentDevice.getDefault(context) == PaymentDevice.REMOTE_PROTOCOL_USB) {
-      for (PaymentDevice paymentDevice : PaymentDevice.getInstalled(context)) {
-        if (paymentDevice.isBuiltIn()) {
-          Log.d(TAG, String.format("Setting payment device to %s", paymentDevice));
-          paymentDevice.setDefault(context);
-          break;
-        }
-      }
-    }
-  }*/
-
-  private void startForeground() {
-    Log.d(TAG, "startForeground");
-
-    PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), 1,
-        new Intent().setClass(getContext(), UsbActivity.class),
-        PendingIntent.FLAG_UPDATE_CURRENT);
-
-    Notification notification = new Notification.Builder(this)
-        .setContentTitle("Clover USB Service")
-        .setTicker("Clover USB Service")
-        .setContentText("Clover USB Service")
-        .setShowWhen(false)
-        .setOngoing(true)
-        .setContentIntent(pendingIntent)
-        .build();
-
-    startForeground(NOTIFICATION_ID, notification);
-  }
 
   @Override
   public void onConduitConnected() {
     super.onConduitConnected();
-//    sendMessage(new DiscoveryRequestMessage(isOrderModificationSupported()).toJsonString()); // this gets sent by the DefaultCloverDevice
-    getContext().sendBroadcast(new Intent(RemoteTerminalStatus.TERMINAL_CONNECTED_NOT_READY.name()));
+    getContext().sendBroadcast(new Intent(CloverTransport.DEVICE_CONNECTED));
   }
 
   @Override
@@ -336,7 +308,22 @@ public class PosUsbRemoteProtocolService extends PosRemoteProtocolService implem
   }
 
   private void broadcastStatus() {
-    getContext().sendBroadcast(new Intent(currentStatus.name()));
+    String msg = CloverTransport.DEVICE_DISCONNECTED;
+    switch(currentStatus) {
+      case TERMINAL_DISCONNECTED: {
+        msg = CloverTransport.DEVICE_DISCONNECTED;
+        break;
+      }
+      case TERMINAL_CONNECTED_NOT_READY: {
+        msg = CloverTransport.DEVICE_CONNECTED;
+        break;
+      }
+      case TERMINAL_CONNECTED_READY: {
+        msg = CloverTransport.DEVICE_READY;
+        break;
+      }
+    }
+    getContext().sendBroadcast(new Intent(msg));
   }
 
   private class SendQueue {
@@ -370,7 +357,11 @@ public class PosUsbRemoteProtocolService extends PosRemoteProtocolService implem
     }
 
     public void stop() {
-      svc.shutdown();
+      ExecutorService temp = svc;
+      svc = null;
+      if(temp != null) {
+        temp.shutdown();
+      }
     }
   }
 
@@ -403,6 +394,7 @@ public class PosUsbRemoteProtocolService extends PosRemoteProtocolService implem
 
     public void stop() {
       shutdown = true;
+      svc = null;
     }
   }
 }

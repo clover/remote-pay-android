@@ -17,7 +17,12 @@
 package com.clover.remote.client.lib.example.model;
 
 public class POSRefund extends POSExchange {
-  public POSRefund(String paymentID, String orderID, String employeeID, long amount) {
+  public String refundID;
+  public POSRefund(String refundID, String paymentID, String orderID, String employeeID, long amount) {
     super(paymentID, orderID, employeeID, amount);
+    this.refundID = refundID;
+  }
+  public String getRefundID() {
+    return refundID;
   }
 }

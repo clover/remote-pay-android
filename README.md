@@ -1,6 +1,6 @@
 # Clover SDK for Android PoS Integration
 
-Current version: 0.4
+Current version: 0.5
 
 ## Overview
 
@@ -14,6 +14,11 @@ The Android project includes both a connector and example. To effectively work w
 To complete a transaction end to end, we recommend getting a [Clover Mini Dev Kit](http://cloverdevkit.com/collections/devkits/products/clover-mini-dev-kit).
 
 ## Release Notes
+# Version 0.5
+* Fix performance issue in USB connector
+* Updated action of broadcast messages for USB connect/disconnect/ready
+   * CloverTransport.DEVICE_DISCONNECTED, DEVICE_CONNECTED, DEVICE_READY
+* added resetDevice() to CloverConnector, to reset the clover device state
 
 # Version 0.4
 * Add support for USB (USBCloverDeviceConfiguration)

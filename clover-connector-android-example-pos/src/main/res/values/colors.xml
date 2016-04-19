@@ -26,6 +26,7 @@
   <color name="darkgrayishblue">#808285</color>
   <color name="lightgray">#C0C0C0</color>
   <color name="clover_green">#547554</color>
+  <color name="warning_red">#A53434</color>
 
   <color name="transparentblack">#80000000</color>
   <color name="transparentwhite">#80FFFFFF</color>
