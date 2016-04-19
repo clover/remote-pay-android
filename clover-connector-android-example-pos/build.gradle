@@ -4,7 +4,6 @@ version = '0.5'
 apply plugin: 'com.android.application'
 
 repositories {
-  maven { url "http://artifactory.corp.clover.com:8081/artifactory/repo" }
   mavenLocal()
   mavenCentral()
   flatDir {
