@@ -21,7 +21,6 @@ import com.clover.sdk.v3.payments.VaultedCard;
 
 public abstract class TxRequest {
   private long amount;
-  private Long tipAmount;
   private Integer cardEntryMethods;
   private boolean cardNotPresent;
   private VaultedCard vaultedCard;
@@ -36,14 +35,6 @@ public abstract class TxRequest {
 
   public void setAmount(long amount) {
     this.amount = amount;
-  }
-
-  public Long getTipAmount() {
-    return tipAmount;
-  }
-
-  public void setTipAmount(Long tipAmount) {
-    this.tipAmount = tipAmount;
   }
 
   public Integer getCardEntryMethods() {

@@ -14,8 +14,21 @@
  * limitations under the License.
  */
 
+
 package com.clover.remote.client.messages;
 
-public class AuthResponse extends SaleResponse {
-}
+/**
+ * Created by glennbedwell on 3/8/16.
+ */
+public class ConfigErrorResponse {
+  private String message;
 
+  public String getMessage() {
+    return message;
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
+  }
+
+}

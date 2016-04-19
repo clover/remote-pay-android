@@ -32,9 +32,6 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
 
-//import com.clover.common.analytics.ALog;
-//import com.clover.common.metrics.Counters;
-
 /**
  * This class is designed to be a reusable USB communication manager for devices that bulk transfer data.
  * Instances of this class should be singletons.
@@ -87,7 +84,6 @@ public abstract class UsbCloverManager<T> {
     }
   }
 
-//  protected final Counters mCounters;
 
   private final android.hardware.usb.UsbManager mUsbManager;
 
@@ -102,7 +98,6 @@ public abstract class UsbCloverManager<T> {
   public UsbCloverManager(Context context) {
     mReadBuffer = new byte[getReadSize()];
     mUsbManager = (android.hardware.usb.UsbManager) context.getSystemService(Context.USB_SERVICE);
-//    mCounters = Counters.instance(context);
   }
 
   /**
@@ -244,31 +239,28 @@ public abstract class UsbCloverManager<T> {
       mConnection = mUsbManager.openDevice(mUsbDevice);
 
       if (VERBOSE) {
-//        ALog.v(this, "USB Device: %s", mUsbDevice);
-//        ALog.v(this, "USB Interface: %s", mInterface);
-//        ALog.v(this, "USB Endpoint IN: %s", mEndpointIn);
-//        ALog.v(this, "USB Endpoint OUT: %s", mEndpointOut);
-//        ALog.v(this, "USB Connection: %s", mConnection);
+        Log.v(TAG, String.format("USB Device: %s", mUsbDevice));
+        Log.v(TAG, String.format("USB Interface: %s", mInterface));
+        Log.v(TAG, String.format("USB Endpoint IN: %s", mEndpointIn));
+        Log.v(TAG, String.format("USB Endpoint OUT: %s", mEndpointOut));
+        Log.v(TAG, String.format("USB Connection: %s", mConnection));
       }
 
       if (!isConnected()) {
-//        ALog.e(this, "Error, open device failed");
-//        mCounters.increment("pos.error.setupdevice.openfailed");
+        Log.e(TAG, "Error, open device failed");
         return false;
       }
 
       if (!mConnection.claimInterface(mInterface, true)) {
-//        ALog.e(this, "Error, claim interface failed");
-//        mCounters.increment("pos.error.setupdevice.claimfailed");
+
+        Log.e(TAG, "Error, claim interface failed");
         return false;
       }
 
       return true;
     }
 
-//    ALog.e(this, "Error, bulk endpoints not found");
-//    mCounters.increment("pos.error.setupdevice.notfound");
-
+    Log.e(TAG, "Error, bulk endpoints not found");
     return false;
   }
 
@@ -307,7 +299,7 @@ public abstract class UsbCloverManager<T> {
 
   public int write(byte[] outputData, T params) throws InterruptedException {
     if (!isConnected() || outputData == null || outputData.length == 0) {
-//      ALog.w(this, "Ignoring write request");
+      Log.w(TAG, "Ignoring write request");
       return -1;
     }
 
@@ -320,7 +312,7 @@ public abstract class UsbCloverManager<T> {
 
   public byte[] read(T params) throws InterruptedException {
     if (!isConnected()) {
-//      ALog.w(this, "Ignoring read request");
+      Log.w(TAG, "Ignoring read request");
       return null;
     }
 
@@ -352,7 +344,7 @@ public abstract class UsbCloverManager<T> {
 
     while (totalDataBytes > totalBytesTransferred) {
       if (Thread.interrupted()) {
-//        ALog.d(this, "[write] interrupted");
+        Log.d(TAG, "[write] interrupted");
         throw new InterruptedException();
       }
 
@@ -360,14 +352,14 @@ public abstract class UsbCloverManager<T> {
       byte[] writePacket = wrapWritePacket(outDataBuffer, numBytesToTransfer);
 
       if (VERBOSE) {
-//        ALog.v(this, "[write] requesting transfer of %s bytes", writePacket.length);
+        Log.v(TAG, String.format("[write] requesting transfer of %s bytes", writePacket.length));
       }
 
       int bulkTransferResultSize = mConnection.bulkTransfer(mEndpointOut, writePacket, writePacket.length,
           WRITE_TIMEOUT_MS + 2 * writePacket.length);
 
       if (VERBOSE) {
-//        ALog.v(this, "[write] bulkTransfer returned %s bytes", bulkTransferResultSize);
+        Log.v(TAG, String.format("[write] bulkTransfer returned %s bytes", bulkTransferResultSize));
       }
 
       if (bulkTransferResultSize < 0) {
@@ -376,9 +368,8 @@ public abstract class UsbCloverManager<T> {
         totalBytesTransferred = -1;
         break;
       } else if (bulkTransferResultSize != writePacket.length) {
-//        ALog.w(this, "[write] error data transferred less than requested");
+        Log.w(TAG, "[write] error data transferred less than requested");
         totalBytesTransferred = -1;
-//        mCounters.increment("pos.error.bulkwrite.datatransfer.unexpectedlength");
         break;
       } else {
         totalBytesTransferred += numBytesToTransfer;
@@ -386,7 +377,7 @@ public abstract class UsbCloverManager<T> {
     }
 
     if (VERBOSE) {
-//      ALog.v(this, "[write] data transferred: %s of %s bytes", totalBytesTransferred, totalDataBytes);
+      Log.v(TAG, String.format("[write] data transferred: %s of %s bytes", totalBytesTransferred, totalDataBytes));
     }
 
     return totalBytesTransferred;
@@ -404,19 +395,19 @@ public abstract class UsbCloverManager<T> {
     while (true) {
       if (Thread.interrupted()) {
         if (VERBOSE) {
-//          ALog.d(this, "[read] interrupted");
+          Log.d(TAG, "[read] interrupted");
         }
         throw new InterruptedException();
       }
 
       if (VERBOSE) {
-//        ALog.v(this, "[read] requesting transfer");
+        Log.v(TAG, "[read] requesting transfer");
       }
 
       int numBytesRead = mConnection.bulkTransfer(mEndpointIn, mReadBuffer, getReadSize(), getReadTimeOut());
 
       if (VERBOSE) {
-//        ALog.v(this, "[read] bulkTransfer returned %s bytes", numBytesRead);
+        Log.v(TAG, String.format("[read] bulkTransfer returned %s bytes", numBytesRead));
       }
 
       if (numBytesRead < 0) {
@@ -435,14 +426,13 @@ public abstract class UsbCloverManager<T> {
       switch (inputResult) {
         case COMPLETE:
           if (VERBOSE) {
-//            ALog.v(this, "[read] complete: %s bytes", baos.size());
+            Log.v(TAG, String.format("[read] complete: %s bytes", baos.size()));
           }
           return baos.toByteArray();
         case ERROR:
           if (VERBOSE) {
-//            ALog.v(this, "[read] data transfer error");
+            Log.v(TAG, "[read] data transfer error");
           }
-//          mCounters.increment("pos.error.bulkread.datatransfer");
           return null;
       }
     }
@@ -494,7 +484,6 @@ public abstract class UsbCloverManager<T> {
 
   protected final DeviceStatus postStatusChange(DeviceStatus status) {
     if (VERBOSE) {
-//      ALog.v(this, "DeviceStatus change: %s", status);
       Log.v(getClass().getSimpleName(), String.format("DeviceStatus change: %s", status));
     }
     return status;

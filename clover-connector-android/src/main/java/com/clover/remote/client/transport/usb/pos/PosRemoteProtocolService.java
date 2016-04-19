@@ -59,17 +59,11 @@ public abstract class PosRemoteProtocolService extends Service {
   //  @Override
   public void onConduitDisconnected() {
     sConduitConnected = false;
-//    handleTerminalStatusChanged(RemoteTerminalStatus.TERMINAL_DISCONNECTED);
   }
 
   //  @Override
   public void onMessageTransferError(final Exception e) {
-    /*invokeListeners(new Invokable<RemoteTerminalEventListener>() {
-      @Override
-      public void invoke(RemoteTerminalEventListener listener) {
-        listener.onMessageTransferError(e);
-      }
-    });*/
+
   }
 
   private void handleTerminalStatusChanged(final RemoteTerminalStatus status) {

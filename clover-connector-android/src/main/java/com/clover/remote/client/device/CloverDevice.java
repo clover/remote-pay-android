@@ -88,7 +88,11 @@ public abstract class CloverDevice {
 
   public abstract void doShowWelcomeScreen();
 
-  public abstract void doShowReceiptScreen();
+  public abstract void doShowPaymentReceiptScreen(String orderId, String paymentId);
+
+//  public abstract void doShowRefundReceiptScreen(String orderId, String refundId);
+
+//  public abstract void doShowManualRefundReceiptScreen(String orderId, String creditId);
 
   public abstract void doShowThankYouScreen();
 
@@ -102,5 +106,5 @@ public abstract class CloverDevice {
 
   public abstract void doVaultCard(int cardEntryMethods);
 
-
+  public abstract void doResetDevice();
 }

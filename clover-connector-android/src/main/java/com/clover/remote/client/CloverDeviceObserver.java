@@ -83,4 +83,5 @@ public interface CloverDeviceObserver {
   void onDeviceConnected(CloverDevice device);
 
   void onDeviceReady(CloverDevice device, DiscoveryResponseMessage drm);
+  void onConfigError(String message);
 }

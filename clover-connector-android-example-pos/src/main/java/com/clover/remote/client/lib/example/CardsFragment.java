@@ -190,7 +190,7 @@ public class CardsFragment extends Fragment {
                                         dialog.dismiss();
                                         break;
                                     }
-                                    case 2: {
+                                    /*case 2: {
                                         AuthRequest authRequest = new AuthRequest(true);
                                         authRequest.setAmount(store.getCurrentOrder().getTotal());
                                         authRequest.setTippableAmount(store.getCurrentOrder().getTippableAmount());
@@ -198,10 +198,10 @@ public class CardsFragment extends Fragment {
                                         cloverConnector.sale(authRequest);
                                         dialog.dismiss();
                                         break;
-                                    }
+                                    }*/
                                 }
                             } else {
-                                Toast.makeText(getActivity().getBaseContext(), "Clover Connector is null", Toast.LENGTH_LONG);
+                                Toast.makeText(getActivity().getBaseContext(), "Clover Connector is null", Toast.LENGTH_LONG).show();
                             }
                         }
                     });

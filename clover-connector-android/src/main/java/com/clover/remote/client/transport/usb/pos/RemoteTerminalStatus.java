@@ -34,4 +34,5 @@ public enum RemoteTerminalStatus {
    * Remote terminal is connected, but merchant mismatch, cannot perform transactions
    */
   TERMINAL_CONNECTED_MERCHANT_MISMATCH,
+
 }

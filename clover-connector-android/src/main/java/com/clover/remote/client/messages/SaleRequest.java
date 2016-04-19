@@ -23,13 +23,12 @@ public class SaleRequest extends TxRequest {
   private Long taxAmount;
   private Boolean allowOfflinePayment;
   private Boolean approveOfflinePaymentWithoutPrompt;
+  private Long tipAmount;
 
-    /*
-        public bool DisableCashback { get; set; } //
-        public bool DisableTip { get; set; } // if the merchant account is
-        public bool DisablePrinting { get; set; }
-        public bool DisableRestartTransactionOnFail { get; set; }
-     */
+  private boolean disableCashback;
+  private boolean disableTip;
+  private boolean disablePrinting;
+  private boolean disableRestartTransactionOnFail;
 
   public Boolean getAllowOfflinePayment() {
     return allowOfflinePayment;
@@ -46,7 +45,6 @@ public class SaleRequest extends TxRequest {
   public void setApproveOfflinePaymentWithoutPrompt(Boolean approveOfflinePaymentWithoutPrompt) {
     this.approveOfflinePaymentWithoutPrompt = approveOfflinePaymentWithoutPrompt;
   }
-
   public PayIntent.TransactionType getType() {
     return PayIntent.TransactionType.PAYMENT;
   }
@@ -65,6 +63,30 @@ public class SaleRequest extends TxRequest {
 
   public void setTaxAmount(Long taxAmount) {
     this.taxAmount = taxAmount;
+  }
+
+  protected boolean getDisableCashback() { return disableCashback; }
+
+  protected void setDisableCashback(boolean disableCashback) { this.disableCashback = disableCashback; }
+
+  protected boolean getDisableTip() { return disableTip; }
+
+  protected void setDisableTip(boolean disableTip) { this.disableTip = disableTip; }
+
+  protected boolean getDisablePrinting() { return disablePrinting; }
+
+  protected void setDisablePrinting(boolean disablePrinting) { this.disablePrinting = disablePrinting; }
+
+  protected boolean getDisableRestartTransactionOnFail() { return disableRestartTransactionOnFail; }
+
+  protected void setDisableRestartTransactionOnFail(boolean disableRestartTransactionOnFail) { this.disableRestartTransactionOnFail = disableRestartTransactionOnFail; }
+
+  public Long getTipAmount() {
+    return tipAmount;
+  }
+
+  public void setTipAmount(Long tipAmount) {
+    this.tipAmount = tipAmount;
   }
 
 }

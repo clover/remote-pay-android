@@ -166,14 +166,29 @@ public interface ICloverConnector {
   void showThankYouScreen();
 
   /**
-   * display the receipt screen for the orderId/paymentId combination. The parameters can be null
-   * to show the receipt screen for the last orderId/paymentId
+   * display the payment receipt screen for the orderId/paymentId combination.
    *
    * @param paymentId
    * @param orderId
    */
-  void displayReceiptOptions(String orderId, String paymentId);
+  void displayPaymentReceiptOptions(String orderId, String paymentId);
 
+  /**
+   * display the refund receipt screen for the orderId/refundId combination.
+   *
+   * @param refundId
+   * @param orderId
+
+  void displayRefundReceiptOptions(String orderId, String refundId);
+
+  /**
+   * display the credit receipt screen for the orderId/creditId combination.
+   *
+   * @param creditId
+   * @param orderId
+
+  void displayManualRefundReceiptOptions(String orderId, String creditId);
+*/
   /**
    * Will trigger cash drawer to open that is connected to Clover Mini
    **/
@@ -245,4 +260,10 @@ public interface ICloverConnector {
    */
   void invokeInputOption(InputOption io);
 
+  /**
+   * Used to reset the device if it gets in an invalid state from POS perspective.
+   * This could cause a missed transaction or other missed information, so it
+   * needs to be used cautiously as a last resort
+   */
+  void resetDevice();
 }
