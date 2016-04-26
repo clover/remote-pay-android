@@ -64,3 +64,6 @@ try {
     e.printStackTrace();
 }
 ```
+##Disclaimer
+
+This is a beta release and will not be supported long term. There may be breaking changes in the general release, which is coming soon. 
