@@ -20,9 +20,6 @@ import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.Locale;
 
-/**
- * Created by blakewilliams on 1/27/16.
- */
 public class CurrencyUtils {
 
   public static String format(long value, Locale locale) {

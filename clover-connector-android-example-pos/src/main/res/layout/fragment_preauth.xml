@@ -20,5 +20,5 @@
             android:layout_height="wrap_content"
             android:text="PreAuth Card"
             android:onClick="preauthCardClick"
-            android:layout_alignParentEnd="true" android:id="@+id/preauthButton" android:layout_alignParentBottom="true"/>
+            android:layout_alignParentRight="true" android:id="@+id/preauthButton" android:layout_alignParentBottom="true"/>
 </RelativeLayout>

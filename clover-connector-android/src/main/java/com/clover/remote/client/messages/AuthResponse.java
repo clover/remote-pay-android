@@ -16,6 +16,13 @@
 
 package com.clover.remote.client.messages;
 
-public class AuthResponse extends SaleResponse {
-}
 
+/** The response to an authorization request */
+@SuppressWarnings(value="unused")
+public class AuthResponse extends PaymentResponse {
+
+  public AuthResponse(boolean success, ResultCode result) {
+    super(success, result);
+  }
+  
+}

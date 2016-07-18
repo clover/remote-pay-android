@@ -25,8 +25,6 @@ import android.preference.PreferenceGroup;
 
 public class ExamplePOSSettingsActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-  //private TextView endpointTextView;
-
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);

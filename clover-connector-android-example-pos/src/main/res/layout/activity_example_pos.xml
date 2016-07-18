@@ -28,13 +28,13 @@
     tools:context="com.clover.remote.client.lib.example.ExamplePOSActivity"
     android:columnCount="1"
     android:rowCount="4">
-  <RelativeLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/TopPanel">
+  <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/TopPanel">
     <TextView
-        android:id="@+id/ConnectionStatusLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Disconnected"
-    />
+            android:id="@+id/ConnectionStatusLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Disconnected"
+            android:layout_gravity="fill_horizontal|center_vertical" android:layout_weight="2"/>
     <Button android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Register"
@@ -75,8 +75,8 @@
             android:text="Misc."
             android:onClick="showMisc"
             android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true" android:visibility="visible"/>
-  </RelativeLayout>
+            android:layout_alignParentEnd="true" android:visibility="visible" android:layout_gravity="right"/>
+  </LinearLayout>
 
 
   <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content"

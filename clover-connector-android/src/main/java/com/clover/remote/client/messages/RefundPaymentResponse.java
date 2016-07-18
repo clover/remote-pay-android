@@ -18,10 +18,17 @@ package com.clover.remote.client.messages;
 
 import com.clover.sdk.v3.payments.Refund;
 
+/**
+ * Response to a refundPayment request
+ */
 public class RefundPaymentResponse extends BaseResponse {
   private String orderId;
   private String paymentId;
-  private Refund refundObj;
+  private Refund refund;
+
+  public RefundPaymentResponse(boolean success, ResultCode result) {
+    super(success, result);
+  }
 
   public String getOrderId() {
     return orderId;
@@ -39,13 +46,12 @@ public class RefundPaymentResponse extends BaseResponse {
     this.paymentId = paymentId;
   }
 
-  public Refund getRefundObj() {
-    return refundObj;
+  public Refund getRefund() {
+    return refund;
   }
 
-  public void setRefundObj(Refund refundObj) {
-    this.refundObj = refundObj;
+  public void setRefund(Refund refund) {
+    this.refund = refund;
   }
 
-  //public TxState Code { get; set; }// BaseResponse.Case is a string, so won't serialize
 }

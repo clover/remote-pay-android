@@ -30,9 +30,6 @@ import com.clover.remote.client.lib.example.utils.CurrencyUtils;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Created by blakewilliams on 1/17/16.
- */
 public class PreAuthListViewAdapter extends ArrayAdapter<POSPayment>{
 
     public PreAuthListViewAdapter(Context context, int resource) {

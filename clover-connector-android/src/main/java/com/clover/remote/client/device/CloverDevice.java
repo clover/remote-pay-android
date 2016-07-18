@@ -16,11 +16,13 @@
 
 package com.clover.remote.client.device;
 
+import com.clover.common2.payments.PayIntent;
+import com.clover.remote.Challenge;
 import com.clover.remote.KeyPress;
 import com.clover.remote.client.CloverDeviceObserver;
 import com.clover.remote.client.transport.CloverTransport;
 import com.clover.remote.order.DisplayOrder;
-import com.clover.sdk.internal.PayIntent;
+
 import com.clover.sdk.v3.order.Order;
 import com.clover.sdk.v3.order.VoidReason;
 import com.clover.sdk.v3.payments.Payment;
@@ -35,20 +37,14 @@ public abstract class CloverDevice {
 
   protected CloverTransport transport;
   protected String packageName;
+  private final String applicationId;
+  private boolean supportsAcks;
 
-  public CloverDevice(String packageName, CloverTransport transport) {
+  public CloverDevice(String packageName, CloverTransport transport, String applicationId) {
     this.transport = transport;
     this.packageName = packageName;
+    this.applicationId = applicationId;
   }
-
-  /// <summary>
-  /// Adds a observer for transport events to the member transport object to notify
-  /// </summary>
-  /// <param name="observer"></param>
-        /*public void Subscribe(CloverTransportObserver observer)
-        {
-            this.transport.Subscribe(observer);
-        }*/
 
   public void Subscribe(CloverDeviceObserver observer) {
     deviceObservers.add(observer);
@@ -60,11 +56,6 @@ public abstract class CloverDevice {
 
   public abstract void doDiscoveryRequest();
 
-  /// <summary>
-  ///
-  /// </summary>
-  /// <param name="payIntent"></param>
-  /// <param name="order">can be null.  If it is, an order will implicitly be created on the other end</param>
   public abstract void doTxStart(PayIntent payIntent, Order order, boolean suppressTipScreen);
 
   public abstract void doKeyPress(KeyPress keyPress);
@@ -73,32 +64,29 @@ public abstract class CloverDevice {
 
   public abstract void doCaptureAuth(String paymentID, long amount, long tipAmount);
 
-  public abstract void doOrderUpdate(DisplayOrder order, Object orderOperation); //OrderDeletedOperation, LineItemsDeletedOperation, LineItemsAddedOperation, DiscountsDeletedOperation, DiscountsAddedOperation,
+  public abstract void doOrderUpdate(DisplayOrder order, Object orderOperation);
 
   public abstract void doSignatureVerified(Payment payment, boolean verified);
 
   public abstract void doTerminalMessage(String text);
 
-  public abstract void doPaymentRefund(String orderId, String paymentId, long amount); // manual refunds are handled via doTxStart
+  public abstract void doPaymentRefund(String orderId, String paymentId, long amount, boolean fullRefund);
 
   public abstract void doTipAdjustAuth(String orderId, String paymentId, long amount);
 
-  //void doBreak();
   public abstract void doPrintText(List<String> textLines);
 
   public abstract void doShowWelcomeScreen();
 
   public abstract void doShowPaymentReceiptScreen(String orderId, String paymentId);
 
-//  public abstract void doShowRefundReceiptScreen(String orderId, String refundId);
-
-//  public abstract void doShowManualRefundReceiptScreen(String orderId, String creditId);
-
   public abstract void doShowThankYouScreen();
 
   public abstract void doOpenCashDrawer(String reason);
 
   public abstract void doPrintImage(Bitmap bitmap);
+
+  public abstract void doPrintImage(String url);
 
   public abstract void dispose();
 
@@ -107,4 +95,16 @@ public abstract class CloverDevice {
   public abstract void doVaultCard(int cardEntryMethods);
 
   public abstract void doResetDevice();
+
+  public void setSupportsAcks(boolean supportsAcks) {
+    this.supportsAcks = supportsAcks;
+  }
+
+  protected boolean supportsAcks() {
+    return this.supportsAcks;
+  }
+
+  public abstract void doAcceptPayment(Payment payment);
+
+  public abstract void doRejectPayment(Payment payment, Challenge challenge);
 }

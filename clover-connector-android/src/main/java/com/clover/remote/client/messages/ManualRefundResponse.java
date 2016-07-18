@@ -18,11 +18,12 @@ package com.clover.remote.client.messages;
 
 import com.clover.sdk.v3.payments.Credit;
 
-public class ManualRefundResponse extends TransactionResponse {
+public class ManualRefundResponse extends BaseResponse {
   private Credit Credit;
-  private String TransactionNumber;
-  private String ResponseCode;
-  private String ResponseText;
+
+  public ManualRefundResponse(boolean success, ResultCode result) {
+    super(success, result);
+  }
 
   public com.clover.sdk.v3.payments.Credit getCredit() {
     return Credit;
@@ -32,27 +33,4 @@ public class ManualRefundResponse extends TransactionResponse {
     Credit = credit;
   }
 
-  public String getTransactionNumber() {
-    return TransactionNumber;
-  }
-
-  public void setTransactionNumber(String transactionNumber) {
-    TransactionNumber = transactionNumber;
-  }
-
-  public String getResponseCode() {
-    return ResponseCode;
-  }
-
-  public void setResponseCode(String responseCode) {
-    ResponseCode = responseCode;
-  }
-
-  public String getResponseText() {
-    return ResponseText;
-  }
-
-  public void setResponseText(String responseText) {
-    ResponseText = responseText;
-  }
 }

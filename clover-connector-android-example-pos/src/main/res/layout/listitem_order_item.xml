@@ -18,7 +18,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent" android:id="@+id/listitem_order_layout">
   <TextView
       android:id="@+id/OrderItemQuantityLabel"
       android:layout_width="20dp"
@@ -28,12 +28,12 @@
       android:text="1"
   />
   <TextView
-      android:id="@+id/OrderItemNameLabel"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="Item Name"
-      android:layout_alignParentTop="true"
-      android:layout_toEndOf="@+id/OrderItemQuantityLabel"/>
+          android:id="@+id/OrderItemNameLabel"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="Item Name"
+          android:layout_alignParentTop="true"
+          android:layout_toEndOf="@+id/OrderItemQuantityLabel" android:layout_toRightOf="@+id/OrderItemQuantityLabel"/>
   <TextView
       android:id="@+id/OrderItemPriceLabel"
       android:layout_width="wrap_content"
@@ -54,5 +54,5 @@
       android:layout_height="wrap_content"
       android:text="No Discount"
       android:layout_below="@+id/OrderItemNameLabel"
-      android:layout_alignParentEnd="true"/>
+      android:layout_alignParentRight="true"/>
 </RelativeLayout>

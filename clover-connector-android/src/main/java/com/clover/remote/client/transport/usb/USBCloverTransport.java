@@ -157,11 +157,16 @@ public class USBCloverTransport extends CloverTransport {
     mUsbManager.requestPermission(device, permissionIntent);
   }
 
+  @Override protected void finalize() throws Throwable {
+    dispose();
+  }
 
   @Override
   public void dispose() {
-    context.unregisterReceiver(connectionBroadcastReceiver);
-    context.unregisterReceiver(messageBroadcastReceiver);
+    if(context != null) {
+      context.unregisterReceiver(messageBroadcastReceiver);
+      context.unregisterReceiver(connectionBroadcastReceiver);
+    }
   }
 
   @Override

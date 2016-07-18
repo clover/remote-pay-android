@@ -24,13 +24,13 @@
           android:id="@+id/RejectButton"
           android:text="@string/reject_button_text"
           android:onClick="rejectSignature"
-          android:layout_alignTop="@+id/AcceptButton" android:layout_toStartOf="@+id/AcceptButton"/>
+          android:layout_alignTop="@+id/AcceptButton" android:layout_toStartOf="@+id/AcceptButton" android:layout_toLeftOf="@+id/AcceptButton"/>
   <Button android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:id="@+id/AcceptButton"
           android:text="@string/accept_button_text"
           android:onClick="acceptSignature"
-          android:layout_alignParentBottom="true" android:layout_alignParentEnd="true"/>
+          android:layout_alignParentBottom="true" android:layout_alignParentRight="true"/>
   <com.clover.remote.client.lib.example.SignatureView android:layout_width="match_parent"
                                                       android:layout_height="match_parent"
                                                       android:id="@+id/SignatureView"

@@ -30,9 +30,6 @@ public abstract class PosRemoteProtocolService extends Service {
 
   private final Handler mMainHandler = new Handler(Looper.getMainLooper());
 
-//  private final Set<RemoteTerminalEventListener> mListeners
-//      = Collections.newSetFromMap(new WeakHashMap<RemoteTerminalEventListener, Boolean>());
-
   private RemoteTerminalStatus mRemoteTerminalStatus = RemoteTerminalStatus.TERMINAL_DISCONNECTED;
 
   private static boolean sConduitConnected = false;
@@ -56,12 +53,10 @@ public abstract class PosRemoteProtocolService extends Service {
     sConduitConnected = true;
   }
 
-  //  @Override
   public void onConduitDisconnected() {
     sConduitConnected = false;
   }
 
-  //  @Override
   public void onMessageTransferError(final Exception e) {
 
   }

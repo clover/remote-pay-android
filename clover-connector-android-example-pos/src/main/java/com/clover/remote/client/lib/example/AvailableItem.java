@@ -32,18 +32,7 @@ import java.util.List;
 import java.util.Locale;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link AvailableItem.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link AvailableItem#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class AvailableItem extends Fragment {
-  // TODO: Rename parameter arguments, choose names that match
-  // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-
   POSItem item;
   List<AvailableItemListener> listeners = new ArrayList<AvailableItemListener>(5);
 
@@ -52,13 +41,6 @@ public class AvailableItem extends Fragment {
   private TextView badgeView;
 
 
-  /**
-   * Use this factory method to create a new instance of
-   * this fragment using the provided parameters.
-   *
-   * @return A new instance of fragment AvailableItem.
-   */
-  // TODO: Rename and change types and number of parameters
   public static AvailableItem newInstance() {
     AvailableItem fragment = new AvailableItem();
     Bundle args = new Bundle();
@@ -67,7 +49,6 @@ public class AvailableItem extends Fragment {
   }
 
   public AvailableItem() {
-    // Required empty public constructor
   }
 
   @Override
@@ -106,7 +87,6 @@ public class AvailableItem extends Fragment {
     return v;
   }
 
-  // TODO: Rename method, update argument and hook method into UI event
   public void onButtonPressed(Uri uri) {
     if (mListener != null) {
       mListener.onFragmentInteraction(uri);
@@ -145,18 +125,7 @@ public class AvailableItem extends Fragment {
   }
 
 
-  /**
-   * This interface must be implemented by activities that contain this
-   * fragment to allow an interaction in this fragment to be communicated
-   * to the activity and potentially other fragments contained in that
-   * activity.
-   * <p>
-   * See the Android Training lesson <a href=
-   * "http://developer.android.com/training/basics/fragments/communicating.html"
-   * >Communicating with Other Fragments</a> for more information.
-   */
   public interface OnFragmentInteractionListener {
-    // TODO: Update argument type and name
     public void onFragmentInteraction(Uri uri);
   }
 

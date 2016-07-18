@@ -44,9 +44,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-/**
- * Created by blakewilliams on 2/8/16.
- */
 public class AvailableItemsAdapter extends ArrayAdapter<POSItem>
 {
   POSStore store;

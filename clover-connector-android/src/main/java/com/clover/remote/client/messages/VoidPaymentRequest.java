@@ -16,6 +16,9 @@
 
 package com.clover.remote.client.messages;
 
+/**
+ * request to void a payment
+ */
 public class VoidPaymentRequest extends BaseRequest {
   private String paymentId;
   private String voidReason; // {USER_CANCEL}

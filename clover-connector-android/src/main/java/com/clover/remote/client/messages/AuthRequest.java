@@ -16,29 +16,95 @@
 
 package com.clover.remote.client.messages;
 
-import com.clover.sdk.internal.PayIntent;
+import com.clover.common2.payments.PayIntent;
 
-public class AuthRequest extends SaleRequest {
+/** A authorization request */
+@SuppressWarnings(value="unused")
+public class AuthRequest extends TransactionRequest {
 
-  private boolean isPreAuth = false;
+  private Boolean disableCashback = null;
+  private Long taxAmount = null;
+  private Long tippableAmount = null;
+  private Boolean allowOfflinePayment = null;
+  private Boolean approveOfflinePaymentWithoutPrompt = null;
 
-  public AuthRequest() {
-    this(false);
+  public AuthRequest(long amount, String externalId) {
+    super(amount, externalId);
+  }
+  /**
+  * Set the field value
+  * Do not allow cash back
+  *
+  */
+  public void setDisableCashback(Boolean disableCashback) {
+    this.disableCashback = disableCashback;
   }
 
   /**
-   * @param preAuth
-   * @deprecated - if passing in true, use preAuth with PreAuthRequest
-   */
-  public AuthRequest(boolean preAuth) {
-    isPreAuth = preAuth;
+  * Get the field value
+  * Do not allow cash back
+  */
+  public Boolean getDisableCashback() {
+    return this.disableCashback;
+  }  
+  /**
+  * Set the field value
+  * Amount paid in tips
+  *
+  */
+  public void setTaxAmount(Long taxAmount) {
+    this.taxAmount = taxAmount;
   }
 
-  public boolean isPreAuth() {
-    return isPreAuth;
+  /**
+  * Get the field value
+  * Amount paid in tips
+  */
+  public Long getTaxAmount() {
+    return this.taxAmount;
+  }  
+  /**
+  * Set the field value
+  * If true then offline payments can be accepted
+  *
+  */
+  public void setAllowOfflinePayment(Boolean allowOfflinePayment) {
+    this.allowOfflinePayment = allowOfflinePayment;
   }
 
-  public PayIntent.TransactionType getType() {
-    return isPreAuth() ? PayIntent.TransactionType.AUTH : PayIntent.TransactionType.PAYMENT;
+  /**
+  * Get the field value
+  * If true then offline payments can be accepted
+  */
+  public Boolean getAllowOfflinePayment() {
+    return this.allowOfflinePayment;
+  }  
+  /**
+  * Set the field value
+  * If true then offline payments will be approved without a prompt.  Currently must be true.
+  *
+  */
+  public void setApproveOfflinePaymentWithoutPrompt(Boolean approveOfflinePaymentWithoutPrompt) {
+    this.approveOfflinePaymentWithoutPrompt = approveOfflinePaymentWithoutPrompt;
+  }
+
+  /**
+  * Get the field value
+  * If true then offline payments will be approved without a prompt.  Currently must be true.
+  */
+  public Boolean getApproveOfflinePaymentWithoutPrompt() {
+    return this.approveOfflinePaymentWithoutPrompt;
+  }
+
+  @Override public PayIntent.TransactionType getType() {
+    return PayIntent.TransactionType.PAYMENT;
+  }
+
+  public Long getTippableAmount() {
+    return tippableAmount;
+  }
+
+  public void setTippableAmount(Long tippableAmount) {
+    this.tippableAmount = tippableAmount;
   }
 }

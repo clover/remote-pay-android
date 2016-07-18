@@ -50,13 +50,14 @@
   <string name="preferences_title">Preferences</string>
 
   <item type="id" name="button_exit"/>
-  <string name="title_activity_example_pos">ExamplePOSActivity</string>
+  <string name="title_activity_example_pos">Clover Example POS</string>
   <string name="accept_button_text">Accept</string>
   <string name="reject_button_text">Reject</string>
-  <string name="title_activity_verify_signature">VerifySignatureActivity</string>
+
 
   <string name="title_activity_orders">OrdersActivity</string>
   <string name="title_activity_miscellaneous">MiscellaneousActivity</string>
+  <string name="title_activity_startup">StartupActivity</string>
 
 
 </resources>

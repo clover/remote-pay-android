@@ -16,7 +16,7 @@
               android:id="@+id/PreAuthAmountColumn"
               android:layout_weight="2"
               android:textColor="@color/secondary_table_text_color" android:layout_toEndOf="@+id/textView4"
-              android:layout_alignBaseline="@+id/textView4" android:paddingLeft="10dp"/>
+              android:layout_alignBaseline="@+id/textView4" android:paddingLeft="10dp" android:layout_toRightOf="@+id/textView4"/>
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

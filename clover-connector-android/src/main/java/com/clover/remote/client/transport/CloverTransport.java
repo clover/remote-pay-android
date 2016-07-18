@@ -52,10 +52,11 @@ public abstract class CloverTransport {
     }
   }
 
-  /// <summary>
-  /// Should be called by subclasses when a message is received.
-  /// </summary>
-  /// <param name="message"></param>
+  /**
+   * Should be called by subclasses (super.onMessage) when a message is received
+   * in order to forward to all observers
+   * @param message
+   */
   protected void onMessage(String message) {
     for (CloverTransportObserver obs : observers) {
       obs.onMessage(message);
@@ -84,7 +85,7 @@ public abstract class CloverTransport {
   }
 
 
-  // Implement this to send info
+  // Implement this to send raw message to the Mini
   public abstract int sendMessage(String message) throws NotYetConnectedException;
 }
 

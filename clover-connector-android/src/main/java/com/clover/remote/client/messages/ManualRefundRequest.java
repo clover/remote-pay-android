@@ -16,15 +16,19 @@
 
 package com.clover.remote.client.messages;
 
-public class ManualRefundRequest extends BaseRequest {
-  private long amount;
+import com.clover.common2.payments.PayIntent;
 
-  public long getAmount() {
-    return amount;
+/**
+ * Request object used when requesting a Manual Refund (Naked Credit)
+ */
+public class ManualRefundRequest extends TransactionRequest {
+
+  public ManualRefundRequest(long amount, String externalId){
+    super(amount, externalId);
   }
 
-  public void setAmount(long amount) {
-    this.amount = amount;
+  @Override public PayIntent.TransactionType getType() {
+    return PayIntent.TransactionType.CREDIT;
   }
 }
 
