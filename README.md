@@ -35,8 +35,11 @@ To complete a transaction end to end, we recommend getting a [Clover Mini Dev Ki
 * Update PreAuth, PreAuthCapture, and VaultCard methods in CloverConnector
 
 # Version 0.1
+1. Make sure your Clover Mini Dev Kit and Android POS device are on the same network submask and have ports unblocked.
+2. Download the USB Pay Display app from the Clover App Market on your Clover Mini Dev Kit.
+3. Open the USB Pay Display app. 
+4. Run the Clover Connector Android Example POS app on your Android POS device (emulator, device etc.)
+5. You should see the example POS screen and connection state listed. If everything worked you'll get a connected status. If it remains disconnected, you'll want to check that 1) You are connecting the correct cable to the correct connection point on the Clover Mini “hub” - port USB(port with Clover logo). You will need to use the USB cable that the device came with. 2)  That your Android devices support “host” or OTG mode, which is required to communicate with the mini, which is in “accessory” mode.
 
-
-## Working with the SDK
 
 
