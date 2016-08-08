@@ -35,32 +35,11 @@ To complete a transaction end to end, we recommend getting a [Clover Mini Dev Ki
 * Update PreAuth, PreAuthCapture, and VaultCard methods in CloverConnector
 
 # Version 0.1
-* Initial capability
-
-## Getting Connected
-
 1. Make sure your Clover Mini Dev Kit and Android POS device are on the same network submask and have ports unblocked.
-2. Download the Network Pay Display app from the Clover App Market on your Clover Mini Dev Kit.
-3. Open the Network Pay Display app and you should see a web socket address.
+2. Download the USB Pay Display app from the Clover App Market on your Clover Mini Dev Kit.
+3. Open the USB Pay Display app. 
 4. Run the Clover Connector Android Example POS app on your Android POS device (emulator, device etc.)
-5. Enter the web socket address from step 3. Tap 'OK' and go back.
-6. You should see the example POS screen and connection state listed. If everything worked you'll get a connected status. If it remains disconnected, you'll want to do some network troubleshooting. Checking firewall ports and network submasks are good starting points.
+5. You should see the example POS screen and connection state listed. If everything worked you'll get a connected status. If it remains disconnected, you'll want to check that 1) You are connecting the correct cable to the correct connection point on the Clover Mini “hub” - port USB(port with Clover logo). You will need to use the USB cable that the device came with. 2)  That your Android devices support “host” or OTG mode, which is required to communicate with the mini, which is in “accessory” mode.
 
-## Working with the SDK
 
-If the project libaries are successfully built and synced using Gradle you should see no errors from your IDE when importing or opening the project. Transactions between the device and a POS Android app will work through an instance of a CloverConnector object. Instantiating the object will require a configuration scheme which is usually a web socket device configuration. The next step is to setup a connection listener. Here is an example: 
-```
-URI uri = null;
-try {
-    if (cloverConnector != null) {
-        cloverConnector.dispose();
-    }
-    uri = new URI(_checksURL);
-    cloverConnector = new CloverConnector(new WebSocketCloverDeviceConfiguration(uri, 2000, 3000));
-    cloverConnector.addCloverConnectorListener(new ICloverConnectorListener() {
-    ...
 
-} catch (URISyntaxException e) {
-    e.printStackTrace();
-}
-```
