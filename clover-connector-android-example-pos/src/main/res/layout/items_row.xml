@@ -21,7 +21,7 @@
               android:layout_height="match_parent" android:paddingTop="3dp" android:paddingBottom="3dp">
   <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:textSize="@dimen/table_primary_text_size" android:id="@+id/ItemsRowQuantityColumn"
-            android:layout_weight="1" android:text="1" android:layout_alignParentStart="true" android:paddingRight="10dp" android:minWidth="50dp"
+            android:layout_weight="1" android:text="1" android:layout_alignParentLeft="true" android:paddingRight="10dp" android:minWidth="50dp"
             android:textAlignment="gravity" android:gravity="right" android:textColor="@color/secondary_table_text_color"/>
   <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:textSize="@dimen/table_primary_text_size" android:id="@+id/ItemsRowDescriptionColumn"
@@ -31,5 +31,5 @@
   <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:textSize="@dimen/table_primary_text_size" android:id="@+id/ItemsRowPriceColumn"
             android:layout_weight="2" android:text="$3.99" android:textAlignment="viewEnd" android:autoText="false" android:layout_alignParentTop="true"
-            android:layout_marginStart="212dp" android:layout_marginLeft="10dp" android:layout_alignParentEnd="true" android:textStyle="bold"/>
+            android:layout_marginStart="212dp" android:layout_marginLeft="10dp" android:layout_alignParentRight="true" android:textStyle="bold"/>
 </RelativeLayout>

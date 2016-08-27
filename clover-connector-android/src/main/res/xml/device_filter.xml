@@ -21,8 +21,11 @@
     <!-- mobiles -->
     <usb-device vendor-id="10483" product-id="8194" />
     <usb-device vendor-id="10483" product-id="8196" />
+    <!-- mobile dev -->
+    <usb-device vendor-id="10483" product-id="8192" />
+    <usb-device vendor-id="6353" product-id="11521"/>
     <!-- minis -->
     <usb-device vendor-id="10483" product-id="12292" />
     <usb-device vendor-id="10483" product-id="12290" />
-b,accessory usb device
+
 </resources>

@@ -16,28 +16,36 @@
 
 package com.clover.remote.client.messages;
 
-import com.clover.sdk.internal.Signature2;
-import com.clover.sdk.v3.payments.Payment;
+/**
+ * Request to capture a payment that had been previously
+ * obtained from a preAuth(PreAuthRequest request) call
+ */
+public class CapturePreAuthRequest extends BaseRequest {
+  public String paymentID;
+  public long amount;
+  public long tipAmount;
 
-import java.io.Serializable;
-
-public class SignatureVerifyRequest implements Serializable {
-  private Signature2 signature;
-  private Payment payment;
-
-  public Signature2 getSignature() {
-    return signature;
+  public String getPaymentID() {
+    return paymentID;
   }
 
-  public void setSignature(Signature2 signature) {
-    this.signature = signature;
+  public void setPaymentID(String paymentID) {
+    this.paymentID = paymentID;
   }
 
-  public Payment getPayment() {
-    return payment;
+  public long getAmount() {
+    return amount;
   }
 
-  public void setPayment(Payment payment) {
-    this.payment = payment;
+  public void setAmount(long amount) {
+    this.amount = amount;
+  }
+
+  public long getTipAmount() {
+    return tipAmount;
+  }
+
+  public void setTipAmount(long tipAmount) {
+    this.tipAmount = tipAmount;
   }
 }

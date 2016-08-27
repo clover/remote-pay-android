@@ -17,7 +17,10 @@
 package com.clover.remote.client.messages;
 
 /**
- * Created by blakewilliams on 2/2/16.
+ * Response object for a response to a preAuth request
  */
-public class PreAuthResponse extends AuthResponse {
+public class PreAuthResponse extends PaymentResponse {
+  public PreAuthResponse(boolean success, ResultCode result) {
+    super(success, result);
+  }
 }

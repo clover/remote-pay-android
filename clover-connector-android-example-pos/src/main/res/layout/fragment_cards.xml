@@ -20,5 +20,5 @@
             android:layout_height="wrap_content"
             android:text="Vault Card"
             android:onClick="captureCardClick"
-            android:layout_alignParentEnd="true" android:id="@+id/button" android:layout_alignParentBottom="true"/>
+            android:layout_alignParentRight="true" android:id="@+id/button" android:layout_alignParentBottom="true"/>
 </RelativeLayout>

@@ -16,6 +16,9 @@
 
 package com.clover.remote.client.lib.example.model;
 
+import com.clover.remote.PendingPaymentEntry;
+import com.clover.remote.client.CloverConnector;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,6 +43,13 @@ public class POSStore {
 
   private transient List<OrderObserver> orderObservers = new ArrayList<OrderObserver>();
   private transient List<StoreObserver> storeObservers = new ArrayList<StoreObserver>();
+
+
+  private int cardEntryMethods = CloverConnector.CARD_ENTRY_METHOD_MAG_STRIPE | CloverConnector.CARD_ENTRY_METHOD_NFC_CONTACTLESS | CloverConnector.CARD_ENTRY_METHOD_ICC_CONTACT;
+  private Boolean approveOfflinePaymentWithoutPrompt;
+  private Boolean allowOfflinePayment;
+  private Boolean disablePrinting;
+  private List<PendingPaymentEntry> pendingPayments;
 
   public POSStore() {
     availableItems = new LinkedHashMap<String, POSItem>();
@@ -153,5 +163,42 @@ public class POSStore {
 
   public List<POSPayment> getPreAuths() {
     return Collections.unmodifiableList(preAuths);
+  }
+
+  public void setAllowOfflinePayment(Boolean allowOfflinePayment) {
+    this.allowOfflinePayment = allowOfflinePayment;
+  }
+  public Boolean getAllowOfflinePayment() {
+    return this.allowOfflinePayment;
+  }
+
+  public void setApproveOfflinePaymentWithoutPrompt(Boolean approveOfflinePaymentWithoutPrompt) {
+    this.approveOfflinePaymentWithoutPrompt = approveOfflinePaymentWithoutPrompt;
+  }
+  public Boolean getApproveOfflinePaymentWithoutPrompt() {
+    return this.approveOfflinePaymentWithoutPrompt;
+  }
+
+  public void setCardEntryMethods(int cardEntryMethods) {
+    this.cardEntryMethods = cardEntryMethods;
+  }
+
+  public int getCardEntryMethods() {
+    return cardEntryMethods;
+  }
+
+  public Boolean getDisablePrinting() {
+    return disablePrinting;
+  }
+
+  public void setDisablePrinting(Boolean disablePrinting) {
+    this.disablePrinting = disablePrinting;
+  }
+
+  public void setPendingPayments(List<PendingPaymentEntry> pendingPayments) {
+    this.pendingPayments = pendingPayments;
+    for(StoreObserver so : storeObservers) {
+      so.pendingPaymentsRetrieved(pendingPayments);
+    }
   }
 }

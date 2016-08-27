@@ -16,40 +16,89 @@
 
 package com.clover.remote.client.messages;
 
-import java.util.UUID;
-
+/** The base for responses */
+@SuppressWarnings(value="unused")
 public class BaseResponse {
-  public static final String SUCCESS = "SUCCESS";
-  public static final String CANCEL = "CANCEL";
-  public static final String FAIL = "FAIL";
-  public static final String ERROR = "ERROR";
 
-  private UUID requestMessageUUID;
-  /*
-  the status of the transaction activity.
+  private boolean success = false;
+  private ResultCode result = null;
+  private String reason = null;
+  private String message = null;
+
+
+  public BaseResponse() {
+
+  }
+
+  public BaseResponse(boolean success, ResultCode result) {
+    this.success = success;
+    this.result = result;
+  }
+
+  /**
+  * Set the field value
+  * If true then the requested operation succeeded
+  *
   */
-  private String code;//SUCCESS, CANCEL, ERROR, FAIL - TODO: enum
-
-  protected BaseResponse() {
-
+  public void setSuccess(boolean success) {
+    this.success = success;
   }
 
-  protected BaseResponse(UUID requestUUID) {
-    requestMessageUUID = requestUUID;
+  /**
+  * Get the field value
+  * If true then the requested operation succeeded
+  */
+
+  public final boolean isSuccess() {
+    return this.success;
+  }
+  /**
+  * Set the field value
+  * The result of the requested operation.
+  *
+  */
+  public void setResult(ResultCode result) {
+    this.result = result;
   }
 
-  protected void setRequestMessageUUID(UUID requestID) {
-    if (requestMessageUUID != null) {
-      throw new IllegalArgumentException("Request Message UUID is already set");
-    }
-    requestMessageUUID = requestID;
+  /**
+  * Get the field value
+  * The result of the requested operation.
+  */
+  public ResultCode getResult() {
+    return this.result;
+  }  
+  /**
+  * Set the field value
+  * Optional information about result.
+  *
+  */
+  public void setReason(String reason) {
+    this.reason = reason;
   }
 
-  public String getCode() {
-    return code;
+  /**
+  * Get the field value
+  * Optional information about result.
+  */
+  public String getReason() {
+    return this.reason;
+  }  
+  /**
+  * Set the field value
+  * Detailed information about result.
+  *
+  */
+  public void setMessage(String message) {
+    this.message = message;
   }
 
-  public void setCode(String code) {
-    this.code = code;
+  /**
+  * Get the field value
+  * Detailed information about result.
+  */
+  public String getMessage() {
+    return this.message;
   }
+
 }

@@ -31,9 +31,6 @@ import com.clover.remote.client.lib.example.utils.CurrencyUtils;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Created by blakewilliams on 1/27/16.
- */
 public class RefundsListViewAdapter extends ArrayAdapter<POSNakedRefund> {
     public RefundsListViewAdapter(Context context, int resource) {
       super(context, resource);

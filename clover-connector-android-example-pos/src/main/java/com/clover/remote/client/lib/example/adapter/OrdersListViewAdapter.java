@@ -62,7 +62,7 @@ public class OrdersListViewAdapter extends ArrayAdapter<POSOrder> {
 
       idColumn.setText(posOrder.id);
       dateColumn.setText(posOrder.date.toString());
-      statusColumn.setText(posOrder.status.toString());
+      statusColumn.setText(posOrder.getStatus().toString());
       subtotalColumn.setText(CurrencyUtils.format(posOrder.getPreTaxSubTotal(), Locale.getDefault()));
       taxColumn.setText(CurrencyUtils.format(posOrder.getTaxAmount(), Locale.getDefault()));
       totalColumn.setText(CurrencyUtils.format(posOrder.getTotal(), Locale.getDefault()));

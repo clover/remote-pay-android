@@ -16,19 +16,32 @@
 
 package com.clover.remote.client.device;
 
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.util.Log;
 import com.clover.remote.client.transport.CloverTransport;
 import com.clover.remote.client.transport.usb.USBCloverTransport;
 
 import android.content.Context;
 
-/**
- * Created by blakewilliams on 3/30/16.
- */
-public class USBCloverDeviceConfiguration implements CloverDeviceConfiguration {
-  Context context;
+import java.io.Serializable;
 
-  public USBCloverDeviceConfiguration(Context ctx) {
+/**
+ * Default configuration to communicate with the Mini via USB connection
+ */
+public class USBCloverDeviceConfiguration implements CloverDeviceConfiguration, Serializable {
+  public static final String TAG = USBCloverDeviceConfiguration.class.getSimpleName();
+  Context context;
+  String appId;
+
+  public USBCloverDeviceConfiguration(Context ctx, String appId) {
     context = ctx;
+    this.appId = appId;
+  }
+
+  public void setContext(Context context) {
+    this.context = context;
   }
 
   @Override
@@ -48,6 +61,26 @@ public class USBCloverDeviceConfiguration implements CloverDeviceConfiguration {
 
   @Override
   public CloverTransport getCloverTransport() {
+    PackageManager pm = context.getPackageManager();
+    try {
+      pm.getPackageInfo("com.clover.remote.protocol.usb", PackageManager.GET_ACTIVITIES);
+      // getPackageInfo will throw an exception if it isn't found
+      Intent disableIntent = new Intent();
+      disableIntent.setComponent(new ComponentName("com.clover.remote.protocol.usb", "com.clover.remote.protocol.usb.pos.EnablePosReceiver"));
+      disableIntent.putExtra("enabled", false);
+      context.sendBroadcast(disableIntent);
+    } catch (PackageManager.NameNotFoundException nnfe) {
+      // com.clover.remote.protocol.usb isn't installed, so we don't have to disable the USB Pay Display components
+      Log.d(TAG, "USB Pay Display not, found");
+    } catch (Exception e) {
+      // just to prevent some unforeseen exception from preventing the transport from initializing
+      Log.e(TAG, "Unexpected error trying to check for, and disable, USB Pay Display: ", e);
+    }
+
     return new USBCloverTransport(context);
+  }
+
+  @Override public String getApplicationId() {
+    return this.appId;
   }
 }

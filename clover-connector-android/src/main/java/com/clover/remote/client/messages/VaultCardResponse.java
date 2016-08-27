@@ -19,17 +19,17 @@ package com.clover.remote.client.messages;
 import com.clover.sdk.v3.payments.VaultedCard;
 
 /**
- * Created by blakewilliams on 1/17/16.
+ * response to a vaultCard request
  */
 public class VaultCardResponse extends BaseResponse {
   private VaultedCard card;
-  private String code;
-  private String reason;
 
-  public VaultCardResponse(VaultedCard card, String code, String reason) {
+  public VaultCardResponse(boolean success, ResultCode result) {
+    this(success, result, null);
+  }
+  public VaultCardResponse(boolean success, ResultCode result, VaultedCard card) {
+    super(success, result);
     this.card = card;
-    this.code = code;
-    this.reason = code;
   }
 
   public VaultedCard getCard() {
@@ -40,21 +40,4 @@ public class VaultCardResponse extends BaseResponse {
     this.card = card;
   }
 
-  @Override
-  public String getCode() {
-    return code;
-  }
-
-  @Override
-  public void setCode(String code) {
-    this.code = code;
-  }
-
-  public String getReason() {
-    return reason;
-  }
-
-  public void setReason(String reason) {
-    this.reason = reason;
-  }
 }

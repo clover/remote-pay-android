@@ -18,7 +18,10 @@ package com.clover.remote.client.device;
 
 import com.clover.remote.client.transport.CloverTransport;
 
-public interface CloverDeviceConfiguration {
+import java.io.Serializable;
+
+public interface CloverDeviceConfiguration extends Serializable {
+
   String getCloverDeviceTypeName();
 
   String getMessagePackageName();
@@ -26,4 +29,6 @@ public interface CloverDeviceConfiguration {
   String getName();
 
   CloverTransport getCloverTransport();
+
+  String getApplicationId();
 }

@@ -31,8 +31,6 @@ import java.util.concurrent.TimeUnit;
 
 public class WebSocketCloverTransport extends CloverTransport implements CloverWebSocketClientListener {
 
-  //private static final Framedata PING = new PingFramedata();
-
   /*
   These hold the configurable options
    */
@@ -42,8 +40,8 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverW
   URI endpoint;
 
   Gson gson = new Gson();
-  CloverWebSocketClient webSocket;        // TODO: investigate whether the assignment in the onClose callback could cause problems
-  String status = "Disconnected";   // TODO: investigate whether the assignment in the onClose callback could cause problems
+  CloverWebSocketClient webSocket;
+  String status = "Disconnected";
   /**
    * prevent reconnects if shutdown was requested
    */
@@ -92,7 +90,6 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverW
 
       return 0;
     } else {
-      //clearWebsocket(); // socket may be in a CLOSING state
       reconnect();
     }
     return -1;
@@ -117,12 +114,6 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverW
     webSocket = new CloverWebSocketClient(deviceEndpoint, this, heartbeatInterval);
 
     webSocket.connect();
-    /*try {
-      webSocket.connectBlocking();
-    } catch (Throwable t) {
-      clearWebsocket();
-      reconnect();
-    }*/
     Log.d(getClass().getSimpleName(), "connection attempt done.");
   }
 
@@ -141,8 +132,6 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverW
       Log.d(getClass().getSimpleName(), "Not attempting to reconnect, shutdown...");
       return;
     }
-    //      Log.i(WebSocketCloverTransport.class.getName(), "reconnecting");
-
     reconnectPool.schedule(reconnector, reconnectDelay, TimeUnit.MILLISECONDS);
   }
 
@@ -177,11 +166,11 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverW
   public void onOpen(WebSocketClient ws, ServerHandshake handshakedata) {
     if (webSocket == ws) {
       // notify connected
-      // notify ready
       for (CloverTransportObserver observer : observers) {
         Log.d(getClass().getName(), "onOpen, Connected");
         observer.onDeviceConnected(this);
       }
+      // notify ready
       for (CloverTransportObserver observer : observers) {
         Log.d(getClass().getName(), "onOpen, Ready");
         observer.onDeviceReady(this);

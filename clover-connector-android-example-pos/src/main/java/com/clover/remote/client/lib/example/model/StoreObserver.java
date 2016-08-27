@@ -16,6 +16,10 @@
 
 package com.clover.remote.client.lib.example.model;
 
+import com.clover.remote.PendingPaymentEntry;
+
+import java.util.List;
+
 public interface StoreObserver {
   public abstract void newOrderCreated(POSOrder order);
   public abstract void cardAdded(POSCard card);
@@ -23,5 +27,7 @@ public interface StoreObserver {
 
   public abstract void preAuthAdded(POSPayment payment);
   public abstract void preAuthRemoved(POSPayment payment);
+
+  public abstract void pendingPaymentsRetrieved(List<PendingPaymentEntry> pendingPayments);
 }
 

@@ -28,9 +28,6 @@ import com.clover.remote.client.lib.example.model.POSCard;
 
 import java.util.List;
 
-/**
- * Created by blakewilliams on 1/17/16.
- */
 public class CardsListViewAdapter extends ArrayAdapter<POSCard>{
 
     public CardsListViewAdapter(Context context, int resource) {

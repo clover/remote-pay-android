@@ -20,7 +20,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.view.View;
-import com.clover.sdk.internal.Signature2;
+import com.clover.common2.Signature2;
 
 public class SignaturePanel extends View {
 

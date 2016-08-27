@@ -16,6 +16,10 @@
 
 package com.clover.remote.client.messages;
 
+/**
+ * request to acquire a payment token and card that
+ * can be used for future transaction requests
+ */
 public class VaultCardRequest extends BaseRequest {
   int cardEntryMethods;
 

@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import com.clover.remote.PendingPaymentEntry;
 import com.clover.remote.client.ICloverConnector;
 import com.clover.remote.client.lib.example.adapter.AvailableItemsAdapter;
 import com.clover.remote.client.lib.example.model.OrderObserver;
@@ -48,21 +49,12 @@ import com.clover.remote.order.DisplayOrder;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Currency;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link RegisterFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link RegisterFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class RegisterFragment extends Fragment implements CurrentOrderFragmentListener, AvailableItemListener {
   private OnFragmentInteractionListener mListener;
 
@@ -70,16 +62,7 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
   ICloverConnector cloverConnector;
   Map<POSItem, AvailableItem> itemToAvailableItem = new HashMap<POSItem, AvailableItem>();
 
-  /**
-   * Use this factory method to create a new instance of
-   * this fragment using the provided parameters.
-   *
-   * @return A new instance of fragment RegisterFragment.
-   */
-  // TODO: Rename and change types and number of parameters
   public static RegisterFragment newInstance(POSStore store, ICloverConnector cloverConnector) {
-    //this.store = store;
-    //this.cloverConnector = cloverConnector;
 
     RegisterFragment fragment = new RegisterFragment();
     fragment.setStore(store);
@@ -127,13 +110,6 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
   }
 
 
-  // TODO: Rename method, update argument and hook method into UI event
-  public void onButtonPressed(Uri uri) {
-    if (mListener != null) {
-      mListener.onFragmentInteraction(uri);
-    }
-  }
-
   @Override
   public void onAttach(Activity activity) {
     super.onAttach(activity);
@@ -152,18 +128,7 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
     mListener = null;
   }
 
-  /**
-   * This interface must be implemented by activities that contain this
-   * fragment to allow an interaction in this fragment to be communicated
-   * to the activity and potentially other fragments contained in that
-   * activity.
-   * <p>
-   * See the Android Training lesson <a href=
-   * "http://developer.android.com/training/basics/fragments/communicating.html"
-   * >Communicating with Other Fragments</a> for more information.
-   */
   public interface OnFragmentInteractionListener {
-    // TODO: Update argument type and name
     public void onFragmentInteraction(Uri uri);
   }
 
@@ -191,9 +156,13 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
 
   @Override
   public void onSaleClicked() {
-    SaleRequest request = new SaleRequest();
-    request.setAmount(store.getCurrentOrder().getTotal());
+    SaleRequest request = new SaleRequest(store.getCurrentOrder().getTotal(), ExamplePOSActivity.getNextId());
+    request.setCardEntryMethods(store.getCardEntryMethods());
+    request.setAllowOfflinePayment(store.getAllowOfflinePayment());
+    request.setApproveOfflinePaymentWithoutPrompt(store.getApproveOfflinePaymentWithoutPrompt());
     request.setTippableAmount(store.getCurrentOrder().getTippableAmount());
+    request.setTaxAmount(store.getCurrentOrder().getTaxAmount());
+    request.setDisablePrinting(store.getDisablePrinting());
     cloverConnector.sale(request);
   }
 
@@ -207,10 +176,13 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
 
   @Override
   public void onAuthClicked() {
-    AuthRequest request = new AuthRequest();
-    request.setAmount(store.getCurrentOrder().getTotal());
-    request.setTipAmount(null);
-    //request.setTippableAmount(store.getCurrentOrder().getTippableAmount());
+    AuthRequest request = new AuthRequest(store.getCurrentOrder().getTotal(), ExamplePOSActivity.getNextId());
+    request.setCardEntryMethods(store.getCardEntryMethods());
+    request.setAllowOfflinePayment(store.getAllowOfflinePayment());
+    request.setApproveOfflinePaymentWithoutPrompt(store.getApproveOfflinePaymentWithoutPrompt());
+    request.setTippableAmount(store.getCurrentOrder().getTippableAmount());
+    request.setTaxAmount(store.getCurrentOrder().getTaxAmount());
+    request.setDisablePrinting(store.getDisablePrinting());
     cloverConnector.auth(request);
   }
 
@@ -222,8 +194,6 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
   @Override
   public void onItemSelected(POSItem item) {
     store.getCurrentOrder().addItem(item, 1);
-//    CurrentOrderFragment currentOrderFragment = (CurrentOrderFragment) getFragmentManager().findFragmentById(R.id.PendingOrder);
-//    currentOrderFragment.updateCurrentOrder();
   }
 
   class RegisterObserver implements StoreObserver, OrderObserver {
@@ -236,7 +206,6 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
 
     @Override
     public void newOrderCreated(POSOrder order) {
-      //TODO: I think this should show the welcome screen
       if (cloverConnector != null) {
         cloverConnector.showWelcomeScreen();
       }
@@ -265,6 +234,10 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
 
     }
 
+    @Override public void pendingPaymentsRetrieved(List<PendingPaymentEntry> pendingPayments) {
+
+    }
+
     @Override
     public void lineItemAdded(POSOrder posOrder, POSLineItem lineItem) {
       DisplayLineItem dli = new DisplayLineItem();
@@ -283,15 +256,13 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
       items.add(dli);
       displayOrder.setLineItems(items);
       updateTotals(posOrder, displayOrder);
-      cloverConnector.displayOrderLineItemAdded(displayOrder, dli);
+      cloverConnector.showDisplayOrder(displayOrder);
 
     }
 
     @Override
     public void lineItemRemoved(POSOrder posOrder, POSLineItem lineItem) {
       DisplayLineItem dli = liToDli.get(lineItem);
-      //dli.setName(lineItem.getItem().getName());
-      //dli.setPrice(CurrencyUtils.format(lineItem.getPrice()));
       List<DisplayDiscount> dDiscounts = new ArrayList<DisplayDiscount>();
       if (lineItem.getDiscount() != null && lineItem.getDiscount().getValue(lineItem.getPrice()) != lineItem.getPrice()) {
         DisplayDiscount dd = new DisplayDiscount();
@@ -309,7 +280,7 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
 
       displayOrder.setLineItems(items);
       updateTotals(posOrder, displayOrder);
-      cloverConnector.displayOrderLineItemRemoved(displayOrder, dli);
+      cloverConnector.showDisplayOrder(displayOrder);
     }
 
     @Override
@@ -327,7 +298,7 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
       }
       dli.setDiscounts(dDiscounts);
       updateTotals(posOrder, displayOrder);
-      cloverConnector.displayOrder(displayOrder);
+      cloverConnector.showDisplayOrder(displayOrder);
 
     }
 

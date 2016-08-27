@@ -16,21 +16,14 @@
 
 package com.clover.remote.client.messages;
 
-import com.clover.remote.ResultStatus;
-
-public class CaptureAuthResponse extends TransactionResponse {
-  ResultStatus status;
+public class CapturePreAuthResponse extends BaseResponse {
   String reason;
   String paymentID;
-  long amount;
-  long tipAmount;
+  Long amount;
+  Long tipAmount;
 
-  public ResultStatus getStatus() {
-    return status;
-  }
-
-  public void setStatus(ResultStatus status) {
-    this.status = status;
+  public CapturePreAuthResponse(boolean success, ResultCode result) {
+    super(success, result);
   }
 
   public String getReason() {
@@ -49,7 +42,7 @@ public class CaptureAuthResponse extends TransactionResponse {
     this.paymentID = paymentID;
   }
 
-  public long getAmount() {
+  public Long getAmount() {
     return amount;
   }
 

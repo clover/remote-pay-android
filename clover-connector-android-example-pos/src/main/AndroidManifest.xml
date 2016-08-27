@@ -13,47 +13,38 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  -->
-
+-->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.clover.remote.client.lib.example"
-          android:versionName="1.0">
+    package="com.clover.remote.client.lib.example"
+    android:versionName="1.0" >
 
-  <uses-sdk>
-    17
-  </uses-sdk>
+    <uses-sdk>
+        17
+    </uses-sdk>
 
-  <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
-  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-  <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-  <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
-  <application
-      android:icon="@mipmap/clover_logo"
-      android:label="@string/app_name">
-    <activity
-        android:name=".ExamplePOSActivity"
-        android:label="@string/title_activity_example_pos"
-        android:screenOrientation="landscape">
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN"/>
-
-        <category android:name="android.intent.category.LAUNCHER"/>
-      </intent-filter>
-    </activity>
-    <activity
-        android:name=".ExamplePOSSettingsActivity"
-        android:label="Example POS Settings"
-        android:screenOrientation="landscape">
-    </activity>
-    <activity
-        android:name=".OrdersActivity"
-        android:label="@string/title_activity_orders">
-    </activity>
-    <activity
-        android:name=".MiscellaneousActivity"
-        android:label="@string/title_activity_miscellaneous">
-    </activity>
-  </application>
+    <application
+        android:icon="@mipmap/clover_logo"
+        android:label="@string/app_name" >
+        <activity
+                android:name=".StartupActivity"
+                android:label="@string/title_activity_example_pos"
+                android:windowSoftInputMode="stateHidden"
+                android:screenOrientation="landscape">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ExamplePOSActivity"
+            android:label="@string/title_activity_example_pos"
+            android:screenOrientation="landscape" >
+        </activity>
+    </application>
 
 </manifest>

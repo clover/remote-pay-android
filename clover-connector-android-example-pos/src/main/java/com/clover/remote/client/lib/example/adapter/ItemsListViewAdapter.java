@@ -26,7 +26,6 @@ import com.clover.remote.client.lib.example.R;
 import com.clover.remote.client.lib.example.model.POSLineItem;
 import com.clover.remote.client.lib.example.utils.CurrencyUtils;
 
-import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
 

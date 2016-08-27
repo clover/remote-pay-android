@@ -31,7 +31,7 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
-import com.clover.remote.client.CloverConnector;
+import com.clover.remote.PendingPaymentEntry;
 import com.clover.remote.client.ICloverConnector;
 import com.clover.remote.client.lib.example.adapter.ItemsListViewAdapter;
 import com.clover.remote.client.lib.example.adapter.OrdersListViewAdapter;
@@ -55,16 +55,9 @@ import com.clover.sdk.v3.order.VoidReason;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link OrdersFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link OrdersFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class OrdersFragment extends Fragment implements OrderObserver {
   private static final String ARG_STORE = "store";
 
@@ -78,16 +71,7 @@ public class OrdersFragment extends Fragment implements OrderObserver {
   private ListView ordersListView;
   POSOrder selectedOrder = null;
 
-  /**
-   * Use this factory method to create a new instance of
-   * this fragment using the provided parameters.
-   *
-   * @param store           Parameter 1.
-   * @param cloverConnector Parameter 2.
-   * @return A new instance of fragment OrdersFragment.
-   */
-  // TODO: Rename and change types and number of parameters
-  public static OrdersFragment newInstance(POSStore store, CloverConnector cloverConnector) {
+  public static OrdersFragment newInstance(POSStore store, ICloverConnector cloverConnector) {
     OrdersFragment fragment = new OrdersFragment();
     fragment.setStore(store);
     Bundle args = new Bundle();
@@ -173,13 +157,13 @@ public class OrdersFragment extends Fragment implements OrderObserver {
                         vpr.setOrderId(posExchange.getOrderId());
                         vpr.setVoidReason(VoidReason.USER_CANCEL.name());
                         cloverConnector.voidPayment(vpr);
-                        //dlg.disiss();
                         break;
                       }
                       case "Refund Payment": {
                         RefundPaymentRequest rpr = new RefundPaymentRequest();
                         rpr.setPaymentId(posExchange.getPaymentID());
                         rpr.setOrderId(posExchange.orderID);
+                        rpr.setFullRefund(true);
                         cloverConnector.refundPayment(rpr);
                         break;
                       }
@@ -196,8 +180,8 @@ public class OrdersFragment extends Fragment implements OrderObserver {
                             long value = (long) val;
 
                             TipAdjustAuthRequest taar = new TipAdjustAuthRequest();
-                            taar.setPaymentID(posExchange.getPaymentID());
-                            taar.setOrderID(posExchange.getOrderId());
+                            taar.setPaymentId(posExchange.getPaymentID());
+                            taar.setOrderId(posExchange.getOrderId());
                             taar.setTipAmount(value);
                             cloverConnector.tipAdjustAuth(taar);
                             dialog.dismiss();
@@ -226,30 +210,7 @@ public class OrdersFragment extends Fragment implements OrderObserver {
               });
           final Dialog dlg = builder.create();
           dlg.show();
-        } /*else if (posExchange instanceof POSRefund) {  //TODO: Add this when the supporting remote-pay version is released
-          options = new String[]{"Receipt Options"};
-          final String[] finalRefundOptions = options;
-          builder.setTitle("Refund Actions").
-              setItems(finalRefundOptions, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int index) {
-                  final ICloverConnector cloverConnector = cloverConnectorWeakReference.get();
-                  if (cloverConnector != null) {
-                    final String option = finalRefundOptions[index];
-                    switch (option) {
-                      case "Receipt Options": {
-                        cloverConnector.displayRefundReceiptOptions(posExchange.orderID, ((POSRefund)posExchange).getRefundID());
-                        break;
-                      }
-                    }
-                  } else {
-                    Toast.makeText(getActivity().getBaseContext(), "Clover Connector is null", Toast.LENGTH_LONG).show();
-                  }
-                }
-              });
-          final Dialog dlg = builder.create();
-          dlg.show();
-        } */
+        }
 
       }
     });
@@ -312,13 +273,7 @@ public class OrdersFragment extends Fragment implements OrderObserver {
     store.addStoreObserver(new StoreObserver() {
       @Override
       public void newOrderCreated(POSOrder order) {
-        List<POSOrder> orders = new ArrayList<POSOrder>(store.getOrders().size());
-        List<POSOrder> storeOrders = store.getOrders();
-        for(int i=storeOrders.size()-1; i>=0; i--) {
-          orders.add(0, storeOrders.get(i)); // newest first...
-        }
-        OrdersListViewAdapter listViewAdapter = new OrdersListViewAdapter(view.getContext(), R.id.ItemsGridView, orders);
-        ordersListView.setAdapter(listViewAdapter);
+        updateOrderList();
       }
 
       @Override public void cardAdded(POSCard card) {
@@ -336,8 +291,70 @@ public class OrdersFragment extends Fragment implements OrderObserver {
       @Override public void preAuthRemoved(POSPayment payment) {
 
       }
+
+      @Override public void pendingPaymentsRetrieved(List<PendingPaymentEntry> pendingPayments) {
+
+      }
+
     });
 
+    store.addCurrentOrderObserver(new OrderObserver() {
+      @Override public void lineItemAdded(POSOrder posOrder, POSLineItem lineItem) {
+        updateOrderList();
+      }
+
+      @Override public void lineItemRemoved(POSOrder posOrder, POSLineItem lineItem) {
+        updateOrderList();
+      }
+
+      @Override public void lineItemChanged(POSOrder posOrder, POSLineItem lineItem) {
+        updateOrderList();
+      }
+
+      @Override public void paymentAdded(POSOrder posOrder, POSPayment payment) {
+        updateOrderList();
+      }
+
+      @Override public void refundAdded(POSOrder posOrder, POSRefund refund) {
+        updateOrderList();
+      }
+
+      @Override public void paymentChanged(POSOrder posOrder, POSExchange pay) {
+        updateOrderList();
+      }
+
+      @Override public void discountAdded(POSOrder posOrder, POSDiscount discount) {
+        updateOrderList();
+      }
+
+      @Override public void discountChanged(POSOrder posOrder, POSDiscount discount) {
+        updateOrderList();
+      }
+    });
+
+  }
+
+  private void updateOrderList() {
+    final List<POSOrder> orders = new ArrayList<POSOrder>(store.getOrders().size());
+    List<POSOrder> storeOrders = store.getOrders();
+    for(POSOrder currentOrder : storeOrders) {
+      if(currentOrder.getStatus() != POSOrder.OrderStatus.INITIAL) {
+        orders.add(currentOrder);
+      }
+    }
+
+    Collections.sort(orders, new Comparator<POSOrder>() {
+      @Override public int compare(POSOrder lhs, POSOrder rhs) {
+        return Integer.parseInt(rhs.id) - Integer.parseInt(lhs.id);
+      }
+    });
+
+    getActivity().runOnUiThread(new Runnable() {
+      @Override public void run() {
+        OrdersListViewAdapter listViewAdapter = new OrdersListViewAdapter(view.getContext(), R.id.ItemsGridView, orders);
+        ordersListView.setAdapter(listViewAdapter);
+      }
+    });
   }
 
   @Override public void lineItemAdded(POSOrder posOrder, POSLineItem lineItem) {

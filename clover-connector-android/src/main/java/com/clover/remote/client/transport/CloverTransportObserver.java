@@ -18,21 +18,31 @@ package com.clover.remote.client.transport;
 
 
 public interface CloverTransportObserver {
-  /// <summary>
-  /// Device is there but not yet ready for use
-  /// </summary>
+  /**
+   * Device is there but not yet ready for use
+   *
+   * @param transport
+   */
   void onDeviceConnected(CloverTransport transport);
 
-  /// <summary>
-  /// Device is there and ready for use
-  /// </summary>
+  /**
+   * Device is there and ready for use
+   *
+   * @param transport
+   */
   void onDeviceReady(CloverTransport transport);
 
-  /// <summary>
-  /// Device is not there anymore
-  /// </summary>
-  /// <param name="transport"></param>
+  /**
+   * Device is not there anymore
+   *
+   * @param transport
+   */
   void onDeviceDisconnected(CloverTransport transport);
 
+  /**
+   * Called when a raw message is received from the device
+   *
+   * @param message
+   */
   void onMessage(String message);
 }

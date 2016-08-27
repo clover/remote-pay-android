@@ -24,7 +24,11 @@ import java.util.List;
 public class POSOrder {
 
   public enum OrderStatus {
-    OPEN, CLOSED, LOCKED, AUTHORIZED
+    OPEN, CLOSED, LOCKED, PAID, INITIAL, PARTIALLY_PAID {
+      @Override public String toString() {
+        return "PARTIALLY PAID";
+      }
+    };
   }
 
   private List<POSLineItem> items;
@@ -32,12 +36,10 @@ public class POSOrder {
   private POSDiscount discount;
   public String id;
   public Date date;
-  public OrderStatus status;
 
   private transient List<OrderObserver> observers = new ArrayList<OrderObserver>();
 
   public POSOrder() {
-    status = OrderStatus.OPEN;
     items = new ObservableList<POSLineItem>();
     payments = new ObservableList<POSExchange>();
     discount = new POSDiscount("None", 0);
@@ -184,6 +186,28 @@ public class POSOrder {
     }
     payments.add(refund);
     notifyObserverRefundAdded(refund);
+  }
+
+  public POSOrder.OrderStatus getStatus() {
+    if(items.size() == 0 && payments.size() == 0) {
+      return OrderStatus.INITIAL;
+    } else {
+      long totalPaid = 0;
+      for(POSExchange payment : payments) {
+        if(payment instanceof POSPayment) {
+          totalPaid += payment.getAmount();
+        } else if(payment instanceof POSRefund) {
+          totalPaid -= payment.getAmount();
+        }
+      }
+      if(getTotal() > 0 && totalPaid >= getTotal()) {
+        return OrderStatus.PAID;
+      } else if (totalPaid > 0) {
+        return OrderStatus.PARTIALLY_PAID;
+      } else {
+        return OrderStatus.OPEN;
+      }
+    }
   }
 
 

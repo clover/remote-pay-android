@@ -16,10 +16,14 @@
 
 package com.clover.remote.client.messages;
 
+/**
+ * Request to refund a payment, either partially or fully
+ */
 public class RefundPaymentRequest extends BaseRequest {
   private String orderId;
   private String paymentId;
   private long amount; // optional
+  private boolean fullRefund; //
 
   public String getOrderId() {
     return orderId;
@@ -43,6 +47,14 @@ public class RefundPaymentRequest extends BaseRequest {
 
   public void setAmount(long amount) {
     this.amount = amount;
+  }
+
+  public boolean isFullRefund() {
+    return fullRefund;
+  }
+
+  public void setFullRefund(boolean fullRefund) {
+    this.fullRefund = fullRefund;
   }
 }
 

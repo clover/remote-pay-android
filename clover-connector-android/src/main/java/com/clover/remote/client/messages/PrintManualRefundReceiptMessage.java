@@ -13,14 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.clover.remote.client.messages;
 
-/// <summary>
-///
-/// </summary>
-public class CaptureAuthRequest extends BaseRequest {
-  public String paymentID;
-  public long amount;
-  public long tipAmount;
+import com.clover.sdk.v3.payments.Credit;
+
+/**
+ * Callback to request the POS print a refund for a
+ * ManualRefund
+ */
+public class PrintManualRefundReceiptMessage {
+  public Credit credit;
+
+  public PrintManualRefundReceiptMessage(Credit credit) {
+    this.credit = credit;
+  }
+
+  public Credit getCredit() {
+    return credit;
+  }
+
 }

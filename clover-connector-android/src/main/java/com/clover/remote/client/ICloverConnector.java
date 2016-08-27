@@ -16,46 +16,80 @@
 
 package com.clover.remote.client;
 
+import android.graphics.Bitmap;
+import com.clover.remote.Challenge;
 import com.clover.remote.InputOption;
 import com.clover.remote.client.messages.AuthRequest;
-import com.clover.remote.client.messages.CaptureAuthRequest;
+import com.clover.remote.client.messages.CapturePreAuthRequest;
+import com.clover.remote.client.messages.CloseoutRequest;
 import com.clover.remote.client.messages.ManualRefundRequest;
 import com.clover.remote.client.messages.PreAuthRequest;
+import com.clover.remote.client.messages.ReadCardDataRequest;
 import com.clover.remote.client.messages.RefundPaymentRequest;
 import com.clover.remote.client.messages.SaleRequest;
-import com.clover.remote.client.messages.SignatureVerifyRequest;
 import com.clover.remote.client.messages.TipAdjustAuthRequest;
+import com.clover.remote.client.messages.VerifySignatureRequest;
 import com.clover.remote.client.messages.VoidPaymentRequest;
-import com.clover.remote.order.DisplayDiscount;
-import com.clover.remote.order.DisplayLineItem;
 import com.clover.remote.order.DisplayOrder;
+import com.clover.sdk.v3.payments.Payment;
 
-import android.graphics.Bitmap;
-
+import java.io.Serializable;
 import java.util.List;
 
-public interface ICloverConnector {
+public interface ICloverConnector extends Serializable {
+
+  /**
+   * Initialize the CloverConnector's connection. Must be called before calling any other method other than to add or remove listeners
+   */
+  void initializeConnection();
+
+  /**
+   * add an ICloverConnectorListener to receive callbacks
+   * @param listener
+   */
+  public void addCloverConnectorListener(ICloverConnectorListener listener);
+
+  /**
+   * remove an ICloverConnectorListener from receiving callbacks
+   * @param listener
+   */
+  public void removeCloverConnectorListener(ICloverConnectorListener listener);
 
   /**
    * Sale method, aka "purchase"
    *
    * @param request - A SaleRequest object containing basic information needed for the transaction
    */
-  int sale(SaleRequest request);
+  void sale(SaleRequest request);
 
   /**
    * If signature is captured during a Sale, this method accepts the signature as entered
    *
    * @param request -
    **/
-  void acceptSignature(SignatureVerifyRequest request);
+  void acceptSignature(VerifySignatureRequest request);
 
   /**
    * If signature is captured during a Sale, this method rejects the signature as entered
    *
    * @param request -
    **/
-  void rejectSignature(SignatureVerifyRequest request);
+  void rejectSignature(VerifySignatureRequest request);
+
+  /**
+   * If payment confirmation is required during a Sale, this method accepts the payment
+   *
+   * @param payment -
+   **/
+  void acceptPayment(Payment payment);
+
+  /**
+   * If payment confirmation is required during a Sale, this method rejects the payment
+   *
+   * @param payment -
+   * @param challenge -
+   **/
+  void rejectPayment(Payment payment, Challenge challenge);
 
   /**
    * Auth method to obtain an Auth payment that can be used as the payment
@@ -63,21 +97,21 @@ public interface ICloverConnector {
    *
    * @param request -
    **/
-  int auth(AuthRequest request);
+  void auth(AuthRequest request);
 
   /**
    * PreAuth method to obtain a Pre-Auth for a card
    *
    * @param request -
    **/
-  int preAuth(PreAuthRequest request);
+  void preAuth(PreAuthRequest request);
 
   /**
    * Capture a previous Auth. Note: Should only be called if request's PaymentID is from an AuthResponse
    *
    * @param request -
    **/
-  void captureAuth(CaptureAuthRequest request);
+  void capturePreAuth(CapturePreAuthRequest request);
 
   /**
    * Adjust the tip for a previous Auth. Note: Should only be called if request's PaymentID is from an AuthResponse
@@ -92,12 +126,6 @@ public interface ICloverConnector {
    * @param request - A VoidRequest object containing basic information needed to void the transaction
    **/
   void voidPayment(VoidPaymentRequest request);
-
-  /*
-   * called when requesting a payment be voided when only the request UUID is available
-   * @param request -
-   */
-  //void voidTransaction(VoidTransactionRequest request);
 
   /**
    * Refund a specific payment
@@ -129,10 +157,9 @@ public interface ICloverConnector {
   /**
    * Request a closeout of all orders.
    *
-   * @param allowOpenTabs
-   * @param batchId
+   * @param request -
    */
-  void closeout(boolean allowOpenTabs, String batchId);
+  void closeout(CloseoutRequest request);
 
   /**
    * Print simple lines of text to the Clover Mini printer
@@ -147,6 +174,12 @@ public interface ICloverConnector {
    * @param image -
    **/
   void printImage(Bitmap image);
+
+  /**
+   * Print an image on the Clover Mini printer
+   * @param url
+   */
+  void printImageFromURL(String url);
 
   /**
    * Show a message on the Clover Mini screen
@@ -174,22 +207,6 @@ public interface ICloverConnector {
   void displayPaymentReceiptOptions(String orderId, String paymentId);
 
   /**
-   * display the refund receipt screen for the orderId/refundId combination.
-   *
-   * @param refundId
-   * @param orderId
-
-  void displayRefundReceiptOptions(String orderId, String refundId);
-
-  /**
-   * display the credit receipt screen for the orderId/creditId combination.
-   *
-   * @param creditId
-   * @param orderId
-
-  void displayManualRefundReceiptOptions(String orderId, String creditId);
-*/
-  /**
    * Will trigger cash drawer to open that is connected to Clover Mini
    **/
   void openCashDrawer(String reason);
@@ -199,57 +216,21 @@ public interface ICloverConnector {
    *
    * @param order -
    **/
-  void displayOrder(DisplayOrder order);
-
-  /**
-   * Notify the device of a DisplayLineItem being added to a DisplayOrder
-   *
-   * @param order    -
-   * @param lineItem -
-   **/
-  void displayOrderLineItemAdded(DisplayOrder order, DisplayLineItem lineItem);
-
-  /**
-   * Notify the device of a DisplayLineItem being removed from a DisplayOrder
-   *
-   * @param order    -
-   * @param lineItem -
-   **/
-
-  void displayOrderLineItemRemoved(DisplayOrder order, DisplayLineItem lineItem);
-
-  /**
-   * Notify device of a discount being added to the order.
-   * Note: This is independent of a discount being added to a display line item.
-   *
-   * @param order    -
-   * @param discount -
-   **/
-  void displayOrderDiscountAdded(DisplayOrder order, DisplayDiscount discount);
-
-  /**
-   * Notify the device that a discount was removed from the order.
-   * Note: This is independent of a discount being removed from a display line item.
-   *
-   * @param order    -
-   * @param discount -
-   **/
-  void displayOrderDiscountRemoved(DisplayOrder order, DisplayDiscount discount);
+  void showDisplayOrder(DisplayOrder order);
 
   /**
    * Remove the DisplayOrder from the device.
    *
    * @param order -
    **/
-  void displayOrderDelete(DisplayOrder order);
+  void removeDisplayOrder(DisplayOrder order);
 
   /**
    *  return the Merchant object for the Merchant configured for the Clover Mini
    **/
-  //void getMerchantInfo();
 
   /**
-   *
+   * will dispose of the underlying connection to the device
    */
   void dispose();
 
@@ -266,4 +247,17 @@ public interface ICloverConnector {
    * needs to be used cautiously as a last resort
    */
   void resetDevice();
+
+  /**
+   * Used to request a list of pending payments that have been taken offline, but
+   * haven't processed yet. will trigger an onRetrievePendingPaymentsResponse callback
+   */
+  void retrievePendingPayments();
+
+  /**
+   * Used to request card information. Specifically track1 and track2 information
+   *
+   * @param request - The card entry methods allowed to request track information. null will provide default values
+   */
+  void readCardData(ReadCardDataRequest request);
 }

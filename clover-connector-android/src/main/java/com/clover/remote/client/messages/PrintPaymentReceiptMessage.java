@@ -13,22 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
 package com.clover.remote.client.messages;
 
+import com.clover.sdk.v3.order.Order;
+import com.clover.sdk.v3.payments.Payment;
+
 /**
- * Created by glennbedwell on 3/8/16.
+ * Callback to the POS to request a payment receipt be printed
  */
-public class ConfigErrorResponse {
-  private String message;
+public class PrintPaymentReceiptMessage {
+  Order order;
+  Payment payment;
 
-  public String getMessage() {
-    return message;
+  public PrintPaymentReceiptMessage(Payment payment, Order order) {
+    this.payment = payment;
+    this.order = order;
   }
 
-  public void setMessage(String message) {
-    this.message = message;
+  public Payment getPayment() {
+    return payment;
   }
 
+  public Order getOrder() {
+    return order;
+  }
 }

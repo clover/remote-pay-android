@@ -30,7 +30,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
-import com.clover.remote.client.CloverConnector;
+import com.clover.remote.PendingPaymentEntry;
 import com.clover.remote.client.ICloverConnector;
 import com.clover.remote.client.lib.example.adapter.CardsListViewAdapter;
 import com.clover.remote.client.lib.example.adapter.PreAuthListViewAdapter;
@@ -40,21 +40,11 @@ import com.clover.remote.client.lib.example.model.POSOrder;
 import com.clover.remote.client.lib.example.model.POSPayment;
 import com.clover.remote.client.lib.example.model.POSStore;
 import com.clover.remote.client.lib.example.model.StoreObserver;
-import com.clover.remote.client.messages.AuthRequest;
-import com.clover.remote.client.messages.CaptureAuthRequest;
-import com.clover.remote.client.messages.SaleRequest;
-import com.clover.sdk.v3.payments.VaultedCard;
+import com.clover.remote.client.messages.CapturePreAuthRequest;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link PreAuthFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link PreAuthFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class PreAuthFragment extends Fragment {
   private static final String ARG_STORE = "store";
 
@@ -65,16 +55,7 @@ public class PreAuthFragment extends Fragment {
   private WeakReference<ICloverConnector> cloverConnectorWeakReference;
   private ListView preAuthsListView;
 
-  /**
-   * Use this factory method to create a new instance of
-   * this fragment using the provided parameters.
-   *
-   * @param store           Parameter 1.
-   * @param cloverConnector Parameter 2.
-   * @return A new instance of fragment OrdersFragment.
-   */
-  // TODO: Rename and change types and number of parameters
-  public static PreAuthFragment newInstance(POSStore store, CloverConnector cloverConnector) {
+  public static PreAuthFragment newInstance(POSStore store, ICloverConnector cloverConnector) {
     PreAuthFragment fragment = new PreAuthFragment();
     fragment.setStore(store);
     Bundle args = new Bundle();
@@ -95,7 +76,6 @@ public class PreAuthFragment extends Fragment {
 
   @Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-    // Inflate the layout for this fragment
     final View view = inflater.inflate(R.layout.fragment_preauth, container, false);
 
     store.addStoreObserver(new StoreObserver() {
@@ -112,7 +92,6 @@ public class PreAuthFragment extends Fragment {
       }
 
       @Override public void preAuthAdded(POSPayment payment) {
-        //preAuthsListView = (ListView)view.findViewById(R.id.PreAuthListView);
         new AsyncTask() {
           @Override protected Object doInBackground(Object[] params) {
             return null;
@@ -137,6 +116,10 @@ public class PreAuthFragment extends Fragment {
           }
         }.execute();
       }
+
+      @Override public void pendingPaymentsRetrieved(List<PendingPaymentEntry> pendingPayments) {
+
+      }
     });
 
     preAuthsListView = (ListView) view.findViewById(R.id.PreAuthListView);
@@ -159,11 +142,11 @@ public class PreAuthFragment extends Fragment {
 
                   switch (index) {
                     case 0: {
-                    CaptureAuthRequest car = new CaptureAuthRequest();
+                    CapturePreAuthRequest car = new CapturePreAuthRequest();
                     car.paymentID = posPayment.getPaymentID();
                     car.amount = store.getCurrentOrder().getTotal();
                     car.tipAmount = store.getCurrentOrder().getTips();
-                    cloverConnector.captureAuth(car);
+                    cloverConnector.capturePreAuth(car);
                     dialog.dismiss();
                     break;
                   }
@@ -181,7 +164,6 @@ public class PreAuthFragment extends Fragment {
     return view;
   }
 
-  // TODO: Rename method, update argument and hook method into UI event
   public void onButtonPressed(Uri uri) {
     if (mListener != null) {
       mListener.onFragmentInteraction(uri);
@@ -206,18 +188,7 @@ public class PreAuthFragment extends Fragment {
     this.store = store;
   }
 
-  /**
-   * This interface must be implemented by activities that contain this
-   * fragment to allow an interaction in this fragment to be communicated
-   * to the activity and potentially other fragments contained in that
-   * activity.
-   * <p/>
-   * See the Android Training lesson <a href=
-   * "http://developer.android.com/training/basics/fragments/communicating.html"
-   * >Communicating with Other Fragments</a> for more information.
-   */
   public interface OnFragmentInteractionListener {
-    // TODO: Update argument type and name
     public void onFragmentInteraction(Uri uri);
   }
 

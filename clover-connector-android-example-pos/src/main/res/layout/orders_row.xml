@@ -16,11 +16,11 @@
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="horizontal"
-              android:paddingTop="3dp"
-              android:paddingBottom="3dp"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+                android:orientation="horizontal"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" android:id="@+id/OrdersRowLayout">
   <TextView android:layout_width="wrap_content" android:layout_weight="1" android:layout_height="wrap_content"
             android:id="@+id/OrdersRowIdColumn" android:text="IDxxxx"
             android:textSize="@dimen/table_primary_text_size" android:textIsSelectable="false" android:layout_alignParentTop="true"
@@ -28,7 +28,7 @@
   <TextView android:layout_width="wrap_content" android:layout_weight="1" android:layout_height="wrap_content"
             android:id="@+id/OrdersRowTotalColumn" android:text="$0000000.00"
             android:textSize="@dimen/order_table_text_size"
-            android:layout_alignParentTop="true" android:layout_alignParentEnd="true" android:textStyle="bold" android:textAlignment="viewEnd"/>
+            android:layout_alignParentTop="true" android:layout_alignParentEnd="true" android:layout_alignParentRight="true" android:textStyle="bold" android:textAlignment="viewEnd"/>
   <TextView android:layout_width="wrap_content" android:layout_weight="1" android:layout_height="wrap_content"
             android:id="@+id/OrdersRowDateColumn" android:text="Jan. 3, 2016"
             android:textSize="@dimen/table_secondary_text_size"
@@ -41,12 +41,14 @@
   <TextView android:layout_width="wrap_content" android:layout_weight="1" android:layout_height="wrap_content"
             android:id="@+id/OrdersRowSubtotalColumn" android:text="$0.00"
             android:textSize="@dimen/table_tertiary_text_size"
+            android:layout_alignParentRight="true"
             android:textAlignment="viewEnd"
             android:layout_below="@+id/OrdersRowTotalColumn" android:layout_alignParentEnd="true" android:textColor="@color/secondary_table_text_color"/>
   <TextView android:layout_width="wrap_content" android:layout_weight="1" android:layout_height="wrap_content"
             android:id="@+id/OrdersRowTaxColumn" android:text="$0.00"
             android:textSize="@dimen/table_tertiary_text_size"
             android:textAlignment="viewEnd" android:layout_below="@+id/OrdersRowSubtotalColumn"
+            android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true" android:textColor="@color/secondary_table_text_color"/>
   <TextView
           android:layout_width="wrap_content"

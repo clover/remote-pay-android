@@ -41,20 +41,10 @@ import com.clover.remote.client.lib.example.model.POSStore;
 
 import java.lang.ref.WeakReference;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link MiscellaneousFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link MiscellaneousFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class MiscellaneousFragment extends Fragment {
   private static final String ARG_STORE = "store";
 
   private POSStore store;
-
-  int cardEntryMethods;
 
   boolean updatingSwitches = false;
 
@@ -67,19 +57,9 @@ public class MiscellaneousFragment extends Fragment {
   private Switch contactlessSwitch;
   private RadioGroup allowOfflineRG;
   private RadioGroup approveOfflineNoPromptRG;
-  //private Switch allowOffline;
-  //private Switch approveOfflineNoPrompt;
+  private Switch printingSwitch;
 
-  /**
-   * Use this factory method to create a new instance of
-   * this fragment using the provided parameters.
-   *
-   * @param store           Parameter 1.
-   * @param cloverConnector Parameter 2.
-   * @return A new instance of fragment OrdersFragment.
-   */
-  // TODO: Rename and change types and number of parameters
-  public static MiscellaneousFragment newInstance(POSStore store, CloverConnector cloverConnector) {
+  public static MiscellaneousFragment newInstance(POSStore store, ICloverConnector cloverConnector) {
     MiscellaneousFragment fragment = new MiscellaneousFragment();
     fragment.setStore(store);
     Bundle args = new Bundle();
@@ -141,6 +121,7 @@ public class MiscellaneousFragment extends Fragment {
     contactlessSwitch = ((Switch)view.findViewById(R.id.ContactlessSwitch));
     allowOfflineRG = (RadioGroup) view.findViewById(R.id.AcceptOfflinePaymentRG);
     approveOfflineNoPromptRG = (RadioGroup) view.findViewById(R.id.ApproveOfflineWithoutPromptRG);
+    printingSwitch = ((Switch) view.findViewById(R.id.PrintingSwitch));
 
     manualSwitch.setTag(CloverConnector.CARD_ENTRY_METHOD_MANUAL);
     swipeSwitch.setTag(CloverConnector.CARD_ENTRY_METHOD_MAG_STRIPE);
@@ -163,7 +144,7 @@ public class MiscellaneousFragment extends Fragment {
               case R.id.acceptOfflineFalse : { allowOffline = false; break; }
               case R.id.acceptOfflineTrue : { allowOffline = true; break; }
             }
-            cc.setAllowOfflinePayment(allowOffline);
+            store.setAllowOfflinePayment(allowOffline);
           } else if (group == approveOfflineNoPromptRG) {
             int checkedRadioButtonId = group.getCheckedRadioButtonId();
             Boolean approveWOPrompt = null;
@@ -172,7 +153,7 @@ public class MiscellaneousFragment extends Fragment {
               case R.id.approveOfflineWithoutPromptFalse: { approveWOPrompt = false; break; }
               case R.id.approveOfflineWithoutPromptTrue: { approveWOPrompt = true; break; }
             }
-            cc.setApproveOfflinePaymentWithoutPrompt(approveWOPrompt);
+            store.setApproveOfflinePaymentWithoutPrompt(approveWOPrompt);
           }
         }
       }
@@ -181,7 +162,7 @@ public class MiscellaneousFragment extends Fragment {
     CompoundButton.OnCheckedChangeListener changeListener = new CompoundButton.OnCheckedChangeListener() {
       @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if(!updatingSwitches) {
-          ((CloverConnector) cloverConnectorWeakReference.get()).setCardEntryMethods(getCardEntryMethodStates());
+          store.setCardEntryMethods(getCardEntryMethodStates());
         }
       }
     };
@@ -195,10 +176,16 @@ public class MiscellaneousFragment extends Fragment {
     allowOfflineRG.setOnCheckedChangeListener(radioGroupChangeListener);
     approveOfflineNoPromptRG.setOnCheckedChangeListener(radioGroupChangeListener);
 
+    printingSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+      @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        if(!updatingSwitches) {
+          store.setDisablePrinting(isChecked);
+        }
+      }
+    });
     return view;
   }
 
-  // TODO: Rename method, update argument and hook method into UI event
   public void onButtonPressed(Uri uri) {
     if (mListener != null) {
       mListener.onFragmentInteraction(uri);
@@ -233,33 +220,13 @@ public class MiscellaneousFragment extends Fragment {
     this.store = store;
   }
 
-  /**
-   * This interface must be implemented by activities that contain this
-   * fragment to allow an interaction in this fragment to be communicated
-   * to the activity and potentially other fragments contained in that
-   * activity.
-   * <p/>
-   * See the Android Training lesson <a href=
-   * "http://developer.android.com/training/basics/fragments/communicating.html"
-   * >Communicating with Other Fragments</a> for more information.
-   */
   public interface OnFragmentInteractionListener {
-    // TODO: Update argument type and name
     public void onFragmentInteraction(Uri uri);
   }
 
   public void setCloverConnector(ICloverConnector cloverConnector) {
     cloverConnectorWeakReference = new WeakReference<ICloverConnector>(cloverConnector);
   }
-
-  /*public int getCardEntryMethods() {
-    return cardEntryMethods;
-  }
-
-  public void setCardEntryMethods(int cardEntryMethods) {
-    this.cardEntryMethods = cardEntryMethods;
-    updateSwitches();
-  }*/
 
   private void updateSwitches(View view) {
     if (manualSwitch != null) {
@@ -270,16 +237,18 @@ public class MiscellaneousFragment extends Fragment {
         Log.e(getClass().getSimpleName(), "Clover Connector Weak Reference is null");
         return;
       }
-      manualSwitch.setChecked((cc.getCardEntryMethods() & CloverConnector.CARD_ENTRY_METHOD_MANUAL) != 0);
-      contactlessSwitch.setChecked((cc.getCardEntryMethods() & CloverConnector.CARD_ENTRY_METHOD_NFC_CONTACTLESS) != 0);
-      chipSwitch.setChecked((cc.getCardEntryMethods() & CloverConnector.CARD_ENTRY_METHOD_ICC_CONTACT) != 0);
-      swipeSwitch.setChecked((cc.getCardEntryMethods() & CloverConnector.CARD_ENTRY_METHOD_MAG_STRIPE) != 0);
+      manualSwitch.setChecked((store.getCardEntryMethods() & CloverConnector.CARD_ENTRY_METHOD_MANUAL) == CloverConnector.CARD_ENTRY_METHOD_MANUAL);
+      contactlessSwitch.setChecked((store.getCardEntryMethods() & CloverConnector.CARD_ENTRY_METHOD_NFC_CONTACTLESS) == CloverConnector.CARD_ENTRY_METHOD_NFC_CONTACTLESS);
+      chipSwitch.setChecked((store.getCardEntryMethods() & CloverConnector.CARD_ENTRY_METHOD_ICC_CONTACT) == CloverConnector.CARD_ENTRY_METHOD_ICC_CONTACT);
+      swipeSwitch.setChecked((store.getCardEntryMethods() & CloverConnector.CARD_ENTRY_METHOD_MAG_STRIPE) == CloverConnector.CARD_ENTRY_METHOD_MAG_STRIPE);
 
-      Boolean allowOfflinePayment = cc.getAllowOfflinePayment();
+      printingSwitch.setChecked(store.getDisablePrinting() != null ? store.getDisablePrinting() : false);
+
+      Boolean allowOfflinePayment = store.getAllowOfflinePayment();
       ((RadioButton) view.findViewById(R.id.acceptOfflineDefault)).setChecked(allowOfflinePayment == null);
       ((RadioButton) view.findViewById(R.id.acceptOfflineTrue)).setChecked(allowOfflinePayment != null && allowOfflinePayment);
       ((RadioButton) view.findViewById(R.id.acceptOfflineFalse)).setChecked(allowOfflinePayment != null && !allowOfflinePayment);
-      Boolean approveOfflinePaymentWithoutPrompt = cc.getApproveOfflinePaymentWithoutPrompt();
+      Boolean approveOfflinePaymentWithoutPrompt = store.getApproveOfflinePaymentWithoutPrompt();
       ((RadioButton) view.findViewById(R.id.approveOfflineWithoutPromptDefault)).setChecked(approveOfflinePaymentWithoutPrompt == null);
       ((RadioButton) view.findViewById(R.id.approveOfflineWithoutPromptTrue)).setChecked(approveOfflinePaymentWithoutPrompt != null && allowOfflinePayment);
       ((RadioButton) view.findViewById(R.id.approveOfflineWithoutPromptFalse)).setChecked(approveOfflinePaymentWithoutPrompt != null && !allowOfflinePayment);

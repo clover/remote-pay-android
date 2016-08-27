@@ -19,9 +19,13 @@ package com.clover.remote.client.device;
 import com.clover.remote.client.transport.CloverTransport;
 import com.clover.remote.client.transport.websocket.WebSocketCloverTransport;
 
+import java.io.Serializable;
 import java.net.URI;
 
-public class WebSocketCloverDeviceConfiguration implements CloverDeviceConfiguration {
+/**
+ * Default configuration to communicate with the Mini via WebSockets to the LAN Pay Display
+ */
+public class WebSocketCloverDeviceConfiguration implements CloverDeviceConfiguration, Serializable {
   private URI uri = null;
   /**
    * ping heartbeat interval in milliseconds
@@ -40,14 +44,21 @@ public class WebSocketCloverDeviceConfiguration implements CloverDeviceConfigura
    */
   private int pingRetryCountBeforeReconnect = 4;
 
-  public WebSocketCloverDeviceConfiguration(URI endpoint) {
+  private final String appId;
+
+  public WebSocketCloverDeviceConfiguration(URI endpoint, String applicationId) {
     uri = endpoint;
+    appId = applicationId;
   }
 
-  public WebSocketCloverDeviceConfiguration(URI endpoint, long heartbeatInterval, long reconnectDelay) {
-    this(endpoint);
+  public WebSocketCloverDeviceConfiguration(URI endpoint, long heartbeatInterval, long reconnectDelay, String applicationId) {
+    this(endpoint, applicationId);
     this.heartbeatInterval = Math.max(100, heartbeatInterval);
     this.reconnectDelay = Math.max(0, reconnectDelay);
+  }
+
+  @Override public String getApplicationId() {
+    return appId;
   }
 
   public Long getHeartbeatInterval() {

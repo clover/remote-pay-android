@@ -36,23 +36,13 @@ import com.clover.remote.client.lib.example.model.POSLineItem;
 import com.clover.remote.client.lib.example.model.POSOrder;
 import com.clover.remote.client.lib.example.model.POSPayment;
 import com.clover.remote.client.lib.example.model.POSRefund;
-import com.clover.remote.client.lib.example.model.POSStore;
 import com.clover.remote.client.lib.example.utils.CurrencyUtils;
 
 import java.util.ArrayList;
-import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link CurrentOrderFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link CurrentOrderFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class CurrentOrderFragment extends Fragment implements OrderObserver {
 
   POSOrder order = new POSOrder();
@@ -248,7 +238,5 @@ public class CurrentOrderFragment extends Fragment implements OrderObserver {
     updateCurrentOrder();
 
   }
-
-
 
 }

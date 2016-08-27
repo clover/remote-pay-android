@@ -17,6 +17,7 @@
 package com.clover.remote.client.transport.websocket;
 
 import android.util.Log;
+import com.clover.remote.client.transport.CloverTransportObserver;
 import org.java_websocket.WebSocket;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.exceptions.InvalidDataException;
@@ -93,7 +94,6 @@ class CloverWebSocketClient extends WebSocketClient {
 
   @Override
   public void onOpen(ServerHandshake handshakedata) {
-    //status = "Connected";
 
     if (listener != null) {
       listener.onOpen(this, handshakedata);
@@ -191,9 +191,7 @@ class CloverWebSocketClient extends WebSocketClient {
   @Override
   public void onError(Exception ex) {
     Log.e(getClass().getName(), "onError", ex);
-      /*for (CloverTransportObserver listener : observers) {
-        //listener.onDevice
-      }*/
+    // TODO: should be close and re-open?
   }
 
   @Override
@@ -228,17 +226,12 @@ class CloverWebSocketClient extends WebSocketClient {
 
     @Override
     public void run() {
-          /*if (webSocket == null) {
-            return;
-          }*/
-
-      // notify observers only on the first time through this disconnection handler's run method
       if (listener != null && retryCount == maxPingRetriesBeforeDisconnect) {
         setPingTimeoutState(true);
         listener.onNotResponding(CloverWebSocketClient.this);
       }
 
-      if (retryCount > 0) {   // <-- retry mechanism allows for a tolerance before closing the connection
+      if (retryCount > 0) {
         retryCount--;
         Log.d(WebSocketCloverTransport.class.getSimpleName(), "");
         disconnectFutures.add(timerPool.schedule(this, heartbeatInterval, TimeUnit.MILLISECONDS));
@@ -248,11 +241,6 @@ class CloverWebSocketClient extends WebSocketClient {
       Log.d(WebSocketCloverTransport.class.getSimpleName(), "No ping response, so closing");
       cancelAllDisconnectHandlers(); // just to be safe...
       close();
-        /*try {
-          closeBlocking();  // <-- synchronous close keeps from opening multiple connections to the same device
-        } catch (Throwable ie) {
-          ie.printStackTrace();
-        }*/
     }
   }
 }

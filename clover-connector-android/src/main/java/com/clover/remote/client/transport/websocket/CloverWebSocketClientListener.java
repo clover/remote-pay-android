@@ -19,7 +19,7 @@ package com.clover.remote.client.transport.websocket;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
-public interface CloverWebSocketClientListener /*extends WebSocketClient*/ {
+public interface CloverWebSocketClientListener {
   public void onOpen(WebSocketClient ws, ServerHandshake handshakedata);
 
   public void onNotResponding(WebSocketClient ws);
