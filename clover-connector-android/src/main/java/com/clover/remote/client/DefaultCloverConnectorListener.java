@@ -39,9 +39,6 @@ import com.clover.remote.client.messages.VerifySignatureRequest;
 import com.clover.remote.client.messages.VoidPaymentResponse;
 import com.clover.remote.message.TipAddedMessage;
 
-/**
- * Created by blakewilliams on 6/14/16.
- */
 public abstract class DefaultCloverConnectorListener implements ICloverConnectorListener {
   private boolean ready = false;
   MerchantInfo merchantInfo;
