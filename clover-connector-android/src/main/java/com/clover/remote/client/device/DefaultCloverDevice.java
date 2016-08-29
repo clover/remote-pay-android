@@ -234,16 +234,19 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
               case CAPTURE_PREAUTH_RESPONSE:
                 CapturePreAuthResponseMessage cparm = (CapturePreAuthResponseMessage) Message.fromJsonString(rMessage.payload);
                 notifyObserversCapturePreAuth(cparm);
+                break;
               case CLOSEOUT_RESPONSE:
                 CloseoutResponseMessage crm = (CloseoutResponseMessage) Message.fromJsonString(rMessage.payload);
                 notifyObserversCloseout(crm);
+                break;
               case RETRIEVE_PENDING_PAYMENTS_RESPONSE:
                 RetrievePendingPaymentsResponseMessage rpprm = (RetrievePendingPaymentsResponseMessage) Message.fromJsonString(rMessage.payload);
                 notifyObserversPendingPaymentsResponse(rpprm);
+                break;
               case CARD_DATA_RESPONSE:
-                //              ReadCardDataResponse rcdr = (ReadCardDataResponse)
                 CardDataResponseMessage rcdrm = (CardDataResponseMessage) Message.fromJsonString(rMessage.payload);
                 notifyObserversReadCardData(rcdrm);
+                break;
               case DISCOVERY_REQUEST:
                 //Outbound no-op
                 break;
