@@ -33,8 +33,8 @@ defaultTasks 'install'
 
 dependencies {
 
-  compile(name: 'clover-remote-interface-174.2', ext: 'aar')
-  compile(name: 'clover-android-sdk-147.1', ext: 'aar')
+  compile(name: 'clover-remote-interface-175-RC1', ext: 'aar')
+  compile(name: 'clover-android-sdk-148-RC1', ext: 'aar')
   compile 'com.google.code.gson:gson:2.3.1'
   compile 'org.java-websocket:Java-WebSocket:1.3.0'
   testCompile 'junit:junit:4.12'

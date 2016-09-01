@@ -370,8 +370,8 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
                     data.addAll(new RowData("First Name", cardData.firstName));
                     data.addAll(new RowData("Last Name", cardData.lastName));
                     data.addAll(new RowData("Expiration", cardData.exp));
-                    data.addAll(new RowData("First 4", cardData.first4));
-                    data.addAll(new RowData("Last 6", cardData.last6));
+                    data.addAll(new RowData("First 6", cardData.first6));
+                    data.addAll(new RowData("Last 4", cardData.last4));
                     data.addAll(new RowData("Track 1", cardData.track1));
                     data.addAll(new RowData("Track 2", cardData.track2));
                     data.addAll(new RowData("Track 3", cardData.track3));
