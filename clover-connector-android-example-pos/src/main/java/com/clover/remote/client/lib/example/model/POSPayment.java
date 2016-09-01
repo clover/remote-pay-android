@@ -25,7 +25,7 @@ public class POSPayment extends POSExchange {
   private String externalPaymentId;
 
   public enum Status {
-    PAID, VOIDED, REFUNDED, AUTHORIZED
+    PAID, VOIDED, REFUNDED, AUTHORIZED, PREAUTHORIZED
   }
 
   public POSPayment(String paymentID, String orderID, String employeeID, long amount) {

@@ -17,6 +17,8 @@
 package com.clover.remote.client.messages;
 
 import com.clover.common2.Signature2;
+import com.clover.sdk.v3.payments.CardTransactionType;
+import com.clover.sdk.v3.payments.Result;
 
 /**
  * Base reponse use for callbacks that contain
@@ -51,44 +53,29 @@ public class PaymentResponse extends BaseResponse {
   public com.clover.sdk.v3.payments.Payment getPayment() {
     return this.payment;
   }  
-  /**
-  * Set the field value
-  */
-  public void setIsSale(java.lang.Boolean isSale) {
-    this.isSale = isSale;
-  }
 
   /**
   * Get the field value
   */
-  public java.lang.Boolean getIsSale() {
-    return this.isSale;
+  public boolean isSale() {
+    return CardTransactionType.AUTH.equals(payment.getCardTransaction().getType()) &&
+        Result.SUCCESS.equals(payment.getResult());
   }  
+
   /**
-  * Set the field value
+  * Get the field value
   */
-  public void setIsPreAuth(java.lang.Boolean isPreAuth) {
-    this.isPreAuth = isPreAuth;
+  public boolean isAuth() {
+    return CardTransactionType.PREAUTH.equals(payment.getCardTransaction().getType()) &&
+        Result.SUCCESS.equals(payment.getResult());
   }
 
   /**
   * Get the field value
   */
-  public java.lang.Boolean getIsPreAuth() {
-    return this.isPreAuth;
-  }  
-  /**
-  * Set the field value
-  */
-  public void setIsAuth(java.lang.Boolean isAuth) {
-    this.isAuth = isAuth;
-  }
-
-  /**
-  * Get the field value
-  */
-  public java.lang.Boolean getIsAuth() {
-    return this.isAuth;
+  public boolean isPreAuth() {
+    return CardTransactionType.PREAUTH.equals(payment.getCardTransaction().getType()) &&
+        Result.AUTH.equals(payment.getResult());
   }  
   /**
   * Set the field value

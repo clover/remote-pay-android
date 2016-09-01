@@ -70,6 +70,7 @@ import com.clover.remote.client.messages.CloverDeviceEvent;
 import com.clover.remote.client.messages.ConfirmPaymentRequest;
 import com.clover.remote.client.messages.ManualRefundRequest;
 import com.clover.remote.client.messages.ManualRefundResponse;
+import com.clover.remote.client.messages.PaymentResponse;
 import com.clover.remote.client.messages.PreAuthRequest;
 import com.clover.remote.client.messages.PreAuthResponse;
 import com.clover.remote.client.messages.PrintManualRefundDeclineReceiptMessage;
@@ -427,7 +428,7 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
               public void run() {
                 Payment _payment = response.getPayment();
                 POSPayment payment = new POSPayment(_payment.getId(), _payment.getExternalPaymentId(), _payment.getOrder().getId(), "DFLTEMPLYEE", _payment.getAmount(), _payment.getTipAmount() != null ? _payment.getTipAmount() : 0, _payment.getCashbackAmount() != null ? _payment.getCashbackAmount() : 0);
-                payment.setPaymentStatus(CardTransactionType.PREAUTH.equals(response.getPayment().getCardTransaction().getType()) ? POSPayment.Status.AUTHORIZED : POSPayment.Status.PAID);
+                setPaymentStatus(payment, response);
                 store.addPaymentToOrder(payment, store.getCurrentOrder());
                 showMessage("Auth successfully processed.", Toast.LENGTH_SHORT);
 
@@ -456,10 +457,7 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
                 Payment _payment = response.getPayment();
                 POSPayment payment = new POSPayment(_payment.getId(), _payment.getExternalPaymentId(), _payment.getOrder().getId(), "DFLTEMPLYEE", _payment.getAmount(), _payment.getTipAmount() != null ? _payment.getTipAmount() : 0,
                     _payment.getCashbackAmount() != null ? _payment.getCashbackAmount() : 0);
-                payment.setPaymentStatus(CardTransactionType.PREAUTH.equals(response.getPayment().getCardTransaction().getType()) ?
-                    POSPayment.Status.AUTHORIZED :
-                    POSPayment.Status.PAID);
-
+                setPaymentStatus(payment, response);
                 store.addPreAuth(payment);
                 showMessage("PreAuth successfully processed.", Toast.LENGTH_SHORT);
                 showPreAuths(null);
@@ -592,7 +590,8 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
               if (response.getPayment() != null) {
                 Payment _payment = response.getPayment();
                 POSPayment payment = new POSPayment(_payment.getId(), _payment.getExternalPaymentId(), _payment.getOrder().getId(), "DFLTEMPLYEE", _payment.getAmount(), _payment.getTipAmount() != null ? _payment.getTipAmount() : 0, _payment.getCashbackAmount() != null ? _payment.getCashbackAmount() : 0);
-                payment.setPaymentStatus(CardTransactionType.PREAUTH.equals(response.getPayment().getCardTransaction().getType()) ? POSPayment.Status.AUTHORIZED : POSPayment.Status.PAID);
+                setPaymentStatus(payment, response);
+
                 store.addPaymentToOrder(payment, store.getCurrentOrder());
                 showMessage("Sale successfully processed", Toast.LENGTH_SHORT);
                 runOnUiThread(new Runnable() {
@@ -753,6 +752,16 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
       cloverConnector.addCloverConnectorListener(ccListener);
       cloverConnector.initializeConnection();
       updateComponentsWithNewCloverConnector();
+  }
+
+  private void setPaymentStatus(POSPayment payment, PaymentResponse response) {
+    if(response.isSale()) {
+      payment.setPaymentStatus(POSPayment.Status.PAID);
+    } else if(response.isAuth()) {
+      payment.setPaymentStatus(POSPayment.Status.AUTHORIZED);
+    } else if(response.isPreAuth()) {
+      payment.setPaymentStatus(POSPayment.Status.PREAUTHORIZED);
+    }
   }
 
   @Override protected void onDestroy() {

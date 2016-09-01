@@ -23,26 +23,9 @@ import com.clover.sdk.v3.payments.Payment;
  * Response to a Sale request
  */
 public class SaleResponse extends PaymentResponse {
-  private Payment payment;
-  private Signature2 signature; // optional
 
   public SaleResponse(boolean success, ResultCode result) {
     super(success, result);
   }
 
-  public Payment getPayment() {
-    return payment;
-  }
-
-  public void setPayment(Payment payment) {
-    this.payment = payment;
-  }
-
-  public Signature2 getSignature() {
-    return signature;
-  }
-
-  public void setSignature(Signature2 signature) {
-    this.signature = signature;
-  }
 }

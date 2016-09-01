@@ -97,7 +97,7 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
   Gson gson = new Gson();
   private static int id = 0;
   private RefundResponseMessage refRespMsg;
-  private static final String REMOTE_SDK = "com.clover.remote.android.sdk.public:1.1-RC1";
+  private static final String REMOTE_SDK = "com.clover.remote.sdk.android.public:1.1-RC1";
 
   private String applicationId;
   Map<String, AsyncTask> msgIdToTask = new HashMap<String, AsyncTask>();
