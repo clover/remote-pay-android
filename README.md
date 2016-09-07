@@ -1,6 +1,6 @@
 # Clover SDK for Android PoS Integration
 
-Current version: 1.1-RC1
+Current version: 1.1
 
 ## Overview
 
