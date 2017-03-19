@@ -83,7 +83,7 @@ public class CardsFragment extends Fragment {
 
 
         store.addStoreObserver(new StoreObserver() {
-            @Override public void newOrderCreated(POSOrder order) {
+            @Override public void newOrderCreated(POSOrder order, boolean userInitiated) {
 
             }
 
@@ -149,6 +149,10 @@ public class CardsFragment extends Fragment {
                                         SaleRequest saleRequest = new SaleRequest(store.getCurrentOrder().getTotal(), ExamplePOSActivity.getNextId());
                                         saleRequest.setTippableAmount(store.getCurrentOrder().getTippableAmount());
                                         saleRequest.setVaultedCard(vaultedCard);
+                                        saleRequest.setTipMode(store.getTipMode());
+                                        saleRequest.setSignatureEntryLocation(store.getSignatureEntryLocation());
+                                        saleRequest.setSignatureThreshold(store.getSignatureThreshold());
+                                        saleRequest.setDisableReceiptSelection(store.getDisableReceiptOptions());
                                         cloverConnector.sale(saleRequest);
                                         dialog.dismiss();
                                         break;
@@ -156,6 +160,9 @@ public class CardsFragment extends Fragment {
                                     case 1: {
                                         AuthRequest authRequest = new AuthRequest(store.getCurrentOrder().getTotal(), ExamplePOSActivity.getNextId());
                                         authRequest.setVaultedCard(vaultedCard);
+                                        authRequest.setSignatureEntryLocation(store.getSignatureEntryLocation());
+                                        authRequest.setSignatureThreshold(store.getSignatureThreshold());
+                                        authRequest.setDisableReceiptSelection(store.getDisableReceiptOptions());
                                         cloverConnector.auth(authRequest);
                                         dialog.dismiss();
                                         break;

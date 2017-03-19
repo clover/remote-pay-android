@@ -31,6 +31,7 @@ public class MerchantInfo {
     supportsPreAuths = drm.supportsTipAdjust;
     supportsManualRefunds = drm.supportsManualRefund;
     supportsTipAdjust = drm.supportsTipAdjust;
+    supportsAuths = drm.supportsTipAdjust;
     supportsVaultCards = drm.supportsManualRefund;
   }
   DeviceInfo deviceInfo = new DeviceInfo();

@@ -32,8 +32,10 @@ import com.clover.remote.client.device.CloverDeviceConfiguration;
 import com.clover.remote.client.device.USBCloverDeviceConfiguration;
 import com.clover.remote.client.device.WebSocketCloverDeviceConfiguration;
 
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.KeyStore;
 
 public class StartupActivity extends Activity {
 
@@ -62,7 +64,7 @@ public class StartupActivity extends Activity {
 
     // initialize...
     TextView textView = (TextView) findViewById(R.id.lanPayDisplayAddress);
-    String url = this.getSharedPreferences(EXAMPLE_APP_NAME, Context.MODE_PRIVATE).getString(LAN_PAY_DISPLAY_URL,  "ws://192.168.1.101:14285");
+    String url = this.getSharedPreferences(EXAMPLE_APP_NAME, Context.MODE_PRIVATE).getString(LAN_PAY_DISPLAY_URL,  "wss://192.168.1.101:12345/remote_pay");
 
     textView.setText(url);
     textView.setEnabled(((RadioGroup)findViewById(R.id.radioGroup)).getCheckedRadioButtonId() == R.id.lanRadioButton);
@@ -75,7 +77,7 @@ public class StartupActivity extends Activity {
 
   private boolean loadBaseURL() {
 
-    String _serverBaseURL = PreferenceManager.getDefaultSharedPreferences(this).getString(ExamplePOSActivity.EXAMPLE_POS_SERVER_KEY, "ws://10.0.0.101:14285");
+    String _serverBaseURL = PreferenceManager.getDefaultSharedPreferences(this).getString(ExamplePOSActivity.EXAMPLE_POS_SERVER_KEY, "wss://10.0.0.101:12345/remote_pay");
 
     TextView tv = (TextView)findViewById(R.id.lanPayDisplayAddress);
     tv.setText(_serverBaseURL);
@@ -91,20 +93,22 @@ public class StartupActivity extends Activity {
     RadioGroup group = (RadioGroup)findViewById(R.id.radioGroup);
     Intent intent = new Intent();
     intent.setClass(this, ExamplePOSActivity.class);
-    CloverDeviceConfiguration config = null;
+
     SharedPreferences prefs = this.getSharedPreferences(EXAMPLE_APP_NAME, Context.MODE_PRIVATE);
     SharedPreferences.Editor editor = prefs.edit();
+    URI uri = null;
+    String config = null;
 
 
     if(group.getCheckedRadioButtonId() == R.id.usbRadioButton) {
-      config = new USBCloverDeviceConfiguration(null, "Clover Example POS:1.0");
+      config = "USB";
       editor.putString(CONNECTION_MODE, USB);
       editor.commit();
     } else { // (group.getCheckedRadioButtonId() == R.id.lanRadioButton)
       String uriStr = ((TextView)findViewById(R.id.lanPayDisplayAddress)).getText().toString();
+      config = "WS";
       try {
-        URI uri = new URI(uriStr);
-        config = new WebSocketCloverDeviceConfiguration(uri, 10000, 2000, "Clover Example POS:1.0");
+        uri = new URI(uriStr);
         editor.putString(LAN_PAY_DISPLAY_URL, uriStr);
         editor.putString(CONNECTION_MODE, LAN);
         editor.commit();
@@ -116,8 +120,9 @@ public class StartupActivity extends Activity {
       }
     }
 
-    if(config != null) {
+    if(config.equals("USB") || (config.equals("WS") && uri != null)) {
       intent.putExtra(ExamplePOSActivity.EXTRA_CLOVER_CONNECTOR_CONFIG, config);
+      intent.putExtra(ExamplePOSActivity.EXTRA_WS_ENDPOINT, uri);
       startActivity(intent);
     }
 

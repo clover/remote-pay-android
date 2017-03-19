@@ -21,6 +21,7 @@ import com.clover.remote.client.messages.CapturePreAuthResponse;
 import com.clover.remote.client.messages.CloseoutResponse;
 import com.clover.remote.client.messages.CloverDeviceErrorEvent;
 import com.clover.remote.client.messages.CloverDeviceEvent;
+import com.clover.remote.client.messages.PairingCodeMessage;
 import com.clover.remote.client.messages.ConfirmPaymentRequest;
 import com.clover.remote.client.messages.ManualRefundResponse;
 import com.clover.remote.client.messages.PreAuthResponse;
@@ -30,6 +31,7 @@ import com.clover.remote.client.messages.PrintPaymentDeclineReceiptMessage;
 import com.clover.remote.client.messages.PrintPaymentMerchantCopyReceiptMessage;
 import com.clover.remote.client.messages.PrintPaymentReceiptMessage;
 import com.clover.remote.client.messages.PrintRefundPaymentReceiptMessage;
+import com.clover.remote.client.messages.ReadCardDataResponse;
 import com.clover.remote.client.messages.RefundPaymentResponse;
 import com.clover.remote.client.messages.RetrievePendingPaymentsResponse;
 import com.clover.remote.client.messages.SaleResponse;
@@ -41,8 +43,8 @@ import com.clover.remote.message.TipAddedMessage;
 
 public abstract class DefaultCloverConnectorListener implements ICloverConnectorListener {
   private boolean ready = false;
-  MerchantInfo merchantInfo;
-  ICloverConnector cloverConnector;
+  protected MerchantInfo merchantInfo;
+  protected ICloverConnector cloverConnector;
 
   public DefaultCloverConnectorListener(ICloverConnector cloverConnector) {
     this.cloverConnector = cloverConnector;
@@ -157,4 +159,9 @@ public abstract class DefaultCloverConnectorListener implements ICloverConnector
   @Override public void onRetrievePendingPaymentsResponse(RetrievePendingPaymentsResponse retrievePendingPaymentResponse) {
 
   }
+
+  @Override public void onReadCardDataResponse(ReadCardDataResponse response) {
+
+  }
+
 }

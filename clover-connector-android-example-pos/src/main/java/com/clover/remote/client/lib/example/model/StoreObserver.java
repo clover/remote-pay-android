@@ -21,7 +21,7 @@ import com.clover.remote.PendingPaymentEntry;
 import java.util.List;
 
 public interface StoreObserver {
-  public abstract void newOrderCreated(POSOrder order);
+  public abstract void newOrderCreated(POSOrder order, boolean userInitiated);
   public abstract void cardAdded(POSCard card);
   public abstract void refundAdded(POSNakedRefund refund);
 

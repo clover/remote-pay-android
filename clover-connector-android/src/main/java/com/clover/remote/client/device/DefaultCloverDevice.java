@@ -23,6 +23,7 @@ import com.clover.common2.payments.PayIntent;
 import com.clover.remote.Challenge;
 import com.clover.remote.KeyPress;
 import com.clover.remote.ResultStatus;
+import com.clover.sdk.v3.payments.TransactionSettings;
 import com.clover.remote.client.CloverDeviceObserver;
 import com.clover.remote.client.messages.ReadCardDataResponse;
 import com.clover.remote.client.transport.CloverTransport;
@@ -97,7 +98,7 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
   Gson gson = new Gson();
   private static int id = 0;
   private RefundResponseMessage refRespMsg;
-  private static final String REMOTE_SDK = "com.clover.cloverconnector.android.public:1.1";
+  private static final String REMOTE_SDK = "com.clover.cloverconnector.android.public:1.2";
 
   private String applicationId;
   Map<String, AsyncTask> msgIdToTask = new HashMap<String, AsyncTask>();
@@ -136,6 +137,7 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
   }
 
   public void onMessage(String message) {
+    Log.d(getClass().getSimpleName(), "onMessage: " + message);
     try {
       RemoteMessage rMessage = gson.fromJson(message, RemoteMessage.class);
 
@@ -190,9 +192,9 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
                 notifyObserversPartialAuth(partialAuth);
                 break;
               case PAYMENT_VOIDED:
-                VoidPaymentMessage vpMessage = (VoidPaymentMessage) Message.fromJsonString(rMessage.payload);
-                //Payment payment = gson.fromJson(vpMessage.payment, Payment.class);
-                notifyObserversPaymentVoided(vpMessage.payment, vpMessage.voidReason, ResultStatus.SUCCESS, null, null);
+                // currently this only gets called during a TX, so falls outside our current process flow
+                //PaymentVoidedMessage vpMessage = (PaymentVoidedMessage) Message.fromJsonString(rMessage.payload);
+                //notifyObserversPaymentVoided(vpMessage.payment, vpMessage.voidReason, ResultStatus.SUCCESS, null, null);
                 break;
               case TIP_ADDED:
                 TipAddedMessage tipMessage = (TipAddedMessage) Message.fromJsonString(rMessage.payload);
@@ -786,8 +788,8 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
     sendObjectMessage(new CloseoutRequestMessage(allowOpenTabs, batchId));
   }
 
-  public void doTxStart(PayIntent payIntent, Order order, boolean suppressTipScreen) {
-    sendObjectMessage(new TxStartRequestMessage(payIntent, order, suppressTipScreen));
+  public void doTxStart(PayIntent payIntent, Order order) {
+    sendObjectMessage(new TxStartRequestMessage(payIntent, order));
   }
 
   public void doTipAdjustAuth(String orderId, String paymentId, long amount) {
@@ -926,6 +928,7 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
   }
   private void sendRemoteMessage(RemoteMessage remoteMessage) {
     String msg = gson.toJson(remoteMessage);
+    Log.d(getClass().getSimpleName(), "Sending: " + msg);
     transport.sendMessage(msg);
   }
 }

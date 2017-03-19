@@ -27,7 +27,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/lanPayDisplayAddress" android:layout_below="@+id/lanRadioButton" android:layout_alignLeft="@+id/lanRadioButton" android:layout_marginLeft="31dp"
-                android:layout_alignRight="@+id/lanRadioButton" android:text="ws://192.168.1.101:14285" android:maxLines="1" android:nestedScrollingEnabled="true"
+                android:layout_alignRight="@+id/lanRadioButton" android:text="wss://192.168.1.101:12345/remote_pay" android:maxLines="1" android:nestedScrollingEnabled="true"
                 android:inputType="textUri"/>
     </RadioGroup>
     <ImageView

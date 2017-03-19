@@ -78,7 +78,7 @@ public class ManualRefundsFragment extends Fragment {
         refundsListView.setAdapter(itemsListViewAdapter);
 
         store.addStoreObserver(new StoreObserver() {
-            @Override public void newOrderCreated(POSOrder order) {
+            @Override public void newOrderCreated(POSOrder order, boolean userInitiated) {
 
             }
 

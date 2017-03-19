@@ -41,6 +41,7 @@ import com.clover.remote.client.messages.CloseoutRequest;
 import com.clover.remote.client.messages.CloseoutResponse;
 import com.clover.remote.client.messages.CloverDeviceErrorEvent;
 import com.clover.remote.client.messages.CloverDeviceEvent;
+import com.clover.remote.client.messages.PairingCodeMessage;
 import com.clover.remote.client.messages.ConfirmPaymentRequest;
 import com.clover.remote.client.messages.ManualRefundRequest;
 import com.clover.remote.client.messages.ManualRefundResponse;
@@ -67,6 +68,7 @@ import com.clover.remote.client.messages.VaultCardResponse;
 import com.clover.remote.client.messages.VerifySignatureRequest;
 import com.clover.remote.client.messages.VoidPaymentRequest;
 import com.clover.remote.client.messages.VoidPaymentResponse;
+import com.clover.remote.client.messages.remote.PairingCodeRemoteMessage;
 import com.clover.remote.message.DiscoveryResponseMessage;
 import com.clover.remote.order.DisplayOrder;
 import com.clover.remote.order.operation.OrderDeletedOperation;
@@ -77,6 +79,8 @@ import com.clover.sdk.v3.payments.Batch;
 import com.clover.sdk.v3.payments.Credit;
 import com.clover.sdk.v3.payments.Payment;
 import com.clover.sdk.v3.payments.Refund;
+import com.clover.sdk.v3.payments.TipMode;
+import com.clover.sdk.v3.payments.TransactionSettings;
 import com.clover.sdk.v3.payments.VaultedCard;
 import com.google.gson.Gson;
 
@@ -85,6 +89,8 @@ import java.io.StringWriter;
 import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class CloverConnector implements ICloverConnector {
 
@@ -113,6 +119,8 @@ public class CloverConnector implements ICloverConnector {
   private CloverDeviceConfiguration configuration;
 
   boolean isReady = false;
+
+  private Executor executor = Executors.newSingleThreadExecutor();
 
   public CloverConnector() {
 
@@ -177,6 +185,15 @@ public class CloverConnector implements ICloverConnector {
       deviceObserver.onFinishCancel(ResultCode.FAIL, "Invalid Argument.", "In sale: SaleRequest - The externalId is required and the max length is 32 characters. Original Request = " + request);
     } else if (request.getVaultedCard() != null && !merchantInfo.supportsVaultCards) {
       deviceObserver.onFinishCancel(ResultCode.UNSUPPORTED, "Merchant Configuration Validation Error", "In sale: SaleRequest - Vault Card support is not enabled for the payment gateway. Original Request = " + request);
+    } else if (request.getTipMode() != null &&
+               !request.getTipMode().equals(SaleRequest.TipMode.TIP_PROVIDED) &&
+               request.getTipAmount() != null &&
+               request.getTipAmount() > 0) {
+      deviceObserver.onFinishCancel(ResultCode.FAIL, "Invalid Argument.", "In sale: SaleRequest - TipMode must be null or TIP_PROVIDED when TipAmount is greater than zero.  Original Request = " + request);
+    } else if (request.getTipMode() != null &&
+               request.getTipMode().equals(SaleRequest.TipMode.TIP_PROVIDED) &&
+               request.getTipAmount() == null) {
+      deviceObserver.onFinishCancel(ResultCode.FAIL, "Invalid Argument.", "In sale: SaleRequest - TipAmount cannot be null when TipMode is TIP_PROVIDED.    Original Request = " + request);
     } else {
 
       if (request.getTipAmount() == null) {
@@ -201,86 +218,105 @@ public class CloverConnector implements ICloverConnector {
    */
   private void saleAuth(TransactionRequest request, boolean suppressTipScreen) throws Exception {
     if (device != null && isReady) {
-        lastRequest = request;
+      lastRequest = request;
 
-        PayIntent.Builder builder = new PayIntent.Builder();
+      PayIntent.Builder builder = new PayIntent.Builder();
+      TransactionSettings transactionSettings = new TransactionSettings();
 
-        builder.transactionType(request.getType()); // difference between sale, auth and auth(preAuth)
-        builder.amount(request.getAmount());
-        builder.cardEntryMethods(request.getCardEntryMethods() != null ? request.getCardEntryMethods() : cardEntryMethods);
-        if(request.getDisablePrinting() != null) {
-          builder.remotePrint(request.getDisablePrinting());
-        }
-        if(request.getCardNotPresent() != null) {
-          builder.cardNotPresent(request.getCardNotPresent());
-        }
-        if(request.getDisableRestartTransactionOnFail() != null) {
-          builder.disableRestartTransactionWhenFailed(request.getDisableRestartTransactionOnFail());
-        }
-        builder.vaultedCard(request.getVaultedCard());
-        builder.externalPaymentId(request.getExternalId().trim());
-        builder.requiresRemoteConfirmation(true);
+      builder.transactionType(request.getType()); // difference between sale, auth and auth(preAuth)
+      builder.amount(request.getAmount());
+      builder.vaultedCard(request.getVaultedCard());
+      builder.externalPaymentId(request.getExternalId().trim());
+      builder.requiresRemoteConfirmation(true);
+      if(request.getCardNotPresent() != null) {
+        builder.cardNotPresent(request.getCardNotPresent());
+      }
+      transactionSettings.setCardEntryMethods(request.getCardEntryMethods() != null ? request.getCardEntryMethods() : cardEntryMethods);
+      if(request.getDisablePrinting() != null) {
+        transactionSettings.setCloverShouldHandleReceipts(!request.getDisablePrinting());
+      }
+      if(request.getDisableRestartTransactionOnFail() != null) {
+        transactionSettings.setDisableRestartTransactionOnFailure(request.getDisableRestartTransactionOnFail());
+      }
+      transactionSettings.setSignatureEntryLocation(request.getSignatureEntryLocation());
+      transactionSettings.setSignatureThreshold(request.getSignatureThreshold());
+      transactionSettings.setDisableReceiptSelection(request.getDisableReceiptSelection());
+      transactionSettings.setDisableDuplicateCheck(request.getDisableDuplicateChecking());
+      transactionSettings.setAutoAcceptPaymentConfirmations(request.getAutoAcceptPaymentConfirmations());
+      transactionSettings.setAutoAcceptSignature(request.getAutoAcceptSignature());
 
+      if (request instanceof PreAuthRequest) {
+        // nothing extra as of now
+      }
+      else if (request instanceof AuthRequest) {
 
-
-        if (request instanceof PreAuthRequest) {
-          // nothing extra as of now
-        }
-        else if (request instanceof AuthRequest) {
-
-          AuthRequest req = (AuthRequest)request;
-          if(req.getTippableAmount() != null) {
-            builder.tippableAmount(req.getTippableAmount());
-          }
-          if(req.getAllowOfflinePayment() != null) {
-            builder.allowOfflinePayment(req.getAllowOfflinePayment());
-          }
-          if(req.getApproveOfflinePaymentWithoutPrompt() != null) {
-            builder.approveOfflinePaymentWithoutPrompt(req.getApproveOfflinePaymentWithoutPrompt());
-          }
-          if(req.getDisableCashback() != null) {
-            builder.disableCashback(req.getDisableCashback());
-          }
-          if(req.getTaxAmount() != null) {
-            builder.taxAmount(req.getTaxAmount());
-          }
-        }
-        else if (request instanceof SaleRequest) {
-
-          SaleRequest req = (SaleRequest) request;
-          // shared with AuthRequest
-          if(req.getAllowOfflinePayment() != null) {
-            builder.allowOfflinePayment(req.getAllowOfflinePayment());
-          }
-          if(req.getApproveOfflinePaymentWithoutPrompt() != null) {
-            builder.approveOfflinePaymentWithoutPrompt(req.getApproveOfflinePaymentWithoutPrompt());
-          }
-          if(req.getDisableCashback() != null) {
-            builder.disableCashback(req.getDisableCashback());
-          }
-          if(req.getTaxAmount() != null) {
-            builder.taxAmount(req.getTaxAmount());
-          }
-          // SaleRequest
-          if(req.getTippableAmount() != null) {
-            builder.tippableAmount(req.getTippableAmount());
-          }
-          if(req.getTipAmount() != null) {
-            builder.tipAmount(req.getTipAmount());
-          }
-
-          // sale could pass in the tipAmount and not override on the screen,
-          // but that is the exceptional case
-          if (req.getDisableTipOnScreen() != null) {
-            suppressTipScreen = req.getDisableTipOnScreen();
-          }
+        AuthRequest req = (AuthRequest)request;
+        if(req.getTaxAmount() != null) {
+          builder.taxAmount(req.getTaxAmount());
         }
 
-        PayIntent payIntent = builder.build();
+        if(req.getTippableAmount() != null) {
+          transactionSettings.setTippableAmount(req.getTippableAmount());
+        }
+        if(req.getAllowOfflinePayment() != null) {
+          transactionSettings.setAllowOfflinePayment(req.getAllowOfflinePayment());
+        }
+        if(req.getApproveOfflinePaymentWithoutPrompt() != null) {
+          transactionSettings.setApproveOfflinePaymentWithoutPrompt(req.getApproveOfflinePaymentWithoutPrompt());
+        }
+        if(req.getDisableCashback() != null) {
+          transactionSettings.setDisableCashBack(req.getDisableCashback());
+        }
+        transactionSettings.setTipMode(com.clover.sdk.v3.payments.TipMode.ON_PAPER); // overriding TipMode, since it's an Auth request
+      }
+      else if (request instanceof SaleRequest) {
 
-        device.doTxStart(payIntent, null, suppressTipScreen); //
+        SaleRequest req = (SaleRequest) request;
+
+        // shared with AuthRequest
+        if(req.getAllowOfflinePayment() != null) {
+          transactionSettings.setAllowOfflinePayment(req.getAllowOfflinePayment());
+        }
+        if(req.getApproveOfflinePaymentWithoutPrompt() != null) {
+          transactionSettings.setApproveOfflinePaymentWithoutPrompt(req.getApproveOfflinePaymentWithoutPrompt());
+        }
+        if(req.getDisableCashback() != null) {
+          transactionSettings.setDisableCashBack(req.getDisableCashback());
+        }
+        if(req.getTaxAmount() != null) {
+          builder.taxAmount(req.getTaxAmount());
+        }
+
+        // SaleRequest
+        if(req.getTippableAmount() != null) {
+          transactionSettings.setTippableAmount(req.getTippableAmount());
+        }
+        if(req.getTipAmount() != null) {
+          builder.tipAmount(req.getTipAmount());
+        }
+        if (req.getTipMode() != null) {
+          transactionSettings.setTipMode(getV3TipModeFromRequestTipMode(req.getTipMode()));
+        }
+      }
+
+      builder.transactionSettings(transactionSettings);
+      PayIntent payIntent = builder.build();
+
+      device.doTxStart(payIntent, null); //
 
     }
+  }
+
+  private TipMode getV3TipModeFromRequestTipMode(SaleRequest.TipMode saleTipMode) {
+    TipMode tipMode = null;
+
+    for (TipMode tm: TipMode.values()) {
+      if (saleTipMode.toString().equals(tm.toString())) {
+        tipMode = tm;
+        break;
+      }
+    }
+    return tipMode;
   }
 
   public void acceptSignature(VerifySignatureRequest request) {
@@ -502,6 +538,7 @@ public class CloverConnector implements ICloverConnector {
 
   public void manualRefund(ManualRefundRequest request) // NakedRefund is a Transaction, with just negative amount
   {
+    TransactionSettings transactionSettings = new TransactionSettings();
     lastRequest = request;
     if(device == null || !isReady) {
       deviceObserver.onFinishCancel(ResultCode.ERROR, "Device connection Error", "In manualRefund: ManualRefundRequest - The Clover device is not connected.");
@@ -518,21 +555,29 @@ public class CloverConnector implements ICloverConnector {
     } else {
       PayIntent.Builder builder = new PayIntent.Builder();
       builder.amount(-Math.abs(request.getAmount()))
-          .cardEntryMethods(request.getCardEntryMethods() != null ? request.getCardEntryMethods() : cardEntryMethods)
           .transactionType(PayIntent.TransactionType.PAYMENT.CREDIT)
           .vaultedCard(request.getVaultedCard())
           .externalPaymentId(request.getExternalId());
 
+      transactionSettings.setCardEntryMethods(request.getCardEntryMethods() != null ? request.getCardEntryMethods() : cardEntryMethods);
       if(request.getDisablePrinting() != null) {
-        builder.remotePrint(request.getDisablePrinting());
+        transactionSettings.setCloverShouldHandleReceipts(!request.getDisablePrinting());
       }
-
       if(request.getDisableRestartTransactionOnFail() != null) {
-        builder.disableRestartTransactionWhenFailed(request.getDisableRestartTransactionOnFail());
+        transactionSettings.setDisableRestartTransactionOnFailure(request.getDisableRestartTransactionOnFail());
       }
-
+      if(request.getSignatureEntryLocation() != null) {
+        transactionSettings.setSignatureEntryLocation(request.getSignatureEntryLocation());
+      }
+      if(request.getSignatureThreshold() != null) {
+        transactionSettings.setSignatureThreshold(request.getSignatureThreshold());
+      }
+      if(request.getDisableReceiptSelection() != null) {
+        transactionSettings.setDisableReceiptSelection(request.getDisableReceiptSelection());
+      }
+      builder.transactionSettings(transactionSettings);
       PayIntent payIntent = builder.build();
-      device.doTxStart(payIntent, null, true);
+      device.doTxStart(payIntent, null);
     }
 
   }
@@ -918,15 +963,20 @@ public class CloverConnector implements ICloverConnector {
     public void onUiState(UiState uiState, String uiText, UiState.UiDirection uiDirection, InputOption[] inputOptions) {
       CloverDeviceEvent deviceEvent = new CloverDeviceEvent();
       deviceEvent.setInputOptions(inputOptions);
-      deviceEvent.setEventState(CloverDeviceEvent.DeviceEventState.valueOf(uiState.toString()));
-      deviceEvent.setMessage(uiText);
-      if (uiDirection == UiState.UiDirection.ENTER) {
-        cloverConnector.broadcaster.notifyOnDeviceActivityStart(deviceEvent);
-      } else if (uiDirection == UiState.UiDirection.EXIT) {
-        cloverConnector.broadcaster.notifyOnDeviceActivityEnd(deviceEvent);
-        if (uiState.toString().equals(CloverDeviceEvent.DeviceEventState.RECEIPT_OPTIONS.toString())) {
-          cloverConnector.device.doShowWelcomeScreen();
+      try {
+        CloverDeviceEvent.DeviceEventState eventState = CloverDeviceEvent.DeviceEventState.valueOf(uiState.toString());
+        deviceEvent.setEventState(eventState);
+        deviceEvent.setMessage(uiText);
+        if (uiDirection == UiState.UiDirection.ENTER) {
+          cloverConnector.broadcaster.notifyOnDeviceActivityStart(deviceEvent);
+        } else if (uiDirection == UiState.UiDirection.EXIT) {
+          cloverConnector.broadcaster.notifyOnDeviceActivityEnd(deviceEvent);
+          if (uiState.toString().equals(CloverDeviceEvent.DeviceEventState.RECEIPT_OPTIONS.toString())) {
+            cloverConnector.device.doShowWelcomeScreen();
+          }
         }
+      } catch(IllegalArgumentException iae) {
+        Log.w(getClass().getSimpleName(), "Unsupported UI event type: " + uiState);
       }
     }
 
@@ -1002,25 +1052,25 @@ public class CloverConnector implements ICloverConnector {
         Object lastReq = lastRequest;
         lastRequest = null;
         if (lastReq instanceof PreAuthRequest) {
-          PreAuthResponse preAuthResponse = new PreAuthResponse(false, ResultCode.CANCEL);
+          PreAuthResponse preAuthResponse = new PreAuthResponse(false, result != null? result : ResultCode.CANCEL);
           preAuthResponse.setReason(reason != null ? reason : "Request Canceled");
           preAuthResponse.setMessage(message != null ? message : "The PreAuth Request was canceled.");
           preAuthResponse.setPayment(null);
           broadcaster.notifyOnPreAuthResponse(preAuthResponse);
         } else if (lastReq instanceof SaleRequest) {
-          SaleResponse saleResponse = new SaleResponse(false, ResultCode.CANCEL);
+          SaleResponse saleResponse = new SaleResponse(false, result != null? result : ResultCode.CANCEL);
           saleResponse.setReason(reason != null ? reason : "Request Canceled");
           saleResponse.setMessage(message != null ? message : "The Sale Request was canceled.");
           saleResponse.setPayment(null);
           broadcaster.notifyOnSaleResponse(saleResponse);
         } else if (lastReq instanceof AuthRequest) {
-          AuthResponse authResponse = new AuthResponse(false, ResultCode.CANCEL);
+          AuthResponse authResponse = new AuthResponse(false, result != null? result : ResultCode.CANCEL);
           authResponse.setReason(reason != null ? reason : "Request Canceled");
           authResponse.setMessage(message != null ? message : "The Auth Request was canceled.");
           authResponse.setPayment(null);
           broadcaster.notifyOnAuthResponse(authResponse);
         } else if (lastReq instanceof ManualRefundRequest) {
-          ManualRefundResponse refundResponse = new ManualRefundResponse(false, ResultCode.CANCEL);
+          ManualRefundResponse refundResponse = new ManualRefundResponse(false, result != null? result : ResultCode.CANCEL);
           refundResponse.setReason(reason != null ? reason : "Request Canceled");
           refundResponse.setMessage(message != null ? message : "The Manual Refund Request was canceled.");
           refundResponse.setCredit(null);
@@ -1119,12 +1169,13 @@ public class CloverConnector implements ICloverConnector {
     public void onDeviceReady(CloverDevice device, DiscoveryResponseMessage drm) {
       Log.d(getClass().getSimpleName(), "Ready");
       cloverConnector.isReady = drm.ready;
-      cloverConnector.device.doShowWelcomeScreen();
+
       MerchantInfo merchantInfo = new MerchantInfo(drm);
       cloverConnector.merchantInfo = merchantInfo;
       device.setSupportsAcks(merchantInfo.deviceInfo.supportsAcks);
 
       if (drm.ready) {
+        cloverConnector.device.doShowWelcomeScreen();
         cloverConnector.broadcaster.notifyOnReady(merchantInfo);
       } else {
         cloverConnector.broadcaster.notifyOnConnect();

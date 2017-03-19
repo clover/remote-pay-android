@@ -79,7 +79,7 @@ public class PreAuthFragment extends Fragment {
     final View view = inflater.inflate(R.layout.fragment_preauth, container, false);
 
     store.addStoreObserver(new StoreObserver() {
-      @Override public void newOrderCreated(POSOrder order) {
+      @Override public void newOrderCreated(POSOrder order, boolean userInitiated) {
 
       }
 

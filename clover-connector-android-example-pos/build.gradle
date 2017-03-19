@@ -1,23 +1,35 @@
 group = 'com.clover.sdk'
-version = '1.1'
+version = '1.2'
 
 apply plugin: 'com.android.application'
 
 repositories {
   mavenLocal()
   mavenCentral()
+  jcenter()
   flatDir {
     dirs '../lib'
   }
 }
 
+sourceSets {
+  main {
+    java {
+      srcDirs = ['src/main/java']
+    }
+    resources {
+      srcDirs = ['src/main/resources']
+    }
+  }
+}
+
 android {
   compileSdkVersion 21
-  buildToolsVersion "22.0.1"
+  buildToolsVersion '25.0.0'
 
   defaultConfig {
-    minSdkVersion 16
-    targetSdkVersion 16
+    minSdkVersion 17
+    targetSdkVersion 17
   }
 
   packagingOptions {
@@ -29,5 +41,5 @@ android {
 dependencies {
   compile project(':clover-connector-android')
   compile 'org.java-websocket:Java-WebSocket:1.3.0'
-  compile 'com.android.support:support-v4:22.2.1'
+  compile 'com.android.support:support-v4:21.0.0'
 }

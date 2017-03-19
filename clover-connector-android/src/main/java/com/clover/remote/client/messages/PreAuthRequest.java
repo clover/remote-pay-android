@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.clover.remote.client.messages;
 
 import com.clover.common2.payments.PayIntent;

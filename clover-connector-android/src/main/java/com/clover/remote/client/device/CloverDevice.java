@@ -28,6 +28,7 @@ import com.clover.sdk.v3.order.VoidReason;
 import com.clover.sdk.v3.payments.Payment;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public abstract class CloverDevice {
@@ -54,7 +55,7 @@ public abstract class CloverDevice {
 
   public abstract void doDiscoveryRequest();
 
-  public abstract void doTxStart(PayIntent payIntent, Order order, boolean suppressTipScreen);
+  public abstract void doTxStart(PayIntent payIntent, Order order);
 
   public abstract void doKeyPress(KeyPress keyPress);
 

@@ -37,7 +37,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="2"
-        android:hint="ws://192.168.1.101:14285/"/>
+        android:hint="wss://192.168.1.101:12345/remote_pay"/>
     <Button
         android:id="@+id/testButton"
         android:layout_width="wrap_content"

@@ -69,7 +69,7 @@ public class PendingPaymentsFragment extends Fragment {
     pendingPaymentsListView.setAdapter(cardsListViewAdapter);
 
     store.addStoreObserver(new StoreObserver() {
-      @Override public void newOrderCreated(POSOrder order) {
+      @Override public void newOrderCreated(POSOrder order, boolean userInitiated) {
 
       }
 

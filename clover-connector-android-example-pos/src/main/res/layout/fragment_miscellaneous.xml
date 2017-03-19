@@ -21,7 +21,7 @@
                     android:layout_height="match_parent">
 
     <EditText
-            android:layout_width="150dp"
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:id="@+id/ShowMessageText"
             android:layout_alignBottom="@+id/ShowMessageButton"
@@ -36,7 +36,7 @@
             android:onClick="showMessageClick"
             android:layout_toEndOf="@+id/ShowMessageText" android:layout_toRightOf="@+id/ShowMessageText"/>
     <EditText
-            android:layout_width="150dp"
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:inputType="textMultiLine"
             android:ems="10"
@@ -154,7 +154,7 @@
         </LinearLayout>
         <LinearLayout
             android:orientation="vertical"
-            android:layout_width="match_parent"
+            android:layout_width="800dp"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignRight="@+id/CancelCashBox"
@@ -240,11 +240,119 @@
                             android:id="@+id/approveOfflineWithoutPromptFalse"/>
                 </RadioGroup>
             </LinearLayout>
-            <Switch
-                    android:layout_width="match_parent"
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Disable Device Printing"
-                    android:id="@+id/PrintingSwitch"/>
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Tip Mode"
+                    android:id="@+id/textView25" android:layout_weight="1" android:textColor="@color/white" android:paddingTop="6dp"
+                    android:paddingBottom="3dp"/>
+                <Spinner
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/TipModeSpinner">
+                </Spinner>
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Sale Tip Amount"
+                    android:id="@+id/textView99" android:layout_weight="1" android:textColor="@color/white" android:paddingTop="6dp"
+                    android:paddingBottom="3dp"/>
+
+                <EditText
+                    android:layout_width="90dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:ems="10"
+                    android:id="@+id/tipAmount"
+                    />
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Signature Entry Location"
+                    android:id="@+id/textView35" android:layout_weight="1" android:textColor="@color/white" android:paddingTop="6dp"
+                    android:paddingBottom="3dp"/>
+                <RadioGroup android:layout_width="wrap_content" android:layout_height="fill_parent" android:orientation="horizontal" android:id="@+id/SigEntryLocationRG">
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="None"
+                        android:id="@+id/sigEntryLocationNone" android:checked="true"/>
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="On Screen"
+                        android:id="@+id/sigEntryLocationOnScreen"/>
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="On Paper"
+                        android:id="@+id/sigEntryLocationOnPaper"/>
+                </RadioGroup>
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Signature Threshold"
+                    android:id="@+id/textView26" android:layout_weight="1" android:textColor="@color/white" android:paddingTop="6dp"
+                    android:paddingBottom="3dp"/>
+
+                <EditText
+                    android:layout_width="90dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:ems="10"
+                    android:id="@+id/signatureThreshold"
+                    />
+            </LinearLayout>
+            <Switch
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Disable Duplicate Payment Checking"
+                android:id="@+id/DisableDuplicateCheckSwitch"/>
+            <Switch
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Disable Device Receipt Options Screen"
+                android:id="@+id/DisableReceiptOptionsSwitch"/>
+            <Switch
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Disable Device Printing"
+                android:id="@+id/PrintingSwitch"/>
+            <Switch
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Automatically Confirm Signature"
+                android:id="@+id/AutomaticSignatureConfirmationSwitch"/>
+            <Switch
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Automatically Confirm Payment Challenges"
+                android:id="@+id/AutomaticPaymentConfirmationSwitch"/>
         </LinearLayout>
 
 

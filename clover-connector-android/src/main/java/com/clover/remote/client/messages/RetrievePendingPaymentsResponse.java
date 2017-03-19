@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 package com.clover.remote.client.messages;
 
 import com.clover.remote.PendingPaymentEntry;

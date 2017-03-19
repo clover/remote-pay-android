@@ -95,7 +95,7 @@ public class AvailableItemsAdapter extends ArrayAdapter<POSItem>
       }
     });
     this.store.addStoreObserver(new StoreObserver() {
-      @Override public void newOrderCreated(POSOrder order) {
+      @Override public void newOrderCreated(POSOrder order, boolean userInitiated) {
         itemToCount.clear();
       }
 

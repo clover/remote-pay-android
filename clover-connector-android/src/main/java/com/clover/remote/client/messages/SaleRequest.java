@@ -17,6 +17,7 @@
 package com.clover.remote.client.messages;
 
 import com.clover.common2.payments.PayIntent;
+import com.clover.sdk.v3.payments.TipMode;
 
 /**
  * Request object for requesting a sale transaction
@@ -31,7 +32,7 @@ public class SaleRequest extends TransactionRequest {
   private Long taxAmount = null;
   private Boolean allowOfflinePayment = null;
   private Boolean approveOfflinePaymentWithoutPrompt = null;
-
+  private TipMode tipMode = null;
 
   public SaleRequest(long amount, String externalId) {
     super(amount, externalId);
@@ -152,4 +153,23 @@ public class SaleRequest extends TransactionRequest {
   @Override public PayIntent.TransactionType getType() {
     return PayIntent.TransactionType.PAYMENT;
   }
+
+  /**
+   * Set the field value
+   * The tip mode settings overrides
+   *
+   */
+  public void setTipMode(TipMode tipMode) {
+    this.tipMode = tipMode;
+  }
+
+  /**
+   * Get the field value
+   * The tip mode settings overrides
+   */
+  public TipMode getTipMode() {
+    return this.tipMode;
+  }
+
+  public enum TipMode {TIP_PROVIDED, ON_SCREEN_BEFORE_PAYMENT, NO_TIP}
 }

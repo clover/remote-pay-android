@@ -16,16 +16,22 @@
 
 package com.clover.remote.client.device;
 
+import com.clover.remote.client.messages.PairingCodeMessage;
 import com.clover.remote.client.transport.CloverTransport;
+import com.clover.remote.client.transport.PairingDeviceConfiguration;
 import com.clover.remote.client.transport.websocket.WebSocketCloverTransport;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.security.KeyStore;
 
 /**
  * Default configuration to communicate with the Mini via WebSockets to the LAN Pay Display
  */
-public class WebSocketCloverDeviceConfiguration implements CloverDeviceConfiguration, Serializable {
+public abstract class WebSocketCloverDeviceConfiguration implements PairingDeviceConfiguration, CloverDeviceConfiguration, Serializable {
+  private final String posName;
+  private final String serialNumber;
+  private final String authToken;
   private URI uri = null;
   /**
    * ping heartbeat interval in milliseconds
@@ -44,17 +50,24 @@ public class WebSocketCloverDeviceConfiguration implements CloverDeviceConfigura
    */
   private int pingRetryCountBeforeReconnect = 4;
 
+  KeyStore trustStore;
+
   private final String appId;
 
-  public WebSocketCloverDeviceConfiguration(URI endpoint, String applicationId) {
-    uri = endpoint;
-    appId = applicationId;
+  public WebSocketCloverDeviceConfiguration(URI endpoint, String applicationId, KeyStore trustStore, String posName, String serialNumber, String authToken) {
+    this.uri = endpoint;
+    this.appId = applicationId;
+    this.trustStore = trustStore;
+    this.posName = posName;
+    this.serialNumber = serialNumber;
+    this.authToken = authToken;
   }
 
-  public WebSocketCloverDeviceConfiguration(URI endpoint, long heartbeatInterval, long reconnectDelay, String applicationId) {
-    this(endpoint, applicationId);
+  public WebSocketCloverDeviceConfiguration(URI endpoint, long heartbeatInterval, long reconnectDelay, String applicationId, KeyStore trustStore, String posName, String serialNumber, String authToken) {
+    this(endpoint, applicationId, trustStore, posName, serialNumber, authToken);
     this.heartbeatInterval = Math.max(100, heartbeatInterval);
     this.reconnectDelay = Math.max(0, reconnectDelay);
+
   }
 
   @Override public String getApplicationId() {
@@ -92,7 +105,8 @@ public class WebSocketCloverDeviceConfiguration implements CloverDeviceConfigura
 
   @Override
   public String getMessagePackageName() {
-    return "com.clover.remote.protocol.lan";
+    //return "com.clover.remote.protocol.lan";
+    return "com.clover.remote_protocol_broadcast.app";
   }
 
   @Override
@@ -102,6 +116,9 @@ public class WebSocketCloverDeviceConfiguration implements CloverDeviceConfigura
 
   @Override
   public CloverTransport getCloverTransport() {
-    return new WebSocketCloverTransport(uri, heartbeatInterval, reconnectDelay, pingRetryCountBeforeReconnect);
+    WebSocketCloverTransport transport = new WebSocketCloverTransport(uri, heartbeatInterval, reconnectDelay, pingRetryCountBeforeReconnect, trustStore, posName, serialNumber, authToken);
+    transport.setPairingDeviceConfiguration(this);
+    return transport;
   }
+
 }

@@ -18,7 +18,7 @@ package com.clover.remote.client.messages;
 import com.clover.sdk.v3.payments.Credit;
 
 /**
- * Callback to request the POS print a refund for a
+ * Callback to request the POS print a receipt for a
  * ManualRefund
  */
 public class PrintManualRefundReceiptMessage {

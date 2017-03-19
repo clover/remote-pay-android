@@ -272,7 +272,7 @@ public class OrdersFragment extends Fragment implements OrderObserver {
 
     store.addStoreObserver(new StoreObserver() {
       @Override
-      public void newOrderCreated(POSOrder order) {
+      public void newOrderCreated(POSOrder order, boolean userInitiated) {
         updateOrderList();
       }
 
