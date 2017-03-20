@@ -110,4 +110,6 @@ public abstract class CloverDevice {
   public abstract void doRetrievePendingPayments();
 
   public abstract void doReadCardData(PayIntent payment);
+
+  public abstract void doStartActivity(String action, String payload, boolean nonBlocking);
 }

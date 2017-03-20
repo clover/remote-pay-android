@@ -152,15 +152,36 @@
                     android:id="@+id/ReadCardDataButton"
             />
         </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/CustomActivityBox" android:orientation="vertical" android:layout_below="@id/ResetBox"
+                      android:layout_alignRight="@+id/WelcomeThankYouBox">
+            <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"
+                    android:ems="10"
+                    android:id="@+id/activity_payload" android:layout_gravity="center_horizontal" android:text="{&quot;name&quot;:&quot;Bob&quot;}"/>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/CustomActivityEntry">
+                <AutoCompleteTextView android:layout_width="0dp" android:layout_height="wrap_content" android:inputType="textAutoComplete" android:layout_weight=".5" android:id="@+id/activity_id"
+                         android:entries="@array/customIds"/>
+                <Button android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight=".5" android:text="Start" android:onClick="startActivity"/>
+            </LinearLayout>
+            <Switch
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="false"
+                    android:text="Non-Blocking"
+                    android:id="@+id/customActivityBlocking"/>
+        </LinearLayout>
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="800dp"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignRight="@+id/CancelCashBox"
-            android:layout_below="@+id/ResetBox"
+            android:layout_below="@+id/CustomActivityBox"
             android:id="@+id/linearLayout2">
-        <Switch
+
+            <Switch
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Manual"
@@ -354,7 +375,5 @@
                 android:text="Automatically Confirm Payment Challenges"
                 android:id="@+id/AutomaticPaymentConfirmationSwitch"/>
         </LinearLayout>
-
-
     </RelativeLayout>
 </ScrollView>

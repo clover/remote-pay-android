@@ -1,10 +1,11 @@
 group = 'com.clover.sdk'
-version = '1.2'
+version = '1.3.0-b'
 
 apply plugin: 'android-library'
 
 repositories {
   mavenLocal()
+  maven { url "http://artifactory.corp.clover.com:8081/artifactory/repo" }
   mavenCentral()
   jcenter()
   flatDir {
@@ -33,8 +34,9 @@ defaultTasks 'install'
 
 dependencies {
 
-  compile(name: 'clover-remote-interface-191', ext: 'aar')
-  compile(name: 'clover-android-sdk-164', ext: 'aar')
+  compile (name:'com.clover:clover-remote-interface-195.0', version:'195.0', ext: 'aar')
+  compile (name:'com.clover:clover-android-sdk-167.6', ext: 'aar')
+  compile 'com.clover.sdk:clover-android-sdk:167.6'
   compile 'com.google.code.gson:gson:2.3.1'
   compile 'com.neovisionaries:nv-websocket-client:1.31'
   testCompile 'junit:junit:4.12'

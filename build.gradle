@@ -1,10 +1,20 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-  repositories {
+  /*repositories {
     mavenLocal()
     mavenCentral()
     jcenter()
+  }*/
+
+  repositories {
+    mavenLocal()
+    maven { url "http://artifactory.corp.clover.com:8081/artifactory/repo" }
+    mavenCentral()
+    jcenter()
+    flatDir {
+      dirs '../lib'
+    }
   }
 
   def mavenPlugin = "com.github.dcendents:android-maven-plugin:1.2"

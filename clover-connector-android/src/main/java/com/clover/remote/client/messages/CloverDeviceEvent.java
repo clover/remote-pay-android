@@ -71,7 +71,11 @@ public class CloverDeviceEvent {
     RECEIPT_OPTIONS,
 
     // tender handling flow
-    HANDLE_TENDER
+    HANDLE_TENDER,
+
+    CUSTOM_ACTIVITY,
+    // starting custom activity, called from RTKA
+    STARTING_CUSTOM_ACTIVITY
   }
 
   public CloverDeviceEvent() {
@@ -79,7 +83,7 @@ public class CloverDeviceEvent {
   }
 
   public CloverDeviceEvent(int code, String msg) {
-    code = code;
+    this.code = code;
     setMessage(msg);
   }
 

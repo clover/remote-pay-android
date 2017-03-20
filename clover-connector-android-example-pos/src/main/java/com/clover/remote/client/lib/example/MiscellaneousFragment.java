@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ExpandableListAdapter;
@@ -77,6 +78,8 @@ public class MiscellaneousFragment extends Fragment {
   private Switch disableDuplicateCheckSwitch;
   private Switch automaticSignatureConfirmationSwitch;
   private Switch automaticPaymentConfirmationSwitch;
+
+  private AutoCompleteTextView customActivityId;
 
   public static MiscellaneousFragment newInstance(POSStore store, ICloverConnector cloverConnector) {
     MiscellaneousFragment fragment = new MiscellaneousFragment();
@@ -149,6 +152,13 @@ public class MiscellaneousFragment extends Fragment {
     signatureEntryLocationRG = ((RadioGroup) view.findViewById(R.id.SigEntryLocationRG));
     printingSwitch = ((Switch) view.findViewById(R.id.PrintingSwitch));
     signatureThresholdText = ((EditText) view.findViewById(R.id.signatureThreshold));
+
+    customActivityId = ((AutoCompleteTextView) view.findViewById(R.id.activity_id));
+
+    // Get a reference to the AutoCompleteTextView in the layout and assign the auto-compelete choices.
+    String[] samples = getResources().getStringArray(R.array.customIds);
+    ArrayAdapter<String> customAdapter = new ArrayAdapter<String>(this.getActivity().getBaseContext(), android.R.layout.simple_list_item_1, samples);
+    customActivityId.setAdapter(customAdapter);
 
     manualSwitch.setTag(CloverConnector.CARD_ENTRY_METHOD_MANUAL);
     swipeSwitch.setTag(CloverConnector.CARD_ENTRY_METHOD_MAG_STRIPE);

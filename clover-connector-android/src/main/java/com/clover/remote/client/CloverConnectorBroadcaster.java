@@ -16,11 +16,13 @@
 
 package com.clover.remote.client;
 
+import com.clover.remote.client.messages.ActivityMessage;
 import com.clover.remote.client.messages.AuthResponse;
 import com.clover.remote.client.messages.CapturePreAuthResponse;
 import com.clover.remote.client.messages.CloseoutResponse;
 import com.clover.remote.client.messages.CloverDeviceErrorEvent;
 import com.clover.remote.client.messages.CloverDeviceEvent;
+import com.clover.remote.client.messages.CustomActivityResponse;
 import com.clover.remote.client.messages.PairingCodeMessage;
 import com.clover.remote.client.messages.ConfirmPaymentRequest;
 import com.clover.remote.client.messages.ManualRefundResponse;
@@ -205,6 +207,12 @@ public class CloverConnectorBroadcaster extends CopyOnWriteArrayList<ICloverConn
   public void notifyOnReadCardDataResponse(ReadCardDataResponse rcdr) {
     for (ICloverConnectorListener listener : this) {
       listener.onReadCardDataResponse(rcdr);
+    }
+  }
+
+  public void notifyOnActivityResponse(CustomActivityResponse car) {
+    for (ICloverConnectorListener listener : this) {
+      listener.onCustomActivityResponse(car);
     }
   }
 }

@@ -33,6 +33,9 @@ import com.clover.remote.UiState;
 import com.clover.remote.client.device.CloverDevice;
 import com.clover.remote.client.device.CloverDeviceConfiguration;
 import com.clover.remote.client.device.CloverDeviceFactory;
+import com.clover.remote.client.messages.ActivityMessage;
+import com.clover.remote.client.messages.CustomActivityRequest;
+import com.clover.remote.client.messages.CustomActivityResponse;
 import com.clover.remote.client.messages.AuthRequest;
 import com.clover.remote.client.messages.AuthResponse;
 import com.clover.remote.client.messages.CapturePreAuthRequest;
@@ -756,6 +759,13 @@ public class CloverConnector implements ICloverConnector {
     return cardEntryMethods;
   }
 
+  @Override public void startCustomActivity(CustomActivityRequest request) {
+    if(device == null || !isReady) {
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, "In promptForTip: The Clover device is not connected."));
+    } else {
+      device.doStartActivity(request.action, request.getPayload(), request.isNonBlocking());
+    }
+  }
 
   private class InnerDeviceObserver implements CloverDeviceObserver {
 
@@ -896,6 +906,12 @@ public class CloverConnector implements ICloverConnector {
       rcdr.setMessage(message);
       cloverConnector.device.doShowWelcomeScreen();
       cloverConnector.broadcaster.notifyOnReadCardDataResponse(rcdr);
+    }
+
+    public void onActivityResponse(ResultStatus status, String action, String payload, String failReason) {
+      boolean success = status == ResultStatus.SUCCESS;
+      CustomActivityResponse car = new CustomActivityResponse(success, success ? ResultCode.SUCCESS : ResultCode.CANCEL, action, payload, failReason);
+      cloverConnector.broadcaster.notifyOnActivityResponse(car);
     }
 
     public void onReadCardDataResponse(boolean success, CardData cardData) {

@@ -99,4 +99,6 @@ public interface CloverDeviceObserver {
   void onPendingPaymentsResponse(boolean success, List<PendingPaymentEntry> payments);
 
   void onReadCardResponse(ResultStatus status, String reason, CardData cardData);
+
+  void onActivityResponse(ResultStatus status, String action, String payload, String failReason);
 }

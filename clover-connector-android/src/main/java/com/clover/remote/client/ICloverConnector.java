@@ -19,6 +19,7 @@ package com.clover.remote.client;
 import android.graphics.Bitmap;
 import com.clover.remote.Challenge;
 import com.clover.remote.InputOption;
+import com.clover.remote.client.messages.CustomActivityRequest;
 import com.clover.remote.client.messages.AuthRequest;
 import com.clover.remote.client.messages.CapturePreAuthRequest;
 import com.clover.remote.client.messages.CloseoutRequest;
@@ -260,4 +261,9 @@ public interface ICloverConnector extends Serializable {
    * @param request - The card entry methods allowed to request track information. null will provide default values
    */
   void readCardData(ReadCardDataRequest request);
+
+  /**
+   * start an custom activity on the device
+   */
+  void startCustomActivity(CustomActivityRequest request);
 }

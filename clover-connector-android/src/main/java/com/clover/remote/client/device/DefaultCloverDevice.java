@@ -29,6 +29,8 @@ import com.clover.remote.client.messages.ReadCardDataResponse;
 import com.clover.remote.client.transport.CloverTransport;
 import com.clover.remote.client.transport.CloverTransportObserver;
 import com.clover.remote.message.AcknowledgementMessage;
+import com.clover.remote.message.ActivityRequest;
+import com.clover.remote.message.ActivityResponseMessage;
 import com.clover.remote.message.BreakMessage;
 import com.clover.remote.message.CapturePreAuthMessage;
 import com.clover.remote.message.CapturePreAuthResponseMessage;
@@ -98,7 +100,7 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
   Gson gson = new Gson();
   private static int id = 0;
   private RefundResponseMessage refRespMsg;
-  private static final String REMOTE_SDK = "com.clover.cloverconnector.android.public:1.2";
+  private static final String REMOTE_SDK = "com.clover.cloverconnector.android:1.1.0.1";
 
   private String applicationId;
   Map<String, AsyncTask> msgIdToTask = new HashMap<String, AsyncTask>();
@@ -249,6 +251,10 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
                 CardDataResponseMessage rcdrm = (CardDataResponseMessage) Message.fromJsonString(rMessage.payload);
                 notifyObserversReadCardData(rcdrm);
                 break;
+              case ACTIVITY_RESPONSE:
+                ActivityResponseMessage arm = (ActivityResponseMessage) Message.fromJsonString(rMessage.payload);
+                notifyObserversActivityResponse(arm);
+                break;
               case DISCOVERY_REQUEST:
                 //Outbound no-op
                 break;
@@ -350,6 +356,7 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
                 break;
               }
             } else {
+              // let's see if it is a pairing code message, which isn't a subclass of RemoteMessage
               Log.e(TAG, "Method is null");
             }
           } else {
@@ -396,6 +403,18 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
       @Override protected Object doInBackground(Object[] params) {
         for (final CloverDeviceObserver observer : deviceObservers) {
           observer.onReadCardResponse(rcdrm.status, rcdrm.reason, rcdrm.cardData);
+        }
+        return null;
+      }
+    }.execute();
+  }
+
+  private void notifyObserversActivityResponse(final ActivityResponseMessage arm) {
+    new AsyncTask() {
+      @Override protected Object doInBackground(Object[] params) {
+        for (final CloverDeviceObserver observer : deviceObservers) {
+          ResultStatus status = arm.resultCode == -1 ? ResultStatus.SUCCESS : ResultStatus.CANCEL;
+          observer.onActivityResponse(status, arm.action, arm.payload, arm.failReason);
         }
         return null;
       }
@@ -814,6 +833,11 @@ public class DefaultCloverDevice extends CloverDevice implements CloverTransport
   public void doPrintImage(String url) {
     ImagePrintMessage ipm = new ImagePrintMessage(url);
     sendObjectMessage(ipm);
+  }
+
+  public void doStartActivity(String action, String payload, boolean nonBlocking) {
+    ActivityRequest ar = new ActivityRequest(action, payload, nonBlocking, false);
+    sendObjectMessage(ar);
   }
 
   public void doVoidPayment(final Payment payment, final VoidReason reason) {

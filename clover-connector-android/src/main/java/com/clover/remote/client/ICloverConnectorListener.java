@@ -16,11 +16,13 @@
 
 package com.clover.remote.client;
 
+import com.clover.remote.client.messages.ActivityMessage;
 import com.clover.remote.client.messages.AuthResponse;
 import com.clover.remote.client.messages.CapturePreAuthResponse;
 import com.clover.remote.client.messages.CloseoutResponse;
 import com.clover.remote.client.messages.CloverDeviceErrorEvent;
 import com.clover.remote.client.messages.CloverDeviceEvent;
+import com.clover.remote.client.messages.CustomActivityResponse;
 import com.clover.remote.client.messages.PairingCodeMessage;
 import com.clover.remote.client.messages.ConfirmPaymentRequest;
 import com.clover.remote.client.messages.ManualRefundResponse;
@@ -208,4 +210,10 @@ public interface ICloverConnectorListener {
    * @param response
    */
   public void onReadCardDataResponse(ReadCardDataResponse response);
+
+  /**
+   * Called when a custom activity finishes
+   * @param response
+   */
+  void onCustomActivityResponse(CustomActivityResponse response);
 }
