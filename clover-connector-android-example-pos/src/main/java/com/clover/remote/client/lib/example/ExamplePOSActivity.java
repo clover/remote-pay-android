@@ -65,7 +65,6 @@ import com.clover.remote.client.lib.example.model.POSPayment;
 import com.clover.remote.client.lib.example.model.POSRefund;
 import com.clover.remote.client.lib.example.model.POSStore;
 import com.clover.remote.client.lib.example.utils.CurrencyUtils;
-import com.clover.remote.client.messages.ActivityMessage;
 import com.clover.remote.client.messages.AuthResponse;
 import com.clover.remote.client.messages.CapturePreAuthResponse;
 import com.clover.remote.client.messages.CloseoutRequest;

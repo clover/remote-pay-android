@@ -1,0 +1,9 @@
+<resources>
+    <string-array name="customIds">
+        <item>com.clover.cfp.activities.BasicExample</item>
+        <item>com.clover.cfp.activities.WebViewExample</item>
+        <item>com.clover.cfp.activities.CarouselExample</item>
+        <item>com.clover.cfp.activities.RatingsExample</item>
+        <item>com.clover.cfp.activities.NFCExample</item>
+    </string-array>
+</resources>
