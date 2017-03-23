@@ -31,7 +31,8 @@ For more developer documentation and information about the Semi-Integration prog
       * Added CloverCFPActivity that can be extended
       * Added constants for getting/retrieving activity payload CloverCFP interface
       * Working with Custom Activities...
-        * The action of the activity, as defined in the AndroidManifest, should be passed in as part of the request
+        * The action of the Activity, as defined in the AndroidManifest, should be passed in as part of the request
+        * The Activity must have the category named "com.clover.cfp.ACTIVITY" defined in its intent-filter
         * A single text payload can be passed in to the request and retrieved in the intent via com.clover.remote.cfp.CFPActivity.EXTRA_PAYLOAD constant. e.g. "com.clover.remote.terminal.remotecontrol.extra.EXTRA_PAYLOAD"
         * The CustomActivityResponse (onCustomActivityResponse) contains a single text payload, populated from the com.clover.remote.cfp.EXTRA_PAYLOAD extra in the result Intent
         * Block vs Non-Blocking Activities
