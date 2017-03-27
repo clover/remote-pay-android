@@ -165,13 +165,13 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
 
     String configType = (String) getIntent().getStringExtra(EXTRA_CLOVER_CONNECTOR_CONFIG);
     if("USB".equals(configType)) {
-      config = new USBCloverDeviceConfiguration(this, "Clover Example POS:1.1.0.1");
+      config = new USBCloverDeviceConfiguration(this, "Clover Example POS:1.2");
     } else if ("WS".equals(configType)) {
       URI uri = (URI) getIntent().getSerializableExtra(EXTRA_WS_ENDPOINT);
       KeyStore trustStore = createTrustStore();
       String authToken = Preferences.userNodeForPackage(ExamplePOSActivity.class).get("AUTH_TOKEN", null);
 
-      config = new WebSocketCloverDeviceConfiguration(uri, 10000, 2000, "Clover Example POS:1.1.0.1", trustStore, "Clover Example POS", "Aisle 3", authToken) {
+      config = new WebSocketCloverDeviceConfiguration(uri, 10000, 2000, "Clover Example POS:1.2", trustStore, "Clover Example POS", "Aisle 3", authToken) {
 
 
         @Override public void onPairingCode(final String pairingCode) {
