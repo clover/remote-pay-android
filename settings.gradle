@@ -1,1 +1,1 @@
-include ':clover-connector-android',':clover-connector-android-example-pos'
+include ':remote-pay-android-connector',':remote-pay-android-example-pos'
