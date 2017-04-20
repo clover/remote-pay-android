@@ -164,11 +164,17 @@ public class PosUsbRemoteProtocolService extends PosRemoteProtocolService implem
         mBgHandler.removeCallbacks(mDisconnectUsbRunnable);
         mBgHandler.post(mDisconnectUsbRunnable);
       }
+    } else {
+      // We need to re-establish connectivity.  A null intent signifies that the service was killed by the OS
+      // and was automatically restarted when system resources were available.  This call performs the same
+      // reconnect logic that is invoked when you start/run UsbPayDisplay activity manually and assumes the
+      // payment device is still connected.  Otherwise, we would have received a disconnect call from the USB
+      // device service and would have terminated normally.
+      mBgHandler.post(mConnectUsbRunnable);
+      Log.d(TAG, "onStartCommand, The intent was null. Calling mConnectUsbRunnable to re-initiate the usb connection"
+                   + " after system kill/restart of service.");
     }
-
-    // We do not want Android restarting this service automatically if it was killed, the
-    // redelivered intents no longer make any sense
-    return START_NOT_STICKY;
+    return START_STICKY; // if the service is killed by the OS, it will restart automatically
   }
 
   private final Runnable mSetupUsbRunnable = new Runnable() {
