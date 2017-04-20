@@ -1,6 +1,6 @@
 # Clover SDK for Android PoS Integration
 
-Current version: 1.2
+Current version: 1.2.0.1
 
 ## Overview
 
@@ -16,6 +16,11 @@ To complete a transaction end to end, we recommend getting a [Clover Mini Dev Ki
 For more developer documentation and information about the Semi-Integration program, please visit our [semi-integration developer documents](https://docs.clover.com/build/integration-overview-requirements/). 
 
 ## Release Notes
+# Version 1.2.0.1
+
+* Modified the connector validation to better handle error conditions.  Also added code to automatically restart the usb
+  service should it crash or be killed by the OS for any reason.
+
 # Version 1.2
 
 * Renamed/Added/Removed a number of API operations and request/response objects to establish
