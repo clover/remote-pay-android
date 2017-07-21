@@ -13,7 +13,6 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
@@ -21,7 +20,7 @@
     android:layout_height="wrap_content"
     android:layout_width="fill_parent"
     android:orientation="horizontal"
-    android:layout_below="@+id/linearLayout2"
+    android:layout_below="@+id/TransactionSettings"
     android:layout_above="@+id/linearLayout">
   <LinearLayout
       android:orientation="vertical"
@@ -43,7 +42,8 @@
       android:id="@+id/AvailableItems"
       android:stretchMode="columnWidth"
       android:columnWidth="195dp"
-      android:layout_marginLeft="10dp"
+      android:layout_marginLeft="20dp"
+      android:gravity="right"
       android:numColumns="auto_fit">
   </GridView>
 </LinearLayout>

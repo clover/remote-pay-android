@@ -39,6 +39,7 @@ import com.clover.remote.client.lib.example.model.POSOrder;
 import com.clover.remote.client.lib.example.model.POSPayment;
 import com.clover.remote.client.lib.example.model.POSStore;
 import com.clover.remote.client.lib.example.model.StoreObserver;
+import com.clover.remote.client.lib.example.utils.IdUtils;
 import com.clover.remote.client.messages.AuthRequest;
 import com.clover.remote.client.messages.SaleRequest;
 import com.clover.sdk.v3.payments.VaultedCard;
@@ -146,24 +147,44 @@ public class CardsFragment extends Fragment {
 
                                 switch(index) {
                                     case 0: {
-                                        SaleRequest saleRequest = new SaleRequest(store.getCurrentOrder().getTotal(), ExamplePOSActivity.getNextId());
-                                        saleRequest.setTippableAmount(store.getCurrentOrder().getTippableAmount());
-                                        saleRequest.setVaultedCard(vaultedCard);
-                                        saleRequest.setTipMode(store.getTipMode());
-                                        saleRequest.setSignatureEntryLocation(store.getSignatureEntryLocation());
-                                        saleRequest.setSignatureThreshold(store.getSignatureThreshold());
-                                        saleRequest.setDisableReceiptSelection(store.getDisableReceiptOptions());
-                                        cloverConnector.sale(saleRequest);
+                                        SaleRequest request = new SaleRequest(store.getCurrentOrder().getTotal(), IdUtils.getNextId());
+                                        request.setCardEntryMethods(store.getCardEntryMethods());
+                                        request.setAllowOfflinePayment(store.getAllowOfflinePayment());
+                                        request.setForceOfflinePayment(store.getForceOfflinePayment());
+                                        request.setApproveOfflinePaymentWithoutPrompt(store.getApproveOfflinePaymentWithoutPrompt());
+                                        request.setTippableAmount(store.getCurrentOrder().getTippableAmount());
+                                        request.setTaxAmount(store.getCurrentOrder().getTaxAmount());
+                                        request.setDisablePrinting(store.getDisablePrinting());
+                                        request.setTipMode(store.getTipMode());
+                                        request.setSignatureEntryLocation(store.getSignatureEntryLocation());
+                                        request.setSignatureThreshold(store.getSignatureThreshold());
+                                        request.setDisableReceiptSelection(store.getDisableReceiptOptions());
+                                        request.setDisableDuplicateChecking(store.getDisableDuplicateChecking());
+                                        request.setTipAmount(store.getTipAmount());
+                                        request.setAutoAcceptPaymentConfirmations(store.getAutomaticPaymentConfirmation());
+                                        request.setAutoAcceptSignature(store.getAutomaticSignatureConfirmation());
+                                        request.setVaultedCard(vaultedCard);
+                                        cloverConnector.sale(request);
                                         dialog.dismiss();
                                         break;
                                     }
                                     case 1: {
-                                        AuthRequest authRequest = new AuthRequest(store.getCurrentOrder().getTotal(), ExamplePOSActivity.getNextId());
-                                        authRequest.setVaultedCard(vaultedCard);
-                                        authRequest.setSignatureEntryLocation(store.getSignatureEntryLocation());
-                                        authRequest.setSignatureThreshold(store.getSignatureThreshold());
-                                        authRequest.setDisableReceiptSelection(store.getDisableReceiptOptions());
-                                        cloverConnector.auth(authRequest);
+                                        AuthRequest request = new AuthRequest(store.getCurrentOrder().getTotal(), IdUtils.getNextId());
+                                        request.setCardEntryMethods(store.getCardEntryMethods());
+                                        request.setAllowOfflinePayment(store.getAllowOfflinePayment());
+                                        request.setForceOfflinePayment(store.getForceOfflinePayment());
+                                        request.setApproveOfflinePaymentWithoutPrompt(store.getApproveOfflinePaymentWithoutPrompt());
+                                        request.setTippableAmount(store.getCurrentOrder().getTippableAmount());
+                                        request.setTaxAmount(store.getCurrentOrder().getTaxAmount());
+                                        request.setDisablePrinting(store.getDisablePrinting());
+                                        request.setSignatureEntryLocation(store.getSignatureEntryLocation());
+                                        request.setSignatureThreshold(store.getSignatureThreshold());
+                                        request.setDisableReceiptSelection(store.getDisableReceiptOptions());
+                                        request.setDisableDuplicateChecking(store.getDisableDuplicateChecking());
+                                        request.setAutoAcceptPaymentConfirmations(store.getAutomaticPaymentConfirmation());
+                                        request.setAutoAcceptSignature(store.getAutomaticSignatureConfirmation());
+                                        request.setVaultedCard(vaultedCard);
+                                        cloverConnector.auth(request);
                                         dialog.dismiss();
                                         break;
                                     }
@@ -194,7 +215,7 @@ public class CardsFragment extends Fragment {
             mListener = (OnFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + " must implement OnFragmentInteractionListener");
+                                         + " must implement OnFragmentInteractionListener");
         }
     }
 

@@ -21,19 +21,36 @@ import com.clover.sdk.v3.payments.Credit;
 /**
  * Callback to request the POS print a ManualRefund declined receipt
  */
+@SuppressWarnings(value="unused")
 public class PrintManualRefundDeclineReceiptMessage {
-  private Credit credit;
-  private String reason;
+  private final Credit credit;
+  private final String reason;
 
+  /**
+   * Constructor
+   *
+   * @param credit credit object created when processing the manual refund
+   * @param reason reason refund was declined
+   */
   public PrintManualRefundDeclineReceiptMessage(Credit credit, String reason) {
     this.credit = credit;
     this.reason = reason;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return credit object created when processing the manual refund
+   */
   public Credit getCredit() {
     return credit;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return reason refund was declined
+   */
   public String getReason() {
     return reason;
   }

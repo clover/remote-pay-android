@@ -21,7 +21,9 @@ import com.clover.remote.client.messages.CapturePreAuthResponse;
 import com.clover.remote.client.messages.CloseoutResponse;
 import com.clover.remote.client.messages.CloverDeviceErrorEvent;
 import com.clover.remote.client.messages.CloverDeviceEvent;
-import com.clover.remote.client.messages.PairingCodeMessage;
+import com.clover.remote.client.messages.CustomActivityResponse;
+import com.clover.remote.client.messages.RetrievePaymentResponse;
+import com.clover.remote.client.messages.MessageFromActivity;
 import com.clover.remote.client.messages.ConfirmPaymentRequest;
 import com.clover.remote.client.messages.ManualRefundResponse;
 import com.clover.remote.client.messages.PreAuthResponse;
@@ -33,6 +35,8 @@ import com.clover.remote.client.messages.PrintPaymentReceiptMessage;
 import com.clover.remote.client.messages.PrintRefundPaymentReceiptMessage;
 import com.clover.remote.client.messages.ReadCardDataResponse;
 import com.clover.remote.client.messages.RefundPaymentResponse;
+import com.clover.remote.client.messages.ResetDeviceResponse;
+import com.clover.remote.client.messages.RetrieveDeviceStatusResponse;
 import com.clover.remote.client.messages.RetrievePendingPaymentsResponse;
 import com.clover.remote.client.messages.SaleResponse;
 import com.clover.remote.client.messages.TipAdjustAuthResponse;
@@ -41,170 +45,329 @@ import com.clover.remote.client.messages.VerifySignatureRequest;
 import com.clover.remote.client.messages.VoidPaymentResponse;
 import com.clover.remote.message.TipAddedMessage;
 
+import android.util.Log;
+
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class CloverConnectorBroadcaster extends CopyOnWriteArrayList<ICloverConnectorListener> {
+class CloverConnectorBroadcaster extends CopyOnWriteArrayList<ICloverConnectorListener> {
 
-  public void notifyOnTipAdded(long tip) {
+  void notifyOnTipAdded(long tip) {
     for (ICloverConnectorListener listener : this) {
-      listener.onTipAdded(new TipAddedMessage(tip));
+      try {
+        listener.onTipAdded(new TipAddedMessage(tip));
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 
-  public void notifyOnRefundPaymentResponse(RefundPaymentResponse refundPaymentResponse) {
+  void notifyOnRefundPaymentResponse(RefundPaymentResponse refundPaymentResponse) {
     for (ICloverConnectorListener listener : this) {
-      listener.onRefundPaymentResponse(refundPaymentResponse);
+      try {
+        listener.onRefundPaymentResponse(refundPaymentResponse);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 
-  public void notifyCloseout(CloseoutResponse closeoutResponse) {
+  void notifyCloseout(CloseoutResponse closeoutResponse) {
     for (ICloverConnectorListener listener : this) {
-      listener.onCloseoutResponse(closeoutResponse);
+      try {
+        listener.onCloseoutResponse(closeoutResponse);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 
-  public void notifyOnDeviceActivityStart(CloverDeviceEvent deviceEvent) {
+  void notifyOnDeviceActivityStart(CloverDeviceEvent deviceEvent) {
     for (ICloverConnectorListener listener : this) {
-      listener.onDeviceActivityStart(deviceEvent);
+      try {
+        listener.onDeviceActivityStart(deviceEvent);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 
-  public void notifyOnDeviceActivityEnd(CloverDeviceEvent deviceEvent) {
+  void notifyOnDeviceActivityEnd(CloverDeviceEvent deviceEvent) {
     for (ICloverConnectorListener listener : this) {
-      listener.onDeviceActivityEnd(deviceEvent);
-    }
-
-  }
-
-  public void notifyOnSaleResponse(SaleResponse response) {
-    for (ICloverConnectorListener listener : this) {
-      listener.onSaleResponse(response);
+      try {
+        listener.onDeviceActivityEnd(deviceEvent);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 
-  public void notifyOnAuthResponse(AuthResponse response) {
+  void notifyOnSaleResponse(SaleResponse response) {
     for (ICloverConnectorListener listener : this) {
-      listener.onAuthResponse(response);
+      try {
+        listener.onSaleResponse(response);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 
-  public void notifyOnManualRefundResponse(ManualRefundResponse response) {
+  void notifyOnAuthResponse(AuthResponse response) {
     for (ICloverConnectorListener listener : this) {
-      listener.onManualRefundResponse(response);
+      try {
+        listener.onAuthResponse(response);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 
-  public void notifyOnVerifySignatureRequest(VerifySignatureRequest request) {
+  void notifyOnManualRefundResponse(ManualRefundResponse response) {
     for (ICloverConnectorListener listener : this) {
-      listener.onVerifySignatureRequest(request);
+      try {
+        listener.onManualRefundResponse(response);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 
-  public void notifyOnVoidPaymentResponse(VoidPaymentResponse response) {
+  void notifyOnVerifySignatureRequest(VerifySignatureRequest request) {
     for (ICloverConnectorListener listener : this) {
-      listener.onVoidPaymentResponse(response);
+      try {
+        listener.onVerifySignatureRequest(request);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 
-  public void notifyOnConnect() {
+  void notifyOnVoidPaymentResponse(VoidPaymentResponse response) {
     for (ICloverConnectorListener listener : this) {
-      listener.onDeviceConnected();
+      try {
+        listener.onVoidPaymentResponse(response);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 
-  public void notifyOnDisconnect() {
+  void notifyOnConnect() {
     for (ICloverConnectorListener listener : this) {
-      listener.onDeviceDisconnected();
+      try {
+        listener.onDeviceConnected();
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 
-  public void notifyOnReady(MerchantInfo merchantInfo) {
+  void notifyOnDisconnect() {
     for (ICloverConnectorListener listener : this) {
-      listener.onDeviceReady(merchantInfo);
+      try {
+        listener.onDeviceDisconnected();
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 
-  public void notifyOnTipAdjustAuthResponse(TipAdjustAuthResponse response) {
+  void notifyOnReady(MerchantInfo merchantInfo) {
     for (ICloverConnectorListener listener : this) {
-      listener.onTipAdjustAuthResponse(response);
+      try {
+        listener.onDeviceReady(merchantInfo);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 
-  public void notifyOnVaultCardRespose(VaultCardResponse ccr) {
+  void notifyOnTipAdjustAuthResponse(TipAdjustAuthResponse response) {
     for (ICloverConnectorListener listener : this) {
-      listener.onVaultCardResponse(ccr);
+      try {
+        listener.onTipAdjustAuthResponse(response);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 
-  public void notifyOnPreAuthResponse(PreAuthResponse response) {
+  void notifyOnVaultCardRespose(VaultCardResponse ccr) {
     for (ICloverConnectorListener listener : this) {
-      listener.onPreAuthResponse(response);
+      try {
+        listener.onVaultCardResponse(ccr);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 
-  public void notifyOnCapturePreAuth(CapturePreAuthResponse response) {
+  void notifyOnPreAuthResponse(PreAuthResponse response) {
     for (ICloverConnectorListener listener : this) {
-      listener.onCapturePreAuthResponse(response);
+      try {
+        listener.onPreAuthResponse(response);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 
-  public void notifyOnDeviceError(CloverDeviceErrorEvent errorEvent) {
+  void notifyOnCapturePreAuth(CapturePreAuthResponse response) {
     for (ICloverConnectorListener listener : this) {
-      listener.onDeviceError(errorEvent);
+      try {
+        listener.onCapturePreAuthResponse(response);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 
-  public void notifyOnPrintRefundPaymentReceipt(PrintRefundPaymentReceiptMessage printRefundPaymentReceiptMessage) {
+  void notifyOnDeviceError(CloverDeviceErrorEvent errorEvent) {
     for (ICloverConnectorListener listener : this) {
-      listener.onPrintRefundPaymentReceipt(printRefundPaymentReceiptMessage);
+      try {
+        listener.onDeviceError(errorEvent);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 
-  public void notifyOnPrintPaymentMerchantCopyReceipt(PrintPaymentMerchantCopyReceiptMessage printPaymentMerchantCopyReceiptMessage) {
+  void notifyOnPrintRefundPaymentReceipt(PrintRefundPaymentReceiptMessage printRefundPaymentReceiptMessage) {
     for (ICloverConnectorListener listener : this) {
-      listener.onPrintPaymentMerchantCopyReceipt(printPaymentMerchantCopyReceiptMessage);
+      try {
+        listener.onPrintRefundPaymentReceipt(printRefundPaymentReceiptMessage);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 
-  public void notifyOnPrintPaymentDeclineReceipt(PrintPaymentDeclineReceiptMessage printPaymentDeclineReceiptMessage) {
+  void notifyOnPrintPaymentMerchantCopyReceipt(PrintPaymentMerchantCopyReceiptMessage printPaymentMerchantCopyReceiptMessage) {
     for (ICloverConnectorListener listener : this) {
-      listener.onPrintPaymentDeclineReceipt(printPaymentDeclineReceiptMessage);
+      try {
+        listener.onPrintPaymentMerchantCopyReceipt(printPaymentMerchantCopyReceiptMessage);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 
-  public void notifyOnPrintPaymentReceipt(PrintPaymentReceiptMessage printPaymentReceiptMessage) {
+  void notifyOnPrintPaymentDeclineReceipt(PrintPaymentDeclineReceiptMessage printPaymentDeclineReceiptMessage) {
     for (ICloverConnectorListener listener : this) {
-      listener.onPrintPaymentReceipt(printPaymentReceiptMessage);
+      try {
+        listener.onPrintPaymentDeclineReceipt(printPaymentDeclineReceiptMessage);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 
-  public void notifyOnPrintCreditReceipt(PrintManualRefundReceiptMessage printManualRefundReceiptMessage) {
+  void notifyOnPrintPaymentReceipt(PrintPaymentReceiptMessage printPaymentReceiptMessage) {
     for (ICloverConnectorListener listener : this) {
-      listener.onPrintManualRefundReceipt(printManualRefundReceiptMessage);
+      try {
+        listener.onPrintPaymentReceipt(printPaymentReceiptMessage);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 
-  public void notifyOnPrintCreditDeclineReceipt(PrintManualRefundDeclineReceiptMessage printManualRefundDeclineReceiptMessage) {
+  void notifyOnPrintCreditReceipt(PrintManualRefundReceiptMessage printManualRefundReceiptMessage) {
     for (ICloverConnectorListener listener : this) {
-      listener.onPrintManualRefundDeclineReceipt(printManualRefundDeclineReceiptMessage);
+      try {
+        listener.onPrintManualRefundReceipt(printManualRefundReceiptMessage);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 
-  public void notifyOnConfirmPaymentRequest(ConfirmPaymentRequest confirmPaymentRequest) {
+  void notifyOnPrintCreditDeclineReceipt(PrintManualRefundDeclineReceiptMessage printManualRefundDeclineReceiptMessage) {
     for (ICloverConnectorListener listener : this) {
-      listener.onConfirmPaymentRequest(confirmPaymentRequest);
+      try {
+        listener.onPrintManualRefundDeclineReceipt(printManualRefundDeclineReceiptMessage);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 
-  public void notifyOnRetrievePendingPaymentResponse(RetrievePendingPaymentsResponse rppr) {
+  void notifyOnConfirmPaymentRequest(ConfirmPaymentRequest confirmPaymentRequest) {
     for (ICloverConnectorListener listener : this) {
-      listener.onRetrievePendingPaymentsResponse(rppr);
+      try {
+        listener.onConfirmPaymentRequest(confirmPaymentRequest);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 
-  public void notifyOnReadCardDataResponse(ReadCardDataResponse rcdr) {
+  void notifyOnRetrievePendingPaymentResponse(RetrievePendingPaymentsResponse rppr) {
     for (ICloverConnectorListener listener : this) {
-      listener.onReadCardDataResponse(rcdr);
+      try {
+        listener.onRetrievePendingPaymentsResponse(rppr);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
+    }
+  }
+
+  void notifyOnReadCardDataResponse(ReadCardDataResponse rcdr) {
+    for (ICloverConnectorListener listener : this) {
+      try {
+        listener.onReadCardDataResponse(rcdr);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
+    }
+  }
+
+  void notifyOnActivityMessage(MessageFromActivity msg) {
+    for (ICloverConnectorListener listener : this) {
+      try {
+        listener.onMessageFromActivity(msg);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
+    }
+  }
+
+  void notifyOnActivityResponse(CustomActivityResponse car) {
+    for (ICloverConnectorListener listener : this) {
+      try {
+        listener.onCustomActivityResponse(car);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
+    }
+  }
+
+  void notifyOnRetrieveDeviceStatusResponse(RetrieveDeviceStatusResponse rdsr) {
+    for (ICloverConnectorListener listener : this) {
+      try {
+        listener.onRetrieveDeviceStatusResponse(rdsr);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
+    }
+  }
+
+  void notifyOnResetDeviceResponse(ResetDeviceResponse rdr) {
+    for (ICloverConnectorListener listener : this) {
+      try {
+        listener.onResetDeviceResponse(rdr);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
+    }
+  }
+
+  void notifyOnRetrievePaymentResponse(RetrievePaymentResponse gpr) {
+    for (ICloverConnectorListener listener : this) {
+      try {
+        listener.onRetrievePaymentResponse(gpr);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
     }
   }
 }

@@ -2,18 +2,17 @@ package com.clover.remote.client.transport.websocket;
 
 public interface CloverNVWebSocketClientListener {
 
+  void onOpen(CloverNVWebSocketClient ws);
 
-  public void onOpen(CloverNVWebSocketClient ws);
+  void onNotResponding(CloverNVWebSocketClient ws);
 
-  public void onNotResponding(CloverNVWebSocketClient ws);
+  void onPingResponding(CloverNVWebSocketClient ws);
 
-  public void onPingResponding(CloverNVWebSocketClient ws);
+  void onClose(CloverNVWebSocketClient ws, int code, String reason, boolean remote);
 
-  public void onClose(CloverNVWebSocketClient ws, int code, String reason, boolean remote);
+  void onMessage(CloverNVWebSocketClient ws, String message);
 
-  public void onMessage(CloverNVWebSocketClient ws, String message);
+  void connectionError(CloverNVWebSocketClient cloverNVWebSocketClient);
 
-  public void connectionError(CloverNVWebSocketClient cloverNVWebSocketClient);
-
-  public void onSendError(String payloadText);
+  void onSendError(String payloadText);
 }

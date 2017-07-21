@@ -17,13 +17,29 @@
 package com.clover.remote.client.messages;
 
 /**
- * request to acquire a payment token and card that
+ * Request to acquire a payment token and card that
  * can be used for future transaction requests
  */
+@SuppressWarnings(value="unused")
 public class VaultCardRequest extends BaseRequest {
-  int cardEntryMethods;
+  private final Integer cardEntryMethods;
 
-  public VaultCardRequest(int cardEntryMethods) {
+  /**
+   * Constructor
+   *
+   * @param cardEntryMethods - if null, will get the default configured methods. Initially SWIPE, CHIP and CONTACTLESS. The Integer can be
+   *                         an OR's value of CloverConnector.CARD_ENTRY_METHOD_MAG_STRIPE | CloverConnector.CARD_ENTRY_METHOD_MAG_MANUAL, etc.
+   */
+  public VaultCardRequest(Integer cardEntryMethods) {
     this.cardEntryMethods = cardEntryMethods;
+  }
+
+  /**
+   * Get the field value
+   *
+   * @return configured card entry methods
+   */
+  public Integer getCardEntryMethods() {
+    return cardEntryMethods;
   }
 }

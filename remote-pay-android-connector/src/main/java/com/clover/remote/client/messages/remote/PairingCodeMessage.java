@@ -1,4 +1,4 @@
-package com.clover.remote.client.messages;
+package com.clover.remote.client.messages.remote;
 
 public class PairingCodeMessage {
   public final String pairingCode;

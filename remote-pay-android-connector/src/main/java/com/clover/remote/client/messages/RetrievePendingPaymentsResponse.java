@@ -23,14 +23,31 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Response object for a retrieve pending payments request
+ */
+@SuppressWarnings(value="unused")
 public class RetrievePendingPaymentsResponse extends BaseResponse {
-  List<PendingPaymentEntry> pendingPayments;
+  private final List<PendingPaymentEntry> pendingPayments;
 
-  public RetrievePendingPaymentsResponse(ResultCode code, String message, List<PendingPaymentEntry> payments) {
+  /**
+   * Constructor
+   *
+   * @param code The result of the requested operation
+   * @param reason reason Optional information about result
+   * @param payments List of payments in the queue, that have not been sent to the server for processing
+   */
+  public RetrievePendingPaymentsResponse(ResultCode code, String reason, List<PendingPaymentEntry> payments) {
     super(code == ResultCode.SUCCESS, code);
-    pendingPayments = payments == null ? Collections.EMPTY_LIST : new ArrayList<PendingPaymentEntry>(payments);
+    setReason(reason);
+    pendingPayments = payments == null ? Collections.<PendingPaymentEntry>emptyList() : new ArrayList<>(payments);
   }
 
+  /**
+   * Get the field value
+   *
+   * @return List of payments in the queue, that have not been sent to the server for processing
+   */
   public List<PendingPaymentEntry> getPendingPayments() {
     return pendingPayments;
   }

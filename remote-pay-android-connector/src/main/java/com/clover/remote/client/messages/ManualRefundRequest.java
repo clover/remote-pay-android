@@ -21,13 +21,21 @@ import com.clover.common2.payments.PayIntent;
 /**
  * Request object used when requesting a Manual Refund (Naked Credit)
  */
+@SuppressWarnings(value="unused")
 public class ManualRefundRequest extends TransactionRequest {
 
+  /**
+   * Constructor
+   *
+   * @param amount The amount of the transaction. This includes amount, tax, service charges, etc. except the tip
+   * @param externalId An id assigned by the POS that can be used to track a payment through the Clover system
+   */
   public ManualRefundRequest(long amount, String externalId){
     super(amount, externalId);
   }
 
-  @Override public PayIntent.TransactionType getType() {
+  @Override
+  public PayIntent.TransactionType getType() {
     return PayIntent.TransactionType.CREDIT;
   }
 }

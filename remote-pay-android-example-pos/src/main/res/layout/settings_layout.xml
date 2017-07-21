@@ -42,7 +42,7 @@
         android:id="@+id/testButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/test_settings_button_label"
+        android:text="@string/test"
         android:onClick="onTestClicked"/>
     <TextView
         android:id="@+id/testResult"

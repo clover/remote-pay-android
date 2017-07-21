@@ -38,7 +38,7 @@ public class CloverNVWebSocketClient implements WebSocketListener {
       tmf.init( trustStore );
 
       SSLContext sslContext = null;
-      sslContext = SSLContext.getInstance( "TLSv1.2" );
+      sslContext = SSLContext.getInstance( "TLS" );
       sslContext.init( /*kmf.getKeyManagers()*/null, tmf.getTrustManagers(), null );
 
       factory.setSSLContext(sslContext);

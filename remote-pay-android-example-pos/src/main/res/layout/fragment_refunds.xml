@@ -15,41 +15,50 @@
   ~ limitations under the License.
   -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true"
-            android:id="@+id/linearLayout">
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="10sp"
+        android:id="@+id/linearLayout">
 
         <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Refund Amount:"
-                android:id="@+id/RefundAmountLabel"/>
-        <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:inputType="number"
-                android:ems="10"
-                android:id="@+id/ManualRefundTextView" android:layout_weight="1"/>
-        <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Refund"
-                android:onClick="onManualRefundClick"
-                android:id="@+id/RefundButton"/>
-    </LinearLayout>
-    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Manual Refunds"
-              android:layout_weight="0"
-              android:background="@color/clover_green" android:textSize="@dimen/order_table_text_size" android:paddingLeft="3dp"
-              android:layout_below="@+id/linearLayout" android:layout_alignParentStart="true" android:id="@+id/textView6"/>
-    <ListView
             android:layout_width="wrap_content"
-            android:layout_height="117dp"
-            android:id="@+id/RefundsListView" android:layout_gravity="bottom" android:layout_alignParentBottom="true" android:layout_below="@+id/textView6"/>
+            android:layout_height="wrap_content"
+            android:text="Refund Amount:"
+            android:id="@+id/RefundAmountLabel"/>
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:ems="10"
+            android:id="@+id/ManualRefundTextView" android:layout_weight="1"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Refund"
+            android:background="@drawable/button_border_padding"
+            android:onClick="onManualRefundClick"
+            android:id="@+id/RefundButton"/>
+    </LinearLayout>
+    <TextView android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Manual Refunds"
+        android:textColor="@color/white"
+        android:layout_weight="0"
+        android:background="@color/clover_green"
+        android:textSize="@dimen/order_table_text_size"
+        android:padding="3dp"
+        android:layout_below="@+id/linearLayout"
+        android:layout_alignParentStart="true"
+        android:id="@+id/textView6"/>
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="117dp"
+        android:id="@+id/RefundsListView" android:layout_gravity="bottom" android:layout_alignParentBottom="true" android:layout_below="@+id/textView6"/>
 </RelativeLayout>

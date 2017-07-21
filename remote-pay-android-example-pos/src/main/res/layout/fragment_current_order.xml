@@ -13,19 +13,22 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:id="@+id/container"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:context=".RemoteLanLauncher"
-                tools:ignore="MergeRootFrame">
-  <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/linearLayout14">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".RemoteLanLauncher"
+    tools:ignore="MergeRootFrame">
+  <LinearLayout android:layout_width="fill_parent"
+      android:layout_height="wrap_content"
+      android:id="@+id/linearLayout14">
     <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="Current Order: " android:textStyle="bold"
-            android:textSize="@dimen/text_size_list_item"/>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/current_order"
+        android:textStyle="bold"
+        android:textSize="@dimen/text_size_list_item"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -37,8 +40,8 @@
       android:id="@+id/CurrentOrderItems"
       android:layout_centerHorizontal="true"
       android:layout_above="@+id/gridLayout"
-
-      android:layout_alignParentEnd="false" android:layout_below="@+id/linearLayout14"/>
+      android:layout_alignParentEnd="false"
+      android:layout_below="@+id/linearLayout14"/>
   <GridLayout
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
@@ -47,39 +50,49 @@
       android:columnCount="2"
       android:rowCount="4"
       android:id="@+id/gridLayout">
-    <TextView android:text="Subtotal:"/>
-    <TextView android:id="@+id/SubtotalLabel" android:layout_gravity="right"/>
-    <TextView android:text="Discounts:"/>
-    <TextView android:id="@+id/DiscountsLabel" android:layout_gravity="right"/>
-    <TextView android:text="Tax:"/>
-    <TextView android:id="@+id/TaxLabel" android:layout_gravity="right"/>
-    <TextView android:text="Total:" android:textSize="@dimen/text_size_status"/>
+    <TextView android:text="@string/subtotal"/>
+    <TextView android:id="@+id/SubtotalLabel"
+        android:layout_gravity="right"/>
+    <TextView android:text="@string/discounts"/>
+    <TextView android:id="@+id/DiscountsLabel"
+        android:layout_gravity="right"/>
+    <TextView android:text="@string/tax"/>
+    <TextView android:id="@+id/TaxLabel"
+        android:layout_gravity="right"/>
+    <TextView android:text="@string/total"
+        android:textSize="@dimen/text_size_status"/>
     <TextView android:id="@+id/TotalLabel"
-              android:layout_gravity="right"/>
+        android:layout_gravity="right"/>
   </GridLayout>
-  <LinearLayout android:layout_width="fill_parent" android:layout_height="50dp"
-                android:layout_alignParentBottom="true" android:id="@+id/linearLayout3">
+  <LinearLayout android:layout_width="fill_parent"
+      android:layout_height="50dp"
+      android:layout_alignParentBottom="true"
+      android:id="@+id/linearLayout3">
     <Button
-        android:text="New"
+        android:text="@string/_new"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
         android:layout_weight=".2"
+        android:background="@drawable/button_border"
         android:id="@+id/NewOrderButton"
-    />
+        android:layout_margin="4dp"
+        />
     <Button
-        android:text="Sale"
+        android:text="@string/sale"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
         android:layout_weight=".4"
-        android:background="@drawable/button"
+        android:background="@drawable/button_green"
+        android:textColor="@color/white"
         android:id="@+id/SaleButton"
         android:layout_margin="4dp"/>
     <Button
-        android:text="Auth"
+        android:text="@string/auth"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
         android:layout_weight=".4"
-        android:background="@drawable/button"
+        android:background="@drawable/button_green"
+        android:textColor="@color/white"
         android:id="@+id/AuthButton"
         android:layout_margin="4dp"/>
   </LinearLayout>

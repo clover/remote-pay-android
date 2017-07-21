@@ -18,19 +18,38 @@ package com.clover.remote.client.messages;
 
 import com.clover.sdk.v3.payments.Credit;
 
+/**
+ * Response object for a manual refund (naked credit) request
+ */
+@SuppressWarnings(value="unused")
 public class ManualRefundResponse extends BaseResponse {
-  private Credit Credit;
+  private Credit credit;
 
+  /**
+   * Constructor
+   *
+   * @param success If true then the requested operation succeeded
+   * @param result The result of the requested operation
+   */
   public ManualRefundResponse(boolean success, ResultCode result) {
     super(success, result);
   }
 
-  public com.clover.sdk.v3.payments.Credit getCredit() {
-    return Credit;
+  /**
+   * Get the field value
+   *
+   * @return the credit object for the manual refund
+   */
+  public Credit getCredit() {
+    return credit;
   }
 
-  public void setCredit(com.clover.sdk.v3.payments.Credit credit) {
-    Credit = credit;
+  /**
+   * Set the field value
+   *
+   * @param credit the credit object for the manual refund
+   */
+  public void setCredit(Credit credit) {
+    this.credit = credit;
   }
-
 }

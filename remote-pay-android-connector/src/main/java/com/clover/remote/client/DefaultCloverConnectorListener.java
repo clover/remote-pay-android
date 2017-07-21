@@ -21,7 +21,8 @@ import com.clover.remote.client.messages.CapturePreAuthResponse;
 import com.clover.remote.client.messages.CloseoutResponse;
 import com.clover.remote.client.messages.CloverDeviceErrorEvent;
 import com.clover.remote.client.messages.CloverDeviceEvent;
-import com.clover.remote.client.messages.PairingCodeMessage;
+import com.clover.remote.client.messages.CustomActivityResponse;
+import com.clover.remote.client.messages.MessageFromActivity;
 import com.clover.remote.client.messages.ConfirmPaymentRequest;
 import com.clover.remote.client.messages.ManualRefundResponse;
 import com.clover.remote.client.messages.PreAuthResponse;
@@ -33,6 +34,9 @@ import com.clover.remote.client.messages.PrintPaymentReceiptMessage;
 import com.clover.remote.client.messages.PrintRefundPaymentReceiptMessage;
 import com.clover.remote.client.messages.ReadCardDataResponse;
 import com.clover.remote.client.messages.RefundPaymentResponse;
+import com.clover.remote.client.messages.ResetDeviceResponse;
+import com.clover.remote.client.messages.RetrieveDeviceStatusResponse;
+import com.clover.remote.client.messages.RetrievePaymentResponse;
 import com.clover.remote.client.messages.RetrievePendingPaymentsResponse;
 import com.clover.remote.client.messages.SaleResponse;
 import com.clover.remote.client.messages.TipAdjustAuthResponse;
@@ -96,9 +100,6 @@ public abstract class DefaultCloverConnectorListener implements ICloverConnector
       cloverConnector.acceptSignature(request);
     }
   }
-
-  @Override
-  public abstract void onConfirmPaymentRequest(ConfirmPaymentRequest request);
 
   @Override public void onCloseoutResponse(CloseoutResponse response) {
 
@@ -164,4 +165,23 @@ public abstract class DefaultCloverConnectorListener implements ICloverConnector
 
   }
 
+  @Override public void onMessageFromActivity(MessageFromActivity message) {
+
+  }
+
+  @Override public void onCustomActivityResponse(CustomActivityResponse response) {
+
+  }
+
+  @Override public void onRetrieveDeviceStatusResponse(RetrieveDeviceStatusResponse response){
+
+  }
+
+  @Override public void onResetDeviceResponse(ResetDeviceResponse response){
+
+  }
+
+  @Override public void onRetrievePaymentResponse(RetrievePaymentResponse response){
+
+  }
 }

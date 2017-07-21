@@ -17,43 +17,84 @@
 package com.clover.remote.client.messages;
 
 /**
- * request to void a payment
+ * Request object for requesting to void a payment
  */
+@SuppressWarnings(value="unused")
 public class VoidPaymentRequest extends BaseRequest {
   private String paymentId;
-  private String voidReason; // {USER_CANCEL}
+  private String voidReason;
 
   private String employeeId;//optional TODO: Revisit
   private String orderId; //optional TODO: Revisit
 
+  /**
+   * Get the field value
+   *
+   * @return The unique identifier of the associated payment
+   */
   public String getPaymentId() {
     return paymentId;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param paymentId The unique identifier of the associated payment
+   */
   public void setPaymentId(String paymentId) {
     this.paymentId = paymentId;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return Reason for void
+   */
   public String getVoidReason() {
     return voidReason;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param voidReason Reason for void
+   */
   public void setVoidReason(String voidReason) {
     this.voidReason = voidReason;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return The id of the employee requesting the void
+   */
   public String getEmployeeId() {
     return employeeId;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param employeeId The id of the employee requesting the void
+   */
   public void setEmployeeId(String employeeId) {
     this.employeeId = employeeId;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return The unique identifier of the associated order
+   */
   public String getOrderId() {
     return orderId;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param orderId The unique identifier of the associated order
+   */
   public void setOrderId(String orderId) {
     this.orderId = orderId;
   }

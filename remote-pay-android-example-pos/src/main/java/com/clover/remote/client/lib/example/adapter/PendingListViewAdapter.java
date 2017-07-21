@@ -28,9 +28,6 @@ import com.clover.remote.client.lib.example.utils.CurrencyUtils;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Created by blakewilliams on 7/21/16.
- */
 public class PendingListViewAdapter extends ArrayAdapter<PendingPaymentEntry> {
   public PendingListViewAdapter(Context context, int resource) {
     super(context, resource);
