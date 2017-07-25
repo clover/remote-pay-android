@@ -55,7 +55,7 @@ public class MiscellaneousFragment extends Fragment implements AdapterView.OnIte
 
   private POSStore store;
 
-  boolean updatingSwitches = false;
+  private boolean updatingSwitches = false;
 
   private OnFragmentInteractionListener mListener;
 
@@ -164,13 +164,13 @@ public class MiscellaneousFragment extends Fragment implements AdapterView.OnIte
     printingSwitch = ((Switch) view.findViewById(R.id.PrintingSwitch));
     signatureThresholdText = ((EditText) view.findViewById(R.id.signatureThreshold));
     startCustomActivityButton = ((Button) view.findViewById(R.id.startCustomActivityButton));
-    sendMessageToActivityButton = ((Button) view.findViewById(R.id.startCustomActivityButton));
+    sendMessageToActivityButton = ((Button) view.findViewById(R.id.sendMessageToActivityButton));
 
     customActivityId = ((Spinner) view.findViewById(R.id.activity_id));
 
     // Get a reference to the AutoCompleteTextView in the layout and assign the auto-complete choices.
     String[] samples = getResources().getStringArray(R.array.customIds);
-    ArrayAdapter<String> customAdapter = new ArrayAdapter<String>(this.getActivity().getBaseContext(), android.R.layout.simple_spinner_item, samples);
+    ArrayAdapter<String> customAdapter = new ArrayAdapter<>(this.getActivity().getBaseContext(), android.R.layout.simple_spinner_item, samples);
     customAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     customActivityId.setAdapter(customAdapter);
     tipModeSpinner.setOnItemSelectedListener(this);
@@ -519,11 +519,11 @@ public class MiscellaneousFragment extends Fragment implements AdapterView.OnIte
   }
 
   public interface OnFragmentInteractionListener {
-    public void onFragmentInteraction(Uri uri);
+    void onFragmentInteraction(Uri uri);
   }
 
   public void setCloverConnector(ICloverConnector cloverConnector) {
-    cloverConnectorWeakReference = new WeakReference<ICloverConnector>(cloverConnector);
+    cloverConnectorWeakReference = new WeakReference<>(cloverConnector);
   }
 
   private void updateSwitches(View view) {
@@ -562,8 +562,8 @@ public class MiscellaneousFragment extends Fragment implements AdapterView.OnIte
       ((RadioButton) view.findViewById(R.id.forceOfflineFalse)).setChecked(forceOfflinePayment != null && !forceOfflinePayment);
       Boolean approveOfflinePaymentWithoutPrompt = store.getApproveOfflinePaymentWithoutPrompt();
       ((RadioButton) view.findViewById(R.id.approveOfflineWithoutPromptDefault)).setChecked(approveOfflinePaymentWithoutPrompt == null);
-      ((RadioButton) view.findViewById(R.id.approveOfflineWithoutPromptTrue)).setChecked(approveOfflinePaymentWithoutPrompt != null && allowOfflinePayment);
-      ((RadioButton) view.findViewById(R.id.approveOfflineWithoutPromptFalse)).setChecked(approveOfflinePaymentWithoutPrompt != null && !allowOfflinePayment);
+      ((RadioButton) view.findViewById(R.id.approveOfflineWithoutPromptTrue)).setChecked(approveOfflinePaymentWithoutPrompt != null && allowOfflinePayment != null && allowOfflinePayment);
+      ((RadioButton) view.findViewById(R.id.approveOfflineWithoutPromptFalse)).setChecked(approveOfflinePaymentWithoutPrompt != null && allowOfflinePayment != null && !allowOfflinePayment);
       Long signatureThreshold = store.getSignatureThreshold();
       if (signatureThreshold != null) {
         ((EditText) view.findViewById(R.id.signatureThreshold)).setText(signatureThreshold.toString());

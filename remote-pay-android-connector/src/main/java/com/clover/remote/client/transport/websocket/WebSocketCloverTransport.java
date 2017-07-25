@@ -26,11 +26,16 @@ import com.clover.remote.client.messages.remote.PairingResponse;
 import com.clover.remote.client.transport.CloverTransport;
 import com.clover.remote.client.transport.PairingDeviceConfiguration;
 import com.clover.remote.message.Method;
+
+import android.os.AsyncTask;
+import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import java.net.URI;
 import java.security.KeyStore;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -38,8 +43,27 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverN
 
   private static final String METHOD = "method";
   private static final String PAYLOAD = "payload";
-  private static final long RECONNECT_DELAY = 3000;
-  private static final long HEARTBEAT_INTERVAL = 5000;
+
+  private long reconnectDelay; // delay before attempting reconnect
+  private final Runnable reconnectThread = new Runnable() {
+    @Override
+    public void run() {
+      if (!shutdown) {
+        try {
+          initializeConnection();
+        } catch (Exception e) {
+          reconnect();
+        }
+      }
+    }
+  };
+  private long pingFrequency; // period between pings in seconds
+  private long pongTimeout; // how long to wait for a pong before closing connection
+  // but still wait
+  private long reportConnectionProblemAfter; // if pong hasn't come back in this time, report as disconnected
+  // client, before it is actually disconnected so
+  // if the pong is received before disconnect timeout, a deviceReady
+  // needs to be sent
 
   private final Gson GSON = new Gson();
 
@@ -49,6 +73,10 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverN
   private final String posName;
   private final String serialNumber;
   private String authToken;
+  private boolean reportedDisconnect = false; // keeps track if a deviceDisconnected message has been sent to the
+  private Timer pingTimer;
+  private TimerTask pingTimerTask;
+  private TimerTask reportDisconnectTimerTask;
 
   private CloverNVWebSocketClient webSocket;
 
@@ -63,27 +91,26 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverN
    * A single thread/queue to process reconnect requests
    */
   private final ScheduledThreadPoolExecutor reconnectPool = new ScheduledThreadPoolExecutor(1);
+  private TimerTask disconnectTimerTask;
 
-  private final Runnable reconnector = new Runnable() {
-    @Override
-    public void run() {
-      if (!shutdown) {
-        try {
-          initializeConnection();
-        } catch (Exception e) {
-          reconnect();
-        }
-      }
+  public WebSocketCloverTransport(URI endpoint, PairingDeviceConfiguration pairingConfig, KeyStore trustStore, String posName, String serialNumber, String authToken,
+                                  long pongTimeout, long pingFrequency, long reconnectDelay, long reportConnectionProblemAfter) {
+    if (endpoint == null) {
+      throw new IllegalArgumentException("Endpoint cannot be null!");
     }
-  };
-
-  public WebSocketCloverTransport(URI endpoint, PairingDeviceConfiguration pairingConfig, KeyStore trustStore, String posName, String serialNumber, String authToken) {
     this.endpoint = endpoint;
     this.pairingDeviceConfiguration = pairingConfig;
     this.trustStore = trustStore;
     this.posName = posName;
     this.serialNumber = serialNumber;
     this.authToken = authToken;
+
+    this.pongTimeout = pongTimeout;
+    this.pingFrequency = pingFrequency;
+    this.reconnectDelay = reconnectDelay;
+    this.reportConnectionProblemAfter = reportConnectionProblemAfter;
+
+    this.pingTimer = new Timer("Remote-Pay Ping Timer");
   }
 
   @Override
@@ -114,15 +141,11 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverN
     if (webSocket != null) {
       if (webSocket.isOpen() || webSocket.isConnecting()) {
         return;
-      /*} else if (webSocket.getReadyState() == WebSocket.READYSTATE.NOT_YET_CONNECTED) {
-        webSocket.connect();
-        return;*/
       } else {
         clearWebsocket();
       }
     }
-
-    webSocket = new CloverNVWebSocketClient(endpoint, this, HEARTBEAT_INTERVAL, trustStore);
+    webSocket = new CloverNVWebSocketClient(endpoint, this, trustStore);
 
     webSocket.connect();
     Log.d(getClass().getSimpleName(), "connection attempt done.");
@@ -149,7 +172,7 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverN
       Log.d(getClass().getSimpleName(), "Not attempting to reconnect, shutdown...");
       return;
     }
-    reconnectPool.schedule(reconnector, RECONNECT_DELAY, TimeUnit.MILLISECONDS);
+    reconnectPool.schedule(reconnectThread, reconnectDelay, TimeUnit.MILLISECONDS);
   }
 
   @Override
@@ -183,6 +206,7 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverN
     if (webSocket == ws) {
       // notify connected
       notifyDeviceConnected();
+      schedulePing();
       sendPairRequest();
     }
   }
@@ -204,6 +228,12 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverN
         webSocket.clearListener();
         webSocket.close();
       }
+      if (disconnectTimerTask != null) {
+        disconnectTimerTask.cancel();
+      }
+      if (reportDisconnectTimerTask != null) {
+        reportDisconnectTimerTask.cancel();
+      }
       clearWebsocket();
       notifyDeviceDisconnected();
       if(!shutdown) {
@@ -212,9 +242,121 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverN
     }
   }
 
+  private void resetPong() {
+    if (disconnectTimerTask != null) {
+      disconnectTimerTask.cancel(); //Subsequent calls have no effect.
+    }
+    if (reportDisconnectTimerTask != null) {
+      reportDisconnectTimerTask.cancel();//Subsequent calls have no effect.
+    }
+    if (reportedDisconnect) {
+      AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+        @Override
+        protected Void doInBackground(Void[] params) {
+          notifyDeviceReady();
+          return null;
+        }
+      };
+      task.execute();
+    }
+    reportedDisconnect = false;
+    schedulePing();
+  }
+
+  private void schedulePing() {
+    reportedDisconnect = false;
+    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+      @Override
+      protected Void doInBackground(Void[] params) {
+        if (pingTimerTask != null) {
+          pingTimerTask.cancel();
+        }
+        pingTimerTask = new TimerTask() {
+          @Override
+          public void run() {
+            sendPing();
+          }
+        };
+        pingTimer.schedule(pingTimerTask, pingFrequency);
+        return null;
+      }
+    };
+    task.execute();
+  }
+
+  private void sendPing() {
+    if (webSocket != null) {
+      webSocket.sendPing();
+      scheduleDisconnect();
+    }
+  }
+
+  private void scheduleDisconnect() {
+    if (reportConnectionProblemAfter < pongTimeout) {
+      AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+        @Override
+        protected Void doInBackground(Void[] params) {
+          if (reportDisconnectTimerTask != null) {
+            reportDisconnectTimerTask.cancel();
+          }
+          reportDisconnectTimerTask = new TimerTask() {
+            @Override
+            public void run() {
+              reportDisconnect();
+            }
+          };
+          pingTimer.schedule(reportDisconnectTimerTask, reportConnectionProblemAfter);
+          return null;
+        }
+      };
+      task.execute();
+    }
+    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+      @Override
+      protected Void doInBackground(Void[] params) {
+        if (disconnectTimerTask != null) {
+          disconnectTimerTask.cancel();
+        }
+        disconnectTimerTask = new TimerTask() {
+          @Override
+          public void run() {
+            disconnectMissedPong();
+          }
+        };
+        pingTimer.schedule(disconnectTimerTask, pongTimeout);
+        return null;
+      }
+    };
+    task.execute();
+  }
+
+  private void reportDisconnect() {
+    reportedDisconnect = true;
+    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+      @Override
+      protected Void doInBackground(Void[] params) {
+        Log.w(getClass().getSimpleName(), "Notifying of disconnect");
+        // This is equivalent to !ready
+        notifyDeviceConnected();
+        return null;
+      }
+    };
+    task.execute();
+  }
+
+  private void disconnectMissedPong() {
+    if (webSocket != null && endpoint != null) {
+      Log.w(getClass().getSimpleName(), "forcing disconnect");
+      webSocket.disconnect();
+    } else {
+      dispose();
+    }
+  }
+
   @Override
   public void onMessage(CloverNVWebSocketClient ws, String message) {
     if (webSocket == ws) {
+      resetPong();
       if(isPairing) {
         JsonObject obj = GSON.fromJson(message, JsonObject.class);
         String method = obj.get(METHOD).getAsString();
@@ -258,6 +400,11 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverN
         onMessage(message);
       }
     }
+  }
+
+  @Override
+  public void onPong(CloverNVWebSocketClient ws) {
+    resetPong();
   }
 
   @Override

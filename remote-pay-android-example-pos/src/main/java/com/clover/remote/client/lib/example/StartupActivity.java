@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -40,6 +41,7 @@ public class StartupActivity extends Activity {
   public static final String CONNECTION_MODE = "CONNECTION_MODE";
   public static final String USB = "USB";
   public static final String LAN = "LAN";
+  public static final String WS_CONFIG = "WS";
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -56,6 +58,16 @@ public class StartupActivity extends Activity {
         textView.setEnabled(checkedId == R.id.lanRadioButton);
       }
     });
+
+    Button connectButton = (Button)findViewById(R.id.connectButton);
+    connectButton.setOnLongClickListener(new View.OnLongClickListener() {
+      @Override
+      public boolean onLongClick(View v) {
+        cleanConnect(v);
+        return true;
+      }
+    });
+
 
     // initialize...
     TextView textView = (TextView) findViewById(R.id.lanPayDisplayAddress);
@@ -82,8 +94,15 @@ public class StartupActivity extends Activity {
   }
 
 
+  public void cleanConnect(View view) {
+    connect(view, true);
+  }
 
   public void connect(View view) {
+    connect(view, false);
+  }
+
+  public void connect(View view, boolean clearToken) {
 
     RadioGroup group = (RadioGroup)findViewById(R.id.radioGroup);
     Intent intent = new Intent();
@@ -96,12 +115,12 @@ public class StartupActivity extends Activity {
 
 
     if(group.getCheckedRadioButtonId() == R.id.usbRadioButton) {
-      config = "USB";
+      config = USB;
       editor.putString(CONNECTION_MODE, USB);
       editor.commit();
     } else { // (group.getCheckedRadioButtonId() == R.id.lanRadioButton)
       String uriStr = ((TextView)findViewById(R.id.lanPayDisplayAddress)).getText().toString();
-      config = "WS";
+      config = WS_CONFIG;
       try {
         uri = new URI(uriStr);
         editor.putString(LAN_PAY_DISPLAY_URL, uriStr);
@@ -115,9 +134,12 @@ public class StartupActivity extends Activity {
       }
     }
 
-    if(config.equals("USB") || (config.equals("WS") && uri != null)) {
+    if(config.equals(USB) || (config.equals(WS_CONFIG) && uri != null)) {
       intent.putExtra(ExamplePOSActivity.EXTRA_CLOVER_CONNECTOR_CONFIG, config);
       intent.putExtra(ExamplePOSActivity.EXTRA_WS_ENDPOINT, uri);
+      if(clearToken) {
+        intent.putExtra(ExamplePOSActivity.EXTRA_CLEAR_TOKEN, true);
+      }
       startActivity(intent);
     }
 

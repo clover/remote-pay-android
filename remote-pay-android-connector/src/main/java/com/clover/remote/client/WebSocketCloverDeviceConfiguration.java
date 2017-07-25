@@ -29,12 +29,22 @@ import java.security.KeyStore;
  * Default configuration to communicate with the Mini via WebSockets to the LAN Pay Display
  */
 public abstract class WebSocketCloverDeviceConfiguration implements PairingDeviceConfiguration, CloverDeviceConfiguration, Serializable {
+
+  private static final long RECONNECT_DELAY = 2000;
+  private static final long PING_FREQUENCY = 3000;
+  private static final long PONG_TIMEOUT = 6000;
+  private static final long REPORT_CONNECTION_PROBLEM_AFTER = 6000;
+
   private final String posName;
   private final String serialNumber;
   private final String authToken;
   private final URI uri;
   private final KeyStore trustStore;
   private final String appId;
+  private final long pongTimeout;
+  private final long pingFrequency;
+  private final long reconnectDelay;
+  private final long reportConnectionProblemAfter;
 
   /**
    * Constructor
@@ -47,12 +57,38 @@ public abstract class WebSocketCloverDeviceConfiguration implements PairingDevic
    * @param authToken cached authentication token provided from a previous {@link PairingDeviceConfiguration#onPairingSuccess(String)} call
    */
   public WebSocketCloverDeviceConfiguration(URI endpoint, String applicationId, KeyStore trustStore, String posName, String serialNumber, String authToken) {
+    this(endpoint, applicationId, trustStore, posName, serialNumber, authToken,
+      PONG_TIMEOUT, PING_FREQUENCY, RECONNECT_DELAY, REPORT_CONNECTION_PROBLEM_AFTER);
+  }
+
+  /**
+   * Constructor
+   *
+   * @param endpoint network endpoint of the device to connect to
+   * @param applicationId remote application ID
+   * @param trustStore certificate keystore used to support the secure websockets protocol (wss)
+   * @param posName point of sale name
+   * @param serialNumber serial number of the POS terminal/device attaching to the clover device
+   * @param authToken cached authentication token provided from a previous {@link PairingDeviceConfiguration#onPairingSuccess(String)} call
+   * @param pongTimeout amount of time, in milliseconds, before closing the connection, but still wait
+   * @param pingFrequency amount of time, in milliseconds, between pings
+   * @param reconnectDelay amount of time, in milliseconds, to wait before attempting to reconnect
+   * @param reportConnectionProblemAfter amount of time, in milliseconds, in which a disconnected client is reported if a pong hasn't come back,
+   *                                     before it is actually disconnected
+   */
+  public WebSocketCloverDeviceConfiguration(URI endpoint, String applicationId, KeyStore trustStore, String posName, String serialNumber, String authToken,
+                                            long pongTimeout, long pingFrequency, long reconnectDelay, long reportConnectionProblemAfter) {
     this.uri = endpoint;
     this.appId = applicationId;
     this.trustStore = trustStore;
     this.posName = posName;
     this.serialNumber = serialNumber;
     this.authToken = authToken;
+
+    this.pongTimeout = pongTimeout;
+    this.pingFrequency = pingFrequency;
+    this.reconnectDelay = reconnectDelay;
+    this.reportConnectionProblemAfter = reportConnectionProblemAfter;
   }
 
   @Override
@@ -77,6 +113,7 @@ public abstract class WebSocketCloverDeviceConfiguration implements PairingDevic
 
   @Override
   public CloverTransport getCloverTransport() {
-    return new WebSocketCloverTransport(uri, this, trustStore, posName, serialNumber, authToken);
+    return new WebSocketCloverTransport(uri, this, trustStore, posName, serialNumber, authToken,
+        pongTimeout, pingFrequency, reconnectDelay, reportConnectionProblemAfter);
   }
 }

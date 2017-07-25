@@ -92,12 +92,15 @@ import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -143,6 +146,7 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
   public static final int SVR_ACTIVITY = 456;
   public static final String EXTRA_CLOVER_CONNECTOR_CONFIG = "EXTRA_CLOVER_CONNECTOR_CONFIG";
   public static final String EXTRA_WS_ENDPOINT = "WS_ENDPOINT";
+  public static final String EXTRA_CLEAR_TOKEN = "CLEAR_TOKEN";
   private static final String DEFAULT_EID = "DFLTEMPLYEE";
 
   // Package name for example custom activities
@@ -206,9 +210,10 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
       KeyStore trustStore = createTrustStore();
       SharedPreferences prefs = this.getSharedPreferences(EXAMPLE_APP_NAME, Context.MODE_PRIVATE);
 
-      String authToken = sharedPreferences.getString("AUTH_TOKEN", null);
-      config = new WebSocketCloverDeviceConfiguration(uri, "Clover Example POS:1.2", trustStore, "Clover Example POS", "Aisle 3", authToken) {
+      boolean clearToken = getIntent().getBooleanExtra(EXTRA_CLEAR_TOKEN, false);
+      String authToken = clearToken ? null : sharedPreferences.getString("AUTH_TOKEN", null);
 
+      config = new WebSocketCloverDeviceConfiguration(uri, "Clover Example POS:1.2", trustStore, "Clover Example POS", "Aisle 3", authToken) {
 
         @Override
         public void onPairingCode(final String pairingCode) {

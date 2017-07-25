@@ -3,6 +3,7 @@ package com.clover.remote.client.transport.websocket;
 import android.util.Log;
 import com.neovisionaries.ws.client.OpeningHandshakeException;
 import com.neovisionaries.ws.client.WebSocket;
+import com.neovisionaries.ws.client.WebSocketCloseCode;
 import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFactory;
 import com.neovisionaries.ws.client.WebSocketFrame;
@@ -18,17 +19,18 @@ import java.util.List;
 import java.util.Map;
 
 public class CloverNVWebSocketClient implements WebSocketListener {
+
+  private static final int MISSED_PONG = 4001;
+
   private final URI endpoint;
   CloverNVWebSocketClientListener listener;
-  long heartbeatInterval;
   private WebSocketFactory factory;
   private WebSocket socket;
   private volatile boolean notifyClose;
 
-  public CloverNVWebSocketClient(URI endpoint, CloverNVWebSocketClientListener listener, long hearbeatInterval, KeyStore trustStore) {
+  public CloverNVWebSocketClient(URI endpoint, CloverNVWebSocketClientListener listener, KeyStore trustStore) {
 
     this.listener = listener;
-    this.heartbeatInterval = hearbeatInterval >= 0 ? Math.min(100, heartbeatInterval) : hearbeatInterval; // can be negative, but > than 100 ms
     this.endpoint = endpoint;
 
     try {
@@ -97,7 +99,7 @@ public class CloverNVWebSocketClient implements WebSocketListener {
   }
 
   @Override public void onFrameUnsent(WebSocket websocket, WebSocketFrame frame) throws Exception {
-
+    Log.d(getClass().getSimpleName(), String.format("Frame Unsent frame, %s", frame));
   }
 
   @Override public void onConnected(WebSocket websocket, Map<String, List<String>> headers) throws Exception {
@@ -111,7 +113,9 @@ public class CloverNVWebSocketClient implements WebSocketListener {
 
   @Override public void onDisconnected(WebSocket websocket, WebSocketFrame serverCloseFrame, WebSocketFrame clientCloseFrame, boolean closedByServer)
       throws Exception {
-    listener.onClose(this, serverCloseFrame.getCloseCode(), clientCloseFrame.getCloseReason(), closedByServer);
+    int closeCode = serverCloseFrame != null ? serverCloseFrame.getCloseCode() : clientCloseFrame != null ? clientCloseFrame.getCloseCode() : WebSocketCloseCode.NONE;
+    String closeReason = clientCloseFrame != null ? clientCloseFrame.getCloseReason() : serverCloseFrame != null ? serverCloseFrame.getCloseReason() : "";
+    listener.onClose(this, closeCode, closeReason, closedByServer);
   }
 
   @Override public void onFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
@@ -135,7 +139,7 @@ public class CloverNVWebSocketClient implements WebSocketListener {
   }
 
   @Override public void onError(WebSocket websocket, WebSocketException cause) throws Exception {
-
+    Log.e(getClass().getSimpleName(), "Error", cause);
   }
 
   @Override public void onPingFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
@@ -143,50 +147,60 @@ public class CloverNVWebSocketClient implements WebSocketListener {
   }
 
   @Override public void onPongFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
-
+    listener.onPong(this);
   }
 
   @Override public void onStateChanged(WebSocket websocket, WebSocketState newState) throws Exception {
-
   }
 
   @Override public void handleCallbackError(WebSocket websocket, Throwable cause) throws Exception {
-
+    Log.e(getClass().getSimpleName(), "Error in callback", cause);
   }
 
   @Override public void onSendingHandshake(WebSocket websocket, String requestLine, List<String[]> headers) throws Exception {
-
   }
 
   @Override public void onFrameError(WebSocket websocket, WebSocketException cause, WebSocketFrame frame) throws Exception {
-
+    Log.e(getClass().getSimpleName(), String.format("Error in frame, %s", frame), cause);
   }
 
   @Override public void onMessageError(WebSocket websocket, WebSocketException cause, List<WebSocketFrame> frames) throws Exception {
-
+    Log.e(getClass().getSimpleName(), String.format("Error in message, %s", frames), cause);
   }
 
   @Override public void onMessageDecompressionError(WebSocket websocket, WebSocketException cause, byte[] compressed) throws Exception {
-
+    Log.e(getClass().getSimpleName(), "Error in message decompression", cause);
   }
 
   @Override public void onTextMessageError(WebSocket websocket, WebSocketException cause, byte[] data) throws Exception {
-
+    Log.e(getClass().getSimpleName(), "Error in test message", cause);
   }
 
   @Override public void onSendError(WebSocket websocket, WebSocketException cause, WebSocketFrame frame) throws Exception {
+    Log.e(getClass().getSimpleName(), String.format("Error in send, %s", frame), cause);
     listener.onSendError(frame.getPayloadText());
   }
 
   @Override public void onUnexpectedError(WebSocket websocket, WebSocketException cause) throws Exception {
-
+    Log.e(getClass().getSimpleName(), "Unexpected error", cause);
   }
 
   public void send(String message) {
     socket.sendText(message);
   }
 
+  public void sendPing() {
+    if (isOpen()) {
+      socket.sendPing();
+    }
+  }
+
+  public void disconnect() {
+    socket.disconnect(MISSED_PONG, "Missed pong", 0);
+  }
+
   public void clearListener() {
+    Log.w(getClass().getSimpleName(), "Listener cleared");
     socket.removeListener(this);
   }
 

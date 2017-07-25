@@ -63,7 +63,7 @@
   <string name="item_title_placeholder">Medium Fountain Drink</string>
   <string name="kiosk_not_installed">Please install the kiosk application</string>
   <string name="lan_pay_address">wss://192.168.1.101:12345/remote_pay</string>
-  <string name="lan_pay_display">LAN Pay Display (Developmental)</string>
+  <string name="lan_pay_display">Network Clover Connector</string>
   <string name="lan_terminal_notification_text">Tap to start Local Network Pay Display.</string>
   <string name="lan_terminal_notification_title">Web Socket payment device connected</string>
   <string name="manual">Manual</string>

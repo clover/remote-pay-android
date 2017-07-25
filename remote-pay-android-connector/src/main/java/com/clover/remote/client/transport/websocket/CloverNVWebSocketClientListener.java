@@ -8,6 +8,8 @@ public interface CloverNVWebSocketClientListener {
 
   void onPingResponding(CloverNVWebSocketClient ws);
 
+  void onPong(CloverNVWebSocketClient ws);
+
   void onClose(CloverNVWebSocketClient ws, int code, String reason, boolean remote);
 
   void onMessage(CloverNVWebSocketClient ws, String message);
