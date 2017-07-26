@@ -1,6 +1,6 @@
 # Clover SDK for Android PoS Integration
 
-Current version: 1.2
+Current version: 1.3.1
 
 ## Overview
 
@@ -16,6 +16,39 @@ To complete a transaction end to end, we recommend getting a [Clover Mini Dev Ki
 For more developer documentation and information about the Semi-Integration program, please visit our [semi-integration developer documents](https://docs.clover.com/build/integration-overview-requirements/). 
 
 ## Release Notes
+# Version 1.3.1
+* Added support for Custom Activities
+* Device status queries to determine the state of the device and payments processed by the device
+  * ICloverConnector
+    * Added
+      * startCustomActivity - start a custom activity on the Clover device and receive a callback when it is done (onCustumActivityResponse)
+      * sendMessageToActivity - send and receive messages to a custom activity running on the Clover device (onMessageFromActivity)
+      * retrievePayment - query and receive the status of a payment on the device by its external id (onRetrievePaymentResponse)
+      * retrieveDeviceStatus - query and receive the status of the device (onRetrieveDeviceStatusResponse)
+  * ICloverConnectorListener
+    * Added
+      * onCustomActivityResponse
+      * onMessageFromActivity
+      * onRetrievePaymentResponse
+      * onRetrieveDeviceStatusResponse
+      
+  * CustomActivity
+    * apk must be approved and then installed via the Clover App Market
+    * clover-cfp-sdk library
+      * Added CloverCFPActivity that can be extended
+      * Added constants for getting/retrieving activity payload CloverCFP interface
+      * Working with Custom Activities...
+        * The action of the activity, as defined in the AndroidManifest, should be passed in as part of the request
+        * A single text payload can be passed in to the request and retrieved in the intent via com.clover.remote.cfp.CFPActivity.EXTRA_PAYLOAD constant. e.g. "com.clover.remote.terminal.remotecontrol.extra.EXTRA_PAYLOAD"
+        * The CustomActivityResponse (onCustomActivityResponse) contains a single text payload, populated from the com.clover.remote.cfp.EXTRA_PAYLOAD extra in the result Intent
+        * Block vs Non-Blocking Activities
+            * A blocking CustomActivity (CustomActivityRequest.setNonBlocking(boolean)) will either need finish itself, or can be exited via ICloverConnector.resetDevice()
+               * For example: Don't want a Sale request to interrupt Collect Customer Information Custom Activity
+            * A non-blocking CustomActivity will finish when a new request is made
+               * For example: Want a Sale request to interrupt showing Ads Custom Activity
+
+  * ResetDevice now calls back to onResetDeviceResponse with the current status
+
 # Version 1.2
 
 * Renamed/Added/Removed a number of API operations and request/response objects to establish

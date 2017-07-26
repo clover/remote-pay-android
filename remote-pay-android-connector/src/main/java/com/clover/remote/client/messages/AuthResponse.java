@@ -17,12 +17,19 @@
 package com.clover.remote.client.messages;
 
 
-/** The response to an authorization request */
+/**
+ * Response object for an auth transaction request.
+ */
 @SuppressWarnings(value="unused")
 public class AuthResponse extends PaymentResponse {
 
+  /**
+   * Constructor
+   *
+   * @param success If true then the requested operation succeeded
+   * @param result The result of the requested operation
+   */
   public AuthResponse(boolean success, ResultCode result) {
     super(success, result);
   }
-  
 }

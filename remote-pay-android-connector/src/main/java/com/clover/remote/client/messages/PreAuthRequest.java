@@ -18,14 +18,24 @@ package com.clover.remote.client.messages;
 
 import com.clover.common2.payments.PayIntent;
 
+/**
+ * Request object for requesting a pre-auth transaction.
+ */
 @SuppressWarnings(value="unused")
 public class PreAuthRequest extends TransactionRequest {
 
+  /**
+   * Constructor
+   *
+   * @param amount The amount of the transaction. This includes amount, tax, service charges, etc. except the tip
+   * @param externalId An id assigned by the POS that can be used to track a payment through the Clover system
+   */
   public PreAuthRequest(long amount, String externalId){
     super(amount, externalId);
   }
 
-  @Override public PayIntent.TransactionType getType() {
+  @Override
+  public PayIntent.TransactionType getType() {
     return PayIntent.TransactionType.AUTH;
   }
 }

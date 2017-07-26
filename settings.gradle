@@ -1,1 +1,1 @@
-include ':remote-pay-android-connector',':remote-pay-android-example-pos'
+include ':remote-pay-android-connector', ':remote-pay-android-example-pos'

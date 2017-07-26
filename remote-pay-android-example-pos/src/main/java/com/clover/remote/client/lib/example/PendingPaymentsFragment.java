@@ -38,9 +38,6 @@ import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Created by blakewilliams on 7/21/16.
- */
 public class PendingPaymentsFragment extends Fragment {
 
   private WeakReference<ICloverConnector> cloverConnectorWeakReference;

@@ -21,13 +21,24 @@ import com.clover.sdk.v3.payments.Payment;
  * Callback to the POS to request a merchant payment receipt
  * be printed
  */
+@SuppressWarnings(value="unused")
 public class PrintPaymentMerchantCopyReceiptMessage {
-  private Payment payment;
+  private final Payment payment;
 
+  /**
+   * Constructor
+   *
+   * @param payment payment for requested receipt
+   */
   public PrintPaymentMerchantCopyReceiptMessage(Payment payment) {
     this.payment = payment;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return payment for requested receipt
+   */
   public Payment getPayment() {
     return payment;
   }

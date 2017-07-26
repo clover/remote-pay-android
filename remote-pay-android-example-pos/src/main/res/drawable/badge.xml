@@ -22,8 +22,8 @@
       <solid android:color="@color/black_transparent_30"/>
 
       <stroke
-              android:width="0dp"
-              android:color="@color/black_transparent_50"/>
+          android:width="0dp"
+          android:color="@color/black_transparent_50"/>
 
       <corners android:radius="15dp"/>
       <padding android:bottom="1dp" android:top="0dp" android:left="0dp" android:right="1dp"/>
@@ -35,8 +35,8 @@
       <solid android:color="@color/clover_badge_color"/>
 
       <stroke
-              android:width="0dp"
-              android:color="@color/white_transparent_80"/>
+          android:width="0dp"
+          android:color="@color/white_transparent_80"/>
 
       <corners android:radius="15dp"/>
       <padding android:bottom="5dp" android:top="5dp" android:left="7dp" android:right="7dp"/>

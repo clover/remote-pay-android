@@ -18,75 +18,92 @@ package com.clover.remote.client.messages;
 
 import com.clover.common2.Signature2;
 import com.clover.sdk.v3.payments.CardTransactionType;
+import com.clover.sdk.v3.payments.Payment;
 import com.clover.sdk.v3.payments.Result;
 
 /**
- * Base reponse use for callbacks that contain
- * payments. Sale, Auth & PreAuth
+ * Base response use for callbacks that contain payments - Sale, Auth, and PreAuth
  */
 @SuppressWarnings(value="unused")
 public class PaymentResponse extends BaseResponse {
 
-  private com.clover.sdk.v3.payments.Payment payment = null;
-  private java.lang.Boolean isSale = false;
-  private java.lang.Boolean isPreAuth = false;
-  private java.lang.Boolean isAuth = false;
+  private Payment payment = null;
+  private Boolean isSale = false;
+  private Boolean isPreAuth = false;
+  private Boolean isAuth = false;
   private Signature2 signature = null;
 
-
+  /**
+   * Constructor
+   *
+   * @param success If true then the requested operation succeeded
+   * @param result The result of the requested operation
+   */
   public PaymentResponse(boolean success, ResultCode result) {
     super(success, result);
   }
+
   /**
-  * Set the field value
-  * The payment from the sale
-  *
-  */
-  public void setPayment(com.clover.sdk.v3.payments.Payment payment) {
+   * Set the field value
+   *
+   * @param payment The payment from the sale
+   */
+  public void setPayment(Payment payment) {
     this.payment = payment;
   }
 
   /**
-  * Get the field value
-  * The payment from the sale
-  */
-  public com.clover.sdk.v3.payments.Payment getPayment() {
+   * Get the field value
+   *
+   * @return The payment from the sale
+   */
+  public Payment getPayment() {
     return this.payment;
-  }  
-
-  /**
-  * Get the field value
-  */
-  public boolean isSale() {
-    return CardTransactionType.AUTH.equals(payment.getCardTransaction().getType()) &&
-        Result.SUCCESS.equals(payment.getResult());
-  }  
-
-  /**
-  * Get the field value
-  */
-  public boolean isAuth() {
-    return CardTransactionType.PREAUTH.equals(payment.getCardTransaction().getType()) &&
-        Result.SUCCESS.equals(payment.getResult());
   }
 
   /**
-  * Get the field value
-  */
+   * Check to see if the payment was processed as a sale
+   *
+   * @return true if processed as a sale
+   */
+  public boolean isSale() {
+    return CardTransactionType.AUTH.equals(payment.getCardTransaction().getType()) &&
+           Result.SUCCESS.equals(payment.getResult());
+  }
+
+  /**
+   * Check to see if the payment was processed as an auth
+   *
+   * @return true if processed as an auth
+   */
+  public boolean isAuth() {
+    return CardTransactionType.PREAUTH.equals(payment.getCardTransaction().getType()) &&
+           Result.SUCCESS.equals(payment.getResult());
+  }
+
+  /**
+   * Check to see if the payment was processed as a pre-auth
+   *
+   * @return true if processed as a pre-auth
+   */
   public boolean isPreAuth() {
     return CardTransactionType.PREAUTH.equals(payment.getCardTransaction().getType()) &&
-        Result.AUTH.equals(payment.getResult());
-  }  
+           Result.AUTH.equals(payment.getResult());
+  }
   /**
-  * Set the field value
-  */
+   * Set the field value
+   *
+   * @param signature signature collected for the payment
+   */
   public void setSignature(Signature2 signature) {
     this.signature = signature;
   }
 
   /**
-  * Get the field value
-  */
+   * Get the field value
+   *
+   * @return signature collected for the payment
+   */
   public Signature2 getSignature() {
     return this.signature;
   }

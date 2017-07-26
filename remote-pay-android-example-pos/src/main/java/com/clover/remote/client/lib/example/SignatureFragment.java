@@ -110,7 +110,7 @@ public class SignatureFragment extends Fragment {
       mListener = (SignatureFragment.OnFragmentInteractionListener) activity;
     } catch (ClassCastException e) {
       throw new ClassCastException(activity.toString()
-          + " must implement OnFragmentInteractionListener");
+                                   + " must implement OnFragmentInteractionListener");
     }
   }
 

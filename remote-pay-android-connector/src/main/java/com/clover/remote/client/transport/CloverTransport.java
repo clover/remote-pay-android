@@ -16,76 +16,86 @@
 
 package com.clover.remote.client.transport;
 
-import com.clover.remote.message.DiscoveryResponseMessage;
+import android.util.Log;
 
-import java.nio.channels.NotYetConnectedException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-public abstract class CloverTransport {
+public abstract class CloverTransport implements ICloverTransport {
 
   public static final String DEVICE_CONNECTED = "com.clover.remotepay.DEVICE_CONNECTED";
   public static final String DEVICE_READY = "com.clover.remotepay.DEVICE_READY";
   public static final String DEVICE_DISCONNECTED = "com.clover.remotepay.DEVICE_DISCONNECTED";
 
-  protected List<CloverTransportObserver> observers = new ArrayList<CloverTransportObserver>();
-  boolean ready = false;
-  private DiscoveryResponseMessage lastDiscoverResponseMessage;
+  private final List<ICloverTransportObserver> observers = new CopyOnWriteArrayList<>();
 
+  /**
+   * Should be called by subclasses (super.notifyDeviceConnected) when the device connects (but is not ready)
+   * in order to forward to all observers
+   */
   protected void notifyDeviceConnected() {
-    for (CloverTransportObserver obs : observers) {
-      obs.onDeviceConnected(this);
+    for (ICloverTransportObserver obs : observers) {
+      try {
+        obs.onDeviceConnected(this);
+      } catch (Exception ex) {
+        Log.e(getClass().getName(), "Error notifying observer", ex);
+      }
     }
   }
 
+  /**
+   * Should be called by subclasses (super.notifyDeviceReady) when the device is ready to process messages
+   * in order to forward to all observers
+   */
   protected void notifyDeviceReady() {
-    ready = true;
-    for (CloverTransportObserver obs : observers) {
-      obs.onDeviceReady(this);
+    for (ICloverTransportObserver obs : observers) {
+      try {
+        obs.onDeviceReady(this);
+      } catch (Exception ex) {
+        Log.e(getClass().getName(), "Error notifying observer", ex);
+      }
     }
   }
 
+  /**
+   * Should be called by subclasses (super.notifyDeviceDisconnected) when the device disconnects
+   * in order to forward to all observers
+   */
   protected void notifyDeviceDisconnected() {
-    ready = false;
-    for (CloverTransportObserver obs : observers) {
-      obs.onDeviceDisconnected(this);
+    for (ICloverTransportObserver obs : observers) {
+      try {
+        obs.onDeviceDisconnected(this);
+      } catch (Exception ex) {
+        Log.e(getClass().getName(), "Error notifying observer", ex);
+      }
     }
   }
 
   /**
    * Should be called by subclasses (super.onMessage) when a message is received
    * in order to forward to all observers
-   * @param message
+   * @param message message to forward
    */
   protected void onMessage(String message) {
-    for (CloverTransportObserver obs : observers) {
-      obs.onMessage(message);
+    for (ICloverTransportObserver obs : observers) {
+      try {
+        obs.onMessage(message);
+      } catch (Exception ex) {
+        Log.e(getClass().getName(), "Error processing message: " + message, ex);
+      }
     }
   }
 
-  public void Subscribe(CloverTransportObserver observer) {
-    CloverTransport me = this;
-    // to notify if the device has already reported as ready
-    if (ready) {
-      for (CloverTransportObserver obs : observers) {
-        obs.onDeviceReady(this);
-      }
-    }
+  public void addObserver(ICloverTransportObserver observer) {
     observers.add(observer);
   }
 
-  public abstract void dispose();
-
-  public void Unsubscribe(CloverTransportObserver observer) {
+  public void removeObserver(ICloverTransportObserver observer) {
     observers.remove(observer);
   }
 
-  public void clearListeners() {
+  public void dispose() {
     observers.clear();
   }
-
-
-  // Implement this to send raw message to the Mini
-  public abstract int sendMessage(String message) throws NotYetConnectedException;
 }
 

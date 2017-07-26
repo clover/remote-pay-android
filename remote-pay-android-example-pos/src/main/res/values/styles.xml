@@ -17,8 +17,7 @@
 <resources>
 
   <!-- Base application theme. -->
-  <style name="AppTheme" parent="AppTheme">
-    <!-- Customize your theme here. -->
+  <style name="AppBaseTheme" parent="android:Theme.Holo.Light">
   </style>
 
   <style name="LanTitle">

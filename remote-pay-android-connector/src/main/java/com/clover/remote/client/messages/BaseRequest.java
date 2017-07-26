@@ -16,21 +16,9 @@
 
 package com.clover.remote.client.messages;
 
-import java.util.UUID;
-
+/**
+ * The base for requests
+ */
+@SuppressWarnings(value="unused")
 public class BaseRequest {
-
-  private String requestId = null;
-
-  protected BaseRequest() {
-  }
-
-  public String getRequestId() {
-    return requestId;
-  }
-
-  public void setRequestId(String requestId) {
-    this.requestId = requestId;
-  }
-
 }

@@ -14,20 +14,23 @@
  * limitations under the License.
  */
 
-package com.clover.remote.client;
+package com.clover.remote.client.device;
 
 import com.clover.common2.Signature2;
 import com.clover.remote.CardData;
 import com.clover.remote.Challenge;
+import com.clover.remote.ExternalDeviceState;
+import com.clover.remote.ExternalDeviceStateData;
 import com.clover.remote.InputOption;
 import com.clover.remote.KeyPress;
 import com.clover.remote.PendingPaymentEntry;
+import com.clover.remote.QueryStatus;
 import com.clover.remote.ResultStatus;
 import com.clover.remote.TxStartResponseResult;
 import com.clover.remote.TxState;
 import com.clover.remote.UiState;
-import com.clover.remote.client.device.CloverDevice;
 import com.clover.remote.client.messages.CloverDeviceErrorEvent;
+import com.clover.remote.client.messages.ResultCode;
 import com.clover.remote.message.DiscoveryResponseMessage;
 import com.clover.sdk.v3.order.Order;
 import com.clover.sdk.v3.order.VoidReason;
@@ -43,7 +46,7 @@ public interface CloverDeviceObserver {
 
   void onTxState(TxState txState);
 
-  void onTxStartResponse(TxStartResponseResult result, String externalId);
+  void onTxStartResponse(TxStartResponseResult result, String externalId, String messageInfo);
 
   void onUiState(UiState uiState, String uiText, UiState.UiDirection uiDirection, InputOption[] inputOptions);
 
@@ -55,13 +58,13 @@ public interface CloverDeviceObserver {
 
   void onPartialAuth(long partialAuthAmount);
 
-  void onFinishOk(Payment payment, Signature2 signature2);
+  void onFinishOk(Payment payment, Signature2 signature2, String messageInfo);
 
   void onFinishOk(Credit credit);
 
   void onFinishOk(Refund refund);
 
-  void onFinishCancel();
+  void onFinishCancel(String messageInfo);
 
   void onVerifySignature(Payment payment, Signature2 signature);
 
@@ -88,10 +91,15 @@ public interface CloverDeviceObserver {
   void onDeviceError(CloverDeviceErrorEvent errorEvent);
 
   void onPrintRefundPayment(Payment payment, Order order, Refund refund);
+
   void onPrintMerchantReceipt(Payment payment);
+
   void onPrintPaymentDecline(Payment payment, String reason);
+
   void onPrintPayment(Payment payment, Order order);
+
   void onPrintCredit(Credit credit);
+
   void onPrintCreditDecline(Credit credit, String reason);
 
   void onMessageAck(String sourceMessageId);
@@ -99,4 +107,15 @@ public interface CloverDeviceObserver {
   void onPendingPaymentsResponse(boolean success, List<PendingPaymentEntry> payments);
 
   void onReadCardResponse(ResultStatus status, String reason, CardData cardData);
+
+  void onMessageFromActivity(String actionId, String payload);
+
+  void onActivityResponse(ResultStatus status, String payload, String failReason, String actionId);
+
+  void onDeviceStatusResponse(ResultCode result, String reason, ExternalDeviceState state, ExternalDeviceStateData data);
+
+  void onResetDeviceResponse(ResultCode result, String reason, ExternalDeviceState state);
+
+  void onRetrievePaymentResponse(ResultCode result, String reason, String externalPaymentId, QueryStatus queryStatus, Payment payment);
+
 }

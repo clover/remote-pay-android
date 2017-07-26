@@ -17,42 +17,83 @@
 package com.clover.remote.client.messages;
 
 /**
- * Request to refund a payment, either partially or fully
+ * Request object to refund a payment, either partially or fully
  */
+@SuppressWarnings(value="unused")
 public class RefundPaymentRequest extends BaseRequest {
   private String orderId;
   private String paymentId;
   private long amount; // optional
   private boolean fullRefund; //
 
+  /**
+   * Get the field value
+   *
+   * @return unique identifier of the order to be refunded
+   */
   public String getOrderId() {
     return orderId;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param orderId unique identifier of the order to be refunded
+   */
   public void setOrderId(String orderId) {
     this.orderId = orderId;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return unique identifier of the payment to be refunded
+   */
   public String getPaymentId() {
     return paymentId;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param paymentId unique identifier of the payment to be refunded
+   */
   public void setPaymentId(String paymentId) {
     this.paymentId = paymentId;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return Amount to be refunded
+   */
   public long getAmount() {
     return amount;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param amount Amount to be refunded
+   */
   public void setAmount(long amount) {
     this.amount = amount;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return If true, then it is a full refund.  The amount will be ignored.
+   */
   public boolean isFullRefund() {
     return fullRefund;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param fullRefund If true, then it is a full refund.  The amount will be ignored.
+   */
   public void setFullRefund(boolean fullRefund) {
     this.fullRefund = fullRefund;
   }

@@ -21,15 +21,25 @@ import com.clover.sdk.v3.payments.Credit;
  * Callback to request the POS print a receipt for a
  * ManualRefund
  */
+@SuppressWarnings(value="unused")
 public class PrintManualRefundReceiptMessage {
-  public Credit credit;
+  private final Credit credit;
 
+  /**
+   * Constructor
+   *
+   * @param credit credit object created when processing the manual refund
+   */
   public PrintManualRefundReceiptMessage(Credit credit) {
     this.credit = credit;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return credit object created when processing the manual refund
+   */
   public Credit getCredit() {
     return credit;
   }
-
 }

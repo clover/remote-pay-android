@@ -18,17 +18,37 @@ package com.clover.remote.client.messages;
 
 import com.clover.remote.CardData;
 
+/**
+ * Response object for a read card data request
+ */
+@SuppressWarnings(value="unused")
 public class ReadCardDataResponse extends BaseResponse {
   private CardData cardData;
 
+  /**
+   * Constructor
+   *
+   * @param success If true then the requested operation succeeded
+   * @param result The result of the requested operation
+   */
   public ReadCardDataResponse(boolean success, ResultCode result) {
     super(success, result);
   }
 
+  /**
+   * Get the field value
+   *
+   * @return The data for the card
+   */
   public CardData getCardData() {
     return cardData;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param cardData The data for the card
+   */
   public void setCardData(CardData cardData) {
     this.cardData = cardData;
   }

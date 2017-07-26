@@ -17,9 +17,16 @@
 package com.clover.remote.client.messages;
 
 /**
- * Response object for a response to a preAuth request
+ * Response object for a pre-auth transaction request
  */
+@SuppressWarnings(value="unused")
 public class PreAuthResponse extends PaymentResponse {
+  /**
+   * Constructor
+   *
+   * @param success If true then the requested operation succeeded
+   * @param result The result of the requested operation
+   */
   public PreAuthResponse(boolean success, ResultCode result) {
     super(success, result);
   }

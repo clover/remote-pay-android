@@ -19,28 +19,36 @@ package com.clover.remote.client.messages;
 import com.clover.sdk.v3.payments.Batch;
 
 /**
- * callback response object after a clouseout request
+ * Response object for a closeout request
  */
+@SuppressWarnings(value="unused")
 public class CloseoutResponse extends BaseResponse {
-  private String reason;
   private Batch batch;
 
+  /**
+   * Constructor
+   *
+   * @param success If true then the requested operation succeeded
+   * @param result The result of the requested operation
+   */
   public CloseoutResponse(boolean success, ResultCode result) {
     super(success, result);
   }
 
-  public String getReason() {
-    return reason;
-  }
-
-  public void setReason(String reason) {
-    this.reason = reason;
-  }
-
+  /**
+   * Get the field value
+   *
+   * @return the batch that was closed out
+   */
   public Batch getBatch() {
     return batch;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param batch the batch that was closed out
+   */
   public void setBatch(Batch batch) {
     this.batch = batch;
   }

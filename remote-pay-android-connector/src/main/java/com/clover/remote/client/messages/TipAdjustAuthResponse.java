@@ -17,30 +17,56 @@
 package com.clover.remote.client.messages;
 
 /**
- * Response to a tipAdjust(...) call
+ * Response object for a request to adjust the tip of a prior auth
  */
+@SuppressWarnings(value="unused")
 public class TipAdjustAuthResponse extends BaseResponse {
   private String paymentId;
-  private Long tipAmount;
+  private long tipAmount;
 
+  /**
+   * Constructor
+   *
+   * @param success If true then the requested operation succeeded
+   * @param result The result of the requested operation
+   */
   public TipAdjustAuthResponse(boolean success, ResultCode result) {
     super(success, result);
   }
 
+  /**
+   * Get the field value
+   *
+   * @return The payment id from the authorization payment, or captured pre-auth payment
+   */
   public String getPaymentId() {
     return paymentId;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param paymentId The payment id from the authorization payment, or captured pre-auth payment
+   */
   public void setPaymentId(String paymentId) {
     this.paymentId = paymentId;
   }
 
-  public Long getTipAmount() {
+  /**
+   * Get the field value
+   *
+   * @return The amount paid in tips
+   */
+  public long getTipAmount() {
     return tipAmount;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param tipAmount The amount paid in tips
+   */
   public void setTipAmount(long tipAmount) {
     this.tipAmount = tipAmount;
   }
-  
 }

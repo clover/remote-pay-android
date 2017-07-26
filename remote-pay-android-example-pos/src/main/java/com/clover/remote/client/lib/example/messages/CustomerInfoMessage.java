@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Clover Network, Inc.
+ * Copyright (C) 2017 Clover Network, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-package com.clover.remote.client.device;
+package com.clover.remote.client.lib.example.messages;
 
-import com.clover.remote.client.transport.CloverTransport;
+public class CustomerInfoMessage extends PayloadMessage {
+  public final CustomerInfo customerInfo;
 
-import java.io.Serializable;
+  public CustomerInfoMessage(CustomerInfo customerInfo) {
+    super("CustomerInfoMessage", MessageType.CUSTOMER_INFO);
+    this.customerInfo = customerInfo;
+  }
 
-public interface CloverDeviceConfiguration extends Serializable {
-
-  String getCloverDeviceTypeName();
-
-  String getMessagePackageName();
-
-  String getName();
-
-  CloverTransport getCloverTransport();
-
-  String getApplicationId();
 }

@@ -71,14 +71,19 @@ public class RemoteUsbManager extends UsbCloverManager<Void> {
 
   // See init.maplecutter.usb.rc in platform for more info
   public static final Pair<Integer, Integer>[] VENDOR_PRODUCT_IDS = new Pair[]{
-      // FIXME: No longer need these two?
+      // Somehow related to the Mobile - Don't remove
       Pair.create(0x18d1, 0x2d00), // google accessory usb device
       Pair.create(0x18d1, 0x2d01), // google adb,accessory usb device
 
+      // Production devices
       Pair.create(0x28f3, 0x2002), // leafcutter accessory usb device
       Pair.create(0x28f3, 0x3002), // maplecutter accessory usb device
+      Pair.create(0x28f3, 0x4002), // bayleaf accessory usb device
+
+      // Development devices
       Pair.create(0x28f3, 0x2004), // leafcutter adb,accessory usb device
       Pair.create(0x28f3, 0x3004), // maplecutter adb,accessory usb device
+      Pair.create(0x28f3, 0x4004), // bayleaf adb,accessory usb device
   };
 
   @Override

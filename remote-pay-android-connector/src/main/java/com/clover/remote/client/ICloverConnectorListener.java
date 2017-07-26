@@ -21,7 +21,9 @@ import com.clover.remote.client.messages.CapturePreAuthResponse;
 import com.clover.remote.client.messages.CloseoutResponse;
 import com.clover.remote.client.messages.CloverDeviceErrorEvent;
 import com.clover.remote.client.messages.CloverDeviceEvent;
-import com.clover.remote.client.messages.PairingCodeMessage;
+import com.clover.remote.client.messages.CustomActivityResponse;
+import com.clover.remote.client.messages.RetrievePaymentResponse;
+import com.clover.remote.client.messages.MessageFromActivity;
 import com.clover.remote.client.messages.ConfirmPaymentRequest;
 import com.clover.remote.client.messages.ManualRefundResponse;
 import com.clover.remote.client.messages.PreAuthResponse;
@@ -33,6 +35,8 @@ import com.clover.remote.client.messages.PrintPaymentReceiptMessage;
 import com.clover.remote.client.messages.PrintRefundPaymentReceiptMessage;
 import com.clover.remote.client.messages.ReadCardDataResponse;
 import com.clover.remote.client.messages.RefundPaymentResponse;
+import com.clover.remote.client.messages.ResetDeviceResponse;
+import com.clover.remote.client.messages.RetrieveDeviceStatusResponse;
 import com.clover.remote.client.messages.RetrievePendingPaymentsResponse;
 import com.clover.remote.client.messages.SaleResponse;
 import com.clover.remote.client.messages.TipAdjustAuthResponse;
@@ -41,171 +45,236 @@ import com.clover.remote.client.messages.VerifySignatureRequest;
 import com.clover.remote.client.messages.VoidPaymentResponse;
 import com.clover.remote.message.TipAddedMessage;
 
+/**
+ * These are the methods to implement for intercepting messages that are sent from a Clover device.
+ */
+@SuppressWarnings("unused")
 public interface ICloverConnectorListener {
 
   /**
    * Called when a Clover device activity starts.
-   * @param deviceEvent
+   *
+   * @param deviceEvent The device event.
    */
-  public void onDeviceActivityStart(CloverDeviceEvent deviceEvent);
+  void onDeviceActivityStart(CloverDeviceEvent deviceEvent);
 
   /**
    * Called when a Clover device activity ends.
-   * @param deviceEvent
+   *
+   * @param deviceEvent The device event.
    */
-  public void onDeviceActivityEnd(CloverDeviceEvent deviceEvent);
+  void onDeviceActivityEnd(CloverDeviceEvent deviceEvent);
 
   /**
    * Called when a Clover device error event is encountered
-   * @param deviceErrorEvent
+   *
+   * @param deviceErrorEvent The device error event.
    */
-  public void onDeviceError(CloverDeviceErrorEvent deviceErrorEvent);
+  void onDeviceError(CloverDeviceErrorEvent deviceErrorEvent);
 
   /**
    * Called in response to a pre auth request
-   * @param response
+   *
+   * @param response The response
    */
-  public void onPreAuthResponse(PreAuthResponse response);
+  void onPreAuthResponse(PreAuthResponse response);
 
   /**
    * Called in response to an auth request
-   * @param response
+   *
+   * @param response The response
    */
-  public void onAuthResponse(AuthResponse response);
+  void onAuthResponse(AuthResponse response);
 
   /**
    * Called in response to a tip adjust of an auth payment
-   * @param response
+   *
+   * @param response The response
    */
-  public void onTipAdjustAuthResponse(TipAdjustAuthResponse response);
+  void onTipAdjustAuthResponse(TipAdjustAuthResponse response);
 
   /**
    * Called in response to a capture of a pre auth payment
-   * @param response
+   *
+   * @param response The response
    */
-  public void onCapturePreAuthResponse(CapturePreAuthResponse response);
+  void onCapturePreAuthResponse(CapturePreAuthResponse response);
 
   /**
    * Called when the Clover device requires a signature to be verified
-   * @param request
+   *
+   * @param request The request
    */
-  public void onVerifySignatureRequest(VerifySignatureRequest request);
+  void onVerifySignatureRequest(VerifySignatureRequest request);
 
   /**
    * Called when the Clover device requires confirmation for a payment
    * e.g. Duplicates or Offline
-   * @param request
+   *
+   * @param request The request
    */
-  public void onConfirmPaymentRequest(ConfirmPaymentRequest request);
+  void onConfirmPaymentRequest(ConfirmPaymentRequest request);
 
   /**
    * Called in response to a closeout being processed
-   * @param response
+   *
+   * @param response The response
    */
-  public void onCloseoutResponse(CloseoutResponse response);
+  void onCloseoutResponse(CloseoutResponse response);
 
   /**
    * Called in response to a sale request
-   * @param response
+   *
+   * @param response The response
    */
-  public void onSaleResponse(SaleResponse response);
+  void onSaleResponse(SaleResponse response);
 
   /**
    * Called in response to a manual refund request
-   * @param response
+   *
+   * @param response The response
    */
-  public void onManualRefundResponse(ManualRefundResponse response);
+  void onManualRefundResponse(ManualRefundResponse response);
 
   /**
    * Called in response to a refund payment request
-   * @param response
+   *
+   * @param response The response
    */
-  public void onRefundPaymentResponse(RefundPaymentResponse response);
+  void onRefundPaymentResponse(RefundPaymentResponse response);
 
   /**
    * Called when a customer selects a tip amount on the Clover device screen
-   * @param message
+   *
+   * @param message The message
    */
-  public void onTipAdded(TipAddedMessage message);
+  void onTipAdded(TipAddedMessage message);
 
   /**
    * Called in response to a void payment request
-   * @param response
+   *
+   * @param response The response
    */
-  public void onVoidPaymentResponse(VoidPaymentResponse response);
+  void onVoidPaymentResponse(VoidPaymentResponse response);
 
   /**
    * Called when the Clover device is disconnected
    */
-  public void onDeviceDisconnected();
+  void onDeviceDisconnected();
 
   /**
    * Called when the Clover device is connected, but not ready to communicate
    */
-  public void onDeviceConnected();
+  void onDeviceConnected();
 
   /**
    * Called when the Clover device is ready to communicate
-   * @param merchantInfo
+   *
+   * @param merchantInfo The merchant info for the device
    */
-  public void onDeviceReady(MerchantInfo merchantInfo);
+  void onDeviceReady(MerchantInfo merchantInfo);
 
   /**
    * Called in response to a vault card request
-   * @param response
+   *
+   * @param response The response
    */
-  public void onVaultCardResponse(VaultCardResponse response);
+  void onVaultCardResponse(VaultCardResponse response);
 
   /**
    * Will only be called if disablePrinting = true on the Sale, Auth, PreAuth or ManualRefund Request
    * Called when a user requests to print a receipt for a ManualRefund
-   * @param printManualRefundReceiptMessage
+   *
+   * @param message The message
    */
-  public void onPrintManualRefundReceipt(PrintManualRefundReceiptMessage printManualRefundReceiptMessage);
+  void onPrintManualRefundReceipt(PrintManualRefundReceiptMessage message);
+
   /**
    * Will only be called if disablePrinting = true on the Sale, Auth, PreAuth or ManualRefund Request
    * Called when a user requests to print a receipt for a declined ManualRefund
-   * @param printManualRefundDeclineReceiptMessage
+   *
+   * @param message The message
    */
-  public void onPrintManualRefundDeclineReceipt(PrintManualRefundDeclineReceiptMessage printManualRefundDeclineReceiptMessage);
+  void onPrintManualRefundDeclineReceipt(PrintManualRefundDeclineReceiptMessage message);
 
   /**
    * Will only be called if disablePrinting = true on the Sale, Auth, PreAuth or ManualRefund Request
    * Called when a user requests to print a receipt for a payment
-   * @param printPaymentReceiptMessage
+   *
+   * @param message The message
    */
-  public void onPrintPaymentReceipt(PrintPaymentReceiptMessage printPaymentReceiptMessage);
+  void onPrintPaymentReceipt(PrintPaymentReceiptMessage message);
 
   /**
    * Will only be called if disablePrinting = true on the Sale, Auth, PreAuth or ManualRefund Request
    * Called when a user requests to print a receipt for a declined payment
-   * @param printPaymentDeclineReceiptMessage
+   *
+   * @param message The message
    */
-  public void onPrintPaymentDeclineReceipt(PrintPaymentDeclineReceiptMessage printPaymentDeclineReceiptMessage);
+  void onPrintPaymentDeclineReceipt(PrintPaymentDeclineReceiptMessage message);
 
   /**
    * Will only be called if disablePrinting = true on the Sale, Auth, PreAuth or ManualRefund Request
    * Called when a user requests to print a merchant copy of a payment receipt
-   * @param printPaymentMerchantCopyReceiptMessage
+   *
+   * @param message The message
    */
-  public void onPrintPaymentMerchantCopyReceipt(PrintPaymentMerchantCopyReceiptMessage printPaymentMerchantCopyReceiptMessage);
+  void onPrintPaymentMerchantCopyReceipt(PrintPaymentMerchantCopyReceiptMessage message);
 
   /**
    * Will only be called if disablePrinting = true on the Sale, Auth, PreAuth or ManualRefund Request
    * Called when a user requests to print a receipt for a payment refund
-   * @param printRefundPaymentReceiptMessage
+   *
+   * @param message The message
    */
-  public void onPrintRefundPaymentReceipt(PrintRefundPaymentReceiptMessage printRefundPaymentReceiptMessage);
+  void onPrintRefundPaymentReceipt(PrintRefundPaymentReceiptMessage message);
 
   /**
    * Called in response to a retrievePendingPayment(...) request.
-   * @param retrievePendingPaymentResponse
+   *
+   * @param response The response
    */
-  public void onRetrievePendingPaymentsResponse(RetrievePendingPaymentsResponse retrievePendingPaymentResponse);
+  void onRetrievePendingPaymentsResponse(RetrievePendingPaymentsResponse response);
 
   /**
    * Called in response to a readCardData(...) request.
-   * @param response
+   *
+   * @param response The response
    */
-  public void onReadCardDataResponse(ReadCardDataResponse response);
+  void onReadCardDataResponse(ReadCardDataResponse response);
+
+  /**
+   * Called when a message is sent from a custom activity
+   * @param message The message
+   */
+  void onMessageFromActivity(MessageFromActivity message);
+
+  /**
+   * Called when a custom activity finishes
+   *
+   * @param response The response
+   */
+  void onCustomActivityResponse(CustomActivityResponse response);
+
+  /**
+   * Called in response to a RetrieveDeviceState request
+   *
+   * @param response The response
+   */
+  void onRetrieveDeviceStatusResponse(RetrieveDeviceStatusResponse response);
+
+  /**
+   * Called in response to a ResetDevice request
+   *
+   * @param response The response
+   */
+  void onResetDeviceResponse(ResetDeviceResponse response);
+
+  /**
+   * Called in response to a RetrievePaymentRequest
+   *
+   * @param response The response
+   */
+  void onRetrievePaymentResponse(RetrievePaymentResponse response);
+
 }

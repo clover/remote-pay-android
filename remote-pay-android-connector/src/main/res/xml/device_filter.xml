@@ -27,5 +27,11 @@
     <!-- minis -->
     <usb-device vendor-id="10483" product-id="12292" />
     <usb-device vendor-id="10483" product-id="12290" />
+    <!-- flex -->
+    <usb-device vendor-id="10483" product-id="16384" />
+    <usb-device vendor-id="10483" product-id="16385" />
+    <usb-device vendor-id="10483" product-id="16386" />
+    <usb-device vendor-id="10483" product-id="16387" />
+    <usb-device vendor-id="10483" product-id="16388" />
 
 </resources>
