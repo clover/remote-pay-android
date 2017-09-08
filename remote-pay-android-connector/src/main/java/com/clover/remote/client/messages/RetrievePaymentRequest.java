@@ -14,20 +14,35 @@
  * limitations under the License.
  */
 
+
 package com.clover.remote.client.messages;
 
 /**
- * Response object for a pre-auth transaction request
+ * Request object for requesting information on a specific payment
  */
 @SuppressWarnings(value="unused")
-public class PreAuthResponse extends PaymentResponse {
+public class RetrievePaymentRequest extends BaseRequest {
+  private String externalPaymentId;
+
+  public RetrievePaymentRequest(String externalPaymentId) {
+    this.externalPaymentId = externalPaymentId;
+  }
+
   /**
-   * Constructor
+   * Get the field value
    *
-   * @param success If true then the requested operation succeeded
-   * @param result The result of the requested operation
+   * @return The externalPaymentId used when a payment was created
    */
-  public PreAuthResponse(boolean success, ResultCode result) {
-    super(success, result);
+  public String getExternalPaymentId() {
+    return externalPaymentId;
+  }
+
+  /**
+   * Set the field value
+   *
+   * @param externalPaymentId The externalPaymentId used when a payment was created
+   */
+  public void setExternalPaymentId(String externalPaymentId) {
+    this.externalPaymentId = externalPaymentId;
   }
 }

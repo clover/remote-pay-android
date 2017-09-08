@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Clover Network, Inc.
+ * Copyright (C) 2017 Clover Network, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,33 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+
 package com.clover.remote.client.messages;
 
-import com.clover.sdk.v3.payments.Payment;
+import com.clover.remote.ExternalDeviceState;
 
 /**
- * Callback to the POS to request a merchant payment receipt
- * be printed
+ * Response object for a reset device request
  */
 @SuppressWarnings(value="unused")
-public class PrintPaymentMerchantCopyReceiptMessage {
-  private final Payment payment;
+public class ResetDeviceResponse extends BaseResponse {
+  private final ExternalDeviceState state;
 
   /**
    * Constructor
    *
-   * @param payment payment for requested receipt
+   * @param result If true then the requested operation succeeded
+   * @param code The result of the requested operation
+   * @param state The state of the device
    */
-  public PrintPaymentMerchantCopyReceiptMessage(Payment payment) {
-    this.payment = payment;
+  public ResetDeviceResponse(boolean result, ResultCode code, ExternalDeviceState state) {
+    super(result, code);
+    this.state = state;
   }
 
   /**
    * Get the field value
    *
-   * @return payment for requested receipt
+   * @return state of the device
    */
-  public Payment getPayment() {
-    return payment;
+  public ExternalDeviceState getState() {
+    return state;
   }
 }

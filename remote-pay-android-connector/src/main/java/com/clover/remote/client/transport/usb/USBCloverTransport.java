@@ -17,36 +17,28 @@
 package com.clover.remote.client.transport.usb;
 
 import com.clover.remote.client.transport.CloverTransport;
-import com.clover.remote.client.transport.CloverTransportObserver;
 import com.clover.remote.client.transport.usb.pos.PosUsbRemoteProtocolService;
 import com.clover.remote.client.transport.usb.pos.RemoteUsbManager;
 import com.clover.remote.client.transport.usb.pos.UsbAccessorySetupUsbManager;
 
 import android.app.ActivityManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
-import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbManager;
 import android.util.Log;
 
 import java.nio.channels.NotYetConnectedException;
 
 /**
- * Created by blakewilliams on 3/29/16.
+ * Implements the Clover Transport for USB
  */
 public class USBCloverTransport extends CloverTransport {
 
   public static final String ACTION_USB_PERMISSION = "com.clover.USB_PERMISSION";
   public static final String TAG = USBCloverTransport.class.getSimpleName();
 
-  Context context;
-  private UsbManager mUsbManager;
-  private PosUsbRemoteProtocolService usbService;
-  private ServiceConnection svcConnection;
+  private final Context context;
 
   private BroadcastReceiver connectionBroadcastReceiver = new BroadcastReceiver() {
     @Override
@@ -56,15 +48,15 @@ public class USBCloverTransport extends CloverTransport {
       try {
         switch (action) {
           case DEVICE_DISCONNECTED: {
-            onDeviceDisconnected();
+            notifyDeviceDisconnected();
             break;
           }
           case DEVICE_CONNECTED: {
-            onDeviceConnected();
+            notifyDeviceConnected();
             break;
           }
           case DEVICE_READY: {
-            onDeviceReady();
+            notifyDeviceReady();
             break;
           }
         }
@@ -73,6 +65,7 @@ public class USBCloverTransport extends CloverTransport {
       }
     }
   };
+
   private BroadcastReceiver messageBroadcastReceiver = new BroadcastReceiver() {
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -88,6 +81,10 @@ public class USBCloverTransport extends CloverTransport {
 
   public USBCloverTransport(Context ctx) {
     context = ctx;
+  }
+
+  @Override
+  public synchronized void initializeConnection() {
     context.registerReceiver(connectionBroadcastReceiver, getConnectionIntentFilter());
     context.registerReceiver(messageBroadcastReceiver, getMessageIntentFilter());
 
@@ -97,7 +94,7 @@ public class USBCloverTransport extends CloverTransport {
     context.sendBroadcast(sendIntent);
   }
 
-  protected IntentFilter getConnectionIntentFilter() {
+  private IntentFilter getConnectionIntentFilter() {
     IntentFilter filter = new IntentFilter();
     filter.addAction(CloverTransport.DEVICE_DISCONNECTED);
     filter.addAction(CloverTransport.DEVICE_READY);
@@ -105,7 +102,7 @@ public class USBCloverTransport extends CloverTransport {
     return filter;
   }
 
-  protected IntentFilter getMessageIntentFilter() {
+  private IntentFilter getMessageIntentFilter() {
     IntentFilter filter = new IntentFilter();
     filter.addAction(PosUsbRemoteProtocolService.ACTION_USB_RECEIVE_MESSAGE);
     return filter;
@@ -131,38 +128,14 @@ public class USBCloverTransport extends CloverTransport {
 
   }
 
-
-  private void requestPermission(UsbManager mUsbManager, UsbDevice device, final Runnable runnable) {
-    final BroadcastReceiver usbBroadcastReceiver = new BroadcastReceiver() {
-      @Override
-      public void onReceive(Context context, Intent intent) {
-        synchronized (this) {
-          context.unregisterReceiver(this);
-          UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-
-          if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-            if (device != null) {
-              runnable.run();
-            }
-          } else {
-            Log.d(TAG, "permission denied for device " + device);
-          }
-
-        }
-      }
-    };
-    PendingIntent permissionIntent = PendingIntent.getBroadcast(context, 0, new Intent(ACTION_USB_PERMISSION), 0);
-    IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
-    context.registerReceiver(usbBroadcastReceiver, filter);
-    mUsbManager.requestPermission(device, permissionIntent);
-  }
-
-  @Override protected void finalize() throws Throwable {
+  @Override
+  protected void finalize() throws Throwable {
     dispose();
   }
 
   @Override
   public void dispose() {
+    super.dispose();
     if(context != null) {
       context.unregisterReceiver(messageBroadcastReceiver);
       context.unregisterReceiver(connectionBroadcastReceiver);
@@ -176,27 +149,6 @@ public class USBCloverTransport extends CloverTransport {
     context.sendBroadcast(sendIntent);
 
     return 0;
-  }
-
-
-
-  @Override
-  public void onMessage(String message) {
-    for (CloverTransportObserver cto : observers) {
-      cto.onMessage(message);
-    }
-  }
-
-  public void onDeviceReady() {
-    notifyDeviceReady();
-  }
-
-  public void onDeviceConnected() {
-    notifyDeviceConnected();
-  }
-
-  public void onDeviceDisconnected() {
-    notifyDeviceDisconnected();
   }
 
   private boolean isMyServiceRunning(Class<?> serviceClass) {

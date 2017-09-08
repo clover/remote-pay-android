@@ -16,44 +16,75 @@
 
 package com.clover.remote.client.messages;
 
+/**
+ * Response object for a payment capture request
+ */
+@SuppressWarnings(value="unused")
 public class CapturePreAuthResponse extends BaseResponse {
-  String reason;
-  String paymentID;
-  Long amount;
-  Long tipAmount;
+  private String paymentID;
+  private Long amount;
+  private Long tipAmount;
 
+  /**
+   * Constructor
+   *
+   * @param success If true then the requested operation succeeded
+   * @param result The result of the requested operation
+   */
   public CapturePreAuthResponse(boolean success, ResultCode result) {
     super(success, result);
   }
 
-  public String getReason() {
-    return reason;
-  }
-
-  public void setReason(String reason) {
-    this.reason = reason;
-  }
-
+  /**
+   * Get the field value
+   *
+   * @return ID of the pre-auth payment being captured
+   */
   public String getPaymentID() {
     return paymentID;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param paymentID ID of the pre-auth payment being captured
+   */
   public void setPaymentID(String paymentID) {
     this.paymentID = paymentID;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return the base amount of the capture
+   */
   public Long getAmount() {
     return amount;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param amount the base amount of the capture
+   */
   public void setAmount(long amount) {
     this.amount = amount;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return additional tip amount for the capture
+   */
   public long getTipAmount() {
     return tipAmount;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param tipAmount additional tip amount for the capture
+   */
   public void setTipAmount(long tipAmount) {
     this.tipAmount = tipAmount;
   }

@@ -17,12 +17,17 @@
 package com.clover.remote.client.messages;
 
 
-public class ReadCardDataRequest {
+/**
+ * Request object for requesting to read card data
+ */
+@SuppressWarnings(value="unused")
+public class ReadCardDataRequest extends BaseRequest {
 
-  Integer cardEntryMethods;
-  boolean isForceSwipePinEntry;
+  private Integer cardEntryMethods;
+  private boolean isForceSwipePinEntry;
 
   /**
+   * Constructor
    *
    * @param cardEntryMethods - if null, will get the default configured methods. Initially SWIPE, CHIP and CONTACTLESS. The Integer can be
    *                         an OR's value of CloverConnector.CARD_ENTRY_METHOD_MAG_STRIPE | CloverConnector.CARD_ENTRY_METHOD_MAG_MANUAL, etc.
@@ -31,18 +36,38 @@ public class ReadCardDataRequest {
     this.cardEntryMethods = cardEntryMethods;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return If true, then if the card is swiped, a pin entry must be done
+   */
   public boolean isForceSwipePinEntry() {
     return isForceSwipePinEntry;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param forceSwipePinEntry If true, then if the card is swiped, a pin entry must be done
+   */
   public void setForceSwipePinEntry(boolean forceSwipePinEntry) {
     isForceSwipePinEntry = forceSwipePinEntry;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return configured card entry methods
+   */
   public Integer getCardEntryMethods() {
     return cardEntryMethods;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param cardEntryMethods configured card entry methods
+   */
   public void setCardEntryMethods(Integer cardEntryMethods) {
     this.cardEntryMethods = cardEntryMethods;
   }

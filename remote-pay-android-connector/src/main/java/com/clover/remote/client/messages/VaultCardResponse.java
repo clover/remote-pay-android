@@ -19,25 +19,30 @@ package com.clover.remote.client.messages;
 import com.clover.sdk.v3.payments.VaultedCard;
 
 /**
- * response to a vaultCard request
+ * Response object for a vault card request
  */
+@SuppressWarnings(value="unused")
 public class VaultCardResponse extends BaseResponse {
-  private VaultedCard card;
+  private final VaultedCard card;
 
-  public VaultCardResponse(boolean success, ResultCode result) {
-    this(success, result, null);
-  }
+  /**
+   * Constructor
+   *
+   * @param success If true then the requested operation succeeded
+   * @param result The result of the requested operation
+   * @param card The vaulted card
+   */
   public VaultCardResponse(boolean success, ResultCode result, VaultedCard card) {
     super(success, result);
     this.card = card;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return The vaulted card
+   */
   public VaultedCard getCard() {
     return card;
   }
-
-  public void setCard(VaultedCard card) {
-    this.card = card;
-  }
-
 }

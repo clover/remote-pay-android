@@ -20,36 +20,58 @@ package com.clover.remote.client.messages;
  * General error used for reporting error events
  * to the POS
  */
+@SuppressWarnings(value="unused")
 public class CloverDeviceErrorEvent {
 
+  /**
+   * Type of device error
+   */
   public enum CloverDeviceErrorType {
     COMMUNICATION_ERROR,
     VALIDATION_ERROR,
     EXCEPTION
   }
 
-  private CloverDeviceErrorType errorType;
-  private int code;
-  private String message;
+  private final CloverDeviceErrorType errorType;
+  private final int code;
+  private final String message;
 
-  public CloverDeviceErrorEvent() {
-
-  }
-
+  /**
+   * Constructor
+   *
+   * @param errorType error type
+   * @param devCode error code
+   * @param msg description of the error
+   */
   public CloverDeviceErrorEvent(CloverDeviceErrorType errorType, int devCode, String msg) {
     this.errorType = errorType;
     code = devCode;
     message = msg;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return error code
+   */
   public int getCode() {
     return code;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return description of the error
+   */
   public String getMessage() {
     return message;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return error type
+   */
   public CloverDeviceErrorType getErrorType() {
     return errorType;
   }

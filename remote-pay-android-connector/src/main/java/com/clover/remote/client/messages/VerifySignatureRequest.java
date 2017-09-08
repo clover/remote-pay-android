@@ -22,24 +22,45 @@ import com.clover.sdk.v3.payments.Payment;
 import java.io.Serializable;
 
 /**
- * request sent from the Mini for the POS to verify or reject a signature
+ * Request sent from the Mini for the POS to verify or reject a signature
  */
+@SuppressWarnings(value="unused")
 public class VerifySignatureRequest implements Serializable {
   private Signature2 signature;
   private Payment payment;
 
+  /**
+   * Get the field value
+   *
+   * @return signature to verify
+   */
   public Signature2 getSignature() {
     return signature;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param signature signature to verify
+   */
   public void setSignature(Signature2 signature) {
     this.signature = signature;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return Payment that the signature is verifying for
+   */
   public Payment getPayment() {
     return payment;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param payment Payment that the signature is verifying for
+   */
   public void setPayment(Payment payment) {
     this.payment = payment;
   }

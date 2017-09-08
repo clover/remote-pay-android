@@ -21,19 +21,36 @@ import com.clover.sdk.v3.payments.Payment;
 /**
  * Callback to the POS to request a payment declined receipt
  */
+@SuppressWarnings(value="unused")
 public class PrintPaymentDeclineReceiptMessage {
-  private Payment payment;
-  private String reason;
+  private final Payment payment;
+  private final String reason;
 
+  /**
+   * Constructor
+   *
+   * @param payment payment that was declined
+   * @param reason reason the payment was declined
+   */
   public PrintPaymentDeclineReceiptMessage(Payment payment, String reason) {
     this.payment = payment;
     this.reason = reason;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return payment that was declined
+   */
   public Payment getPayment() {
     return payment;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return reason the payment was declined
+   */
   public String getReason() {
     return reason;
   }
