@@ -17,38 +17,65 @@
 package com.clover.remote.client.messages;
 
 /**
- * Request to adjust the tip amount of a payment
- * acquired from an auth(AuthRequest request) call
+ * Request object for requesting to adjust the tip amount of a payment acquired from a previous auth
  */
+@SuppressWarnings(value="unused")
 public class TipAdjustAuthRequest extends BaseRequest {
   private String paymentId;
   private String orderId;
   private long tipAmount;
 
+  /**
+   * Get the field value
+   *
+   * @return The unique identifier of the associated order
+   */
   public String getOrderId() {
     return orderId;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param orderId The unique identifier of the associated order
+   */
   public void setOrderId(String orderId) {
     this.orderId = orderId;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return The unique identifier of the associated payment
+   */
   public String getPaymentId() {
     return paymentId;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param paymentId The unique identifier of the associated payment
+   */
   public void setPaymentId(String paymentId) {
     this.paymentId = paymentId;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return The amount paid in tips
+   */
   public long getTipAmount() {
     return tipAmount;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param tipAmount The amount paid in tips
+   */
   public void setTipAmount(long tipAmount) {
     this.tipAmount = tipAmount;
   }
 }
-
-
-

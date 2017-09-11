@@ -22,24 +22,45 @@ import com.clover.sdk.v3.payments.Payment;
 import java.io.Serializable;
 
 /**
- * request sent from the Mini for the POS to verify or reject a signature
+ * Request sent from the Mini for the POS to verify or reject a signature
  */
+@SuppressWarnings(value="unused")
 public class ConfirmPaymentRequest implements Serializable {
   private Payment payment;
   private Challenge[] challenges;
 
+  /**
+   * Get the field value
+   *
+   * @return the payment to be confirmed or rejected
+   */
   public Payment getPayment() {
     return payment;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param payment the payment to be confirmed or rejected
+   */
   public void setPayment(Payment payment) {
     this.payment = payment;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return the list of challenges from the device that must be confirmed
+   */
   public Challenge[] getChallenges() {
     return challenges;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param challenges the list of challenges from the device that must be confirmed
+   */
   public void setChallenges(Challenge[] challenges) {
     this.challenges = challenges;
   }

@@ -16,6 +16,8 @@
 
 package com.clover.remote.client.device;
 
+import com.clover.remote.client.CloverDeviceConfiguration;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 

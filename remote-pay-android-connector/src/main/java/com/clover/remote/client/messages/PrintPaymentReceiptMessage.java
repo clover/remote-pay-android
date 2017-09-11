@@ -21,19 +21,36 @@ import com.clover.sdk.v3.payments.Payment;
 /**
  * Callback to the POS to request a payment receipt be printed
  */
+@SuppressWarnings(value="unused")
 public class PrintPaymentReceiptMessage {
-  Order order;
-  Payment payment;
+  private final Order order;
+  private final Payment payment;
 
+  /**
+   * Constructor
+   *
+   * @param payment payment for requested receipt
+   * @param order order for requested receipt
+   */
   public PrintPaymentReceiptMessage(Payment payment, Order order) {
     this.payment = payment;
     this.order = order;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return payment for requested receipt
+   */
   public Payment getPayment() {
     return payment;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return order for requested receipt
+   */
   public Order getOrder() {
     return order;
   }

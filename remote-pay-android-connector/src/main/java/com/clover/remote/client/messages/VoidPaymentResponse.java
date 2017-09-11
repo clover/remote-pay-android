@@ -17,20 +17,37 @@
 package com.clover.remote.client.messages;
 
 /**
- * Response to a void payment request
+ * Response object for a void payment request
  */
+@SuppressWarnings(value="unused")
 public class VoidPaymentResponse extends PaymentResponse {
-  private String PaymentId;
+  private String paymentId;
 
+  /**
+   * Constructor
+   *
+   * @param success If true then the requested operation succeeded
+   * @param result The result of the requested operation
+   */
   public VoidPaymentResponse(boolean success, ResultCode result) {
     super(success, result);
   }
 
+  /**
+   * Get the field value
+   *
+   * @return The ID of the voided payment
+   */
   public String getPaymentId() {
-    return PaymentId;
+    return paymentId;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param paymentId The ID of the voided payment
+   */
   public void setPaymentId(String paymentId) {
-    PaymentId = paymentId;
+    this.paymentId = paymentId;
   }
 }

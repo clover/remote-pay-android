@@ -17,32 +17,35 @@
 package com.clover.remote.client.transport;
 
 
-public interface CloverTransportObserver {
+/**
+ * Asynchronous callback interface to handle device event and message notifications.
+ */
+public interface ICloverTransportObserver {
   /**
    * Device is there but not yet ready for use
    *
-   * @param transport
+   * @param transport transport on which the event was received
    */
-  void onDeviceConnected(CloverTransport transport);
+  void onDeviceConnected(ICloverTransport transport);
 
   /**
    * Device is there and ready for use
    *
-   * @param transport
+   * @param transport transport on which the event was received
    */
-  void onDeviceReady(CloverTransport transport);
+  void onDeviceReady(ICloverTransport transport);
 
   /**
    * Device is not there anymore
    *
-   * @param transport
+   * @param transport transport on which the event was received
    */
-  void onDeviceDisconnected(CloverTransport transport);
+  void onDeviceDisconnected(ICloverTransport transport);
 
   /**
    * Called when a raw message is received from the device
    *
-   * @param message
+   * @param message message
    */
   void onMessage(String message);
 }

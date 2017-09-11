@@ -18,8 +18,15 @@ package com.clover.remote.client.messages;
 
 import com.clover.remote.InputOption;
 
+/**
+ * Encapsulates the start or stop of a Clover Device activity (e.g. a UI event)
+ */
+@SuppressWarnings(value="unused")
 public class CloverDeviceEvent {
 
+  /**
+   * Enum corresponding to valid UI State events from the device
+   */
   public enum DeviceEventState {
     // payment flow
     START,
@@ -71,16 +78,10 @@ public class CloverDeviceEvent {
     RECEIPT_OPTIONS,
 
     // tender handling flow
-    HANDLE_TENDER
-  }
+    HANDLE_TENDER,
 
-  public CloverDeviceEvent() {
-
-  }
-
-  public CloverDeviceEvent(int code, String msg) {
-    code = code;
-    setMessage(msg);
+    // starting custom activity, called from RTKA
+    STARTING_CUSTOM_ACTIVITY
   }
 
   private DeviceEventState eventState;
@@ -88,35 +89,74 @@ public class CloverDeviceEvent {
   private String message;
   private InputOption[] inputOptions;
 
-
+  /**
+   * Get the field value
+   *
+   * @return the event
+   */
   public DeviceEventState getEventState() {
     return eventState;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param eventState the event
+   */
   public void setEventState(DeviceEventState eventState) {
     this.eventState = eventState;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return code
+   */
   public int getCode() {
     return code;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param code code
+   */
   public void setCode(int code) {
     this.code = code;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return the display message
+   */
   public String getMessage() {
     return message;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param message the display message
+   */
   public void setMessage(String message) {
     this.message = message;
   }
 
+  /**
+   * Get the field value
+   *
+   * @return available input options
+   */
   public InputOption[] getInputOptions() {
     return inputOptions;
   }
 
+  /**
+   * Set the field value
+   *
+   * @param inputOptions available input options
+   */
   public void setInputOptions(InputOption[] inputOptions) {
     this.inputOptions = inputOptions;
   }

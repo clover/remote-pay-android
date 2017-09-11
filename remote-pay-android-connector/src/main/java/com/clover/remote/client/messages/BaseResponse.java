@@ -16,7 +16,9 @@
 
 package com.clover.remote.client.messages;
 
-/** The base for responses */
+/**
+ * The base for responses
+ */
 @SuppressWarnings(value="unused")
 public class BaseResponse {
 
@@ -25,80 +27,89 @@ public class BaseResponse {
   private String reason = null;
   private String message = null;
 
-
   public BaseResponse() {
-
   }
 
+  /**
+   * Constructor
+   *
+   * @param success If true then the requested operation succeeded
+   * @param result The result of the requested operation
+   */
   public BaseResponse(boolean success, ResultCode result) {
     this.success = success;
     this.result = result;
   }
 
   /**
-  * Set the field value
-  * If true then the requested operation succeeded
-  *
-  */
+   * Set the field value
+   *
+   * @param success If true then the requested operation succeeded
+   */
   public void setSuccess(boolean success) {
     this.success = success;
   }
 
   /**
-  * Get the field value
-  * If true then the requested operation succeeded
-  */
-
+   * Get the field value
+   *
+   * @return If true then the requested operation succeeded
+   */
   public final boolean isSuccess() {
     return this.success;
   }
+
   /**
-  * Set the field value
-  * The result of the requested operation.
-  *
-  */
+   * Set the field value
+   *
+   * @param result The result of the requested operation
+   */
   public void setResult(ResultCode result) {
     this.result = result;
   }
 
   /**
-  * Get the field value
-  * The result of the requested operation.
-  */
+   * Get the field value
+   *
+   * @return The result of the requested operation
+   */
   public ResultCode getResult() {
     return this.result;
-  }  
+  }
+
   /**
-  * Set the field value
-  * Optional information about result.
-  *
-  */
+   * Set the field value
+   *
+   * @param reason Optional information about result.
+   */
   public void setReason(String reason) {
     this.reason = reason;
   }
 
   /**
-  * Get the field value
-  * Optional information about result.
-  */
+   * Get the field value
+   *
+   * @return Optional information about result.
+   */
   public String getReason() {
     return this.reason;
-  }  
+  }
+
   /**
-  * Set the field value
-  * Detailed information about result.
-  *
-  */
+   * Set the field value
+   *
+   * @param message Detailed information about result.
+   */
   public void setMessage(String message) {
     this.message = message;
   }
 
   /**
-  * Get the field value
-  * Detailed information about result.
-  */
+   * Get the field value
+   *
+   * @return Detailed information about result.
+   */
   public String getMessage() {
     return this.message;
   }
-
 }
