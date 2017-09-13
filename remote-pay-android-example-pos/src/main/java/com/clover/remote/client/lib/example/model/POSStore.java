@@ -50,6 +50,7 @@ public class POSStore {
   private int cardEntryMethods = CloverConnector.CARD_ENTRY_METHOD_MAG_STRIPE | CloverConnector.CARD_ENTRY_METHOD_NFC_CONTACTLESS | CloverConnector.CARD_ENTRY_METHOD_ICC_CONTACT;
   private Boolean approveOfflinePaymentWithoutPrompt;
   private Boolean allowOfflinePayment;
+  private Boolean forceOfflinePayment;
   private Boolean disablePrinting;
   private Long tipAmount;
   private Long signatureThreshold;
@@ -180,6 +181,13 @@ public class POSStore {
   }
   public Boolean getAllowOfflinePayment() {
     return this.allowOfflinePayment;
+  }
+
+  public void setForceOfflinePayment(Boolean forceOfflinePayment) {
+    this.forceOfflinePayment = forceOfflinePayment;
+  }
+  public Boolean getForceOfflinePayment() {
+    return this.forceOfflinePayment;
   }
 
   public void setApproveOfflinePaymentWithoutPrompt(Boolean approveOfflinePaymentWithoutPrompt) {

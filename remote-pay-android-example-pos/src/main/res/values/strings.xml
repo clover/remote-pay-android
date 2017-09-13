@@ -15,11 +15,127 @@
   -->
 
 <resources>
-  <string name="app_name">Clover Example POS</string>
+  <string name="accept">Accept</string>
+  <string name="accept_offline_no_prompt">Accept Offline w/o Prompt</string>
   <string name="action_settings">Settings</string>
-
-  <string name="pref_title_protocol">Protocol</string>
+  <string name="activity_message_payload">{&quot;Question&quot;:&quot;Why did the Storm Trooper buy an iPhone?&quot;}</string>
+  <string name="address">start service to see listen address</string>
+  <string name="allow_offline_payments">Allow Offline Payments</string>
+  <string name="amount">Amount:</string>
+  <string name="app_name">Clover Example POS</string>
+  <string name="auth">Auth</string>
+  <string name="automatically_confirm_payment_challenges">Automatically Confirm Payment Challenges</string>
+  <string name='automatically_confirm_signature'>Automatically Confirm Signature</string>
+  <string name="authorized">AUTHORIZED</string>
+  <string name="barcode_error_format">Error obtaining barcode: %s</string>
+  <string name="cancel">Cancel</string>
+  <string name="capture_card">Capture Card</string>
+  <string name="card_exp_date_placeholder">12/22</string>
+  <string name="card_first_six_placeholder">234567</string>
+  <string name="card_last_four_placeholder">4567</string>
+  <string name="card_middle_placeholder">xxxxxx</string>
+  <string name="card_number_placeholder">XXXXXXXXXXXXXXXXX</string>
+  <string name="cards">Cards</string>
+  <string name="cardholder_name">Cardholder Name</string>
+  <string name="checking_kiosk">Checking for kiosk application...</string>
+  <string name="chip">Chip</string>
+  <string name="closeout_orders">Closeout Orders</string>
+  <string name="connect">Connect</string>
+  <string name="contactless">Contactless</string>
+  <string name="current_order">Current Order:</string>
+  <string name="custom_activities">Custom Activities</string>
+  <string name="_default">Default</string>
+  <string name="device_endpoint_settings_label">Device Endpoint</string>
+  <string name="disable_device_printing">Disable Device Printing</string>
+  <string name="disable_device_receipt_options">Disable Device Receipt Options Screen</string>
+  <string name="device_status">Device Status: </string>
+  <string name="disable_duplicate_payment_checking">Disable Duplicate Payment Checking</string>
+  <string name="disconnected">Disconnected</string>
+  <string name="discounts">Discounts:</string>
+  <string name="external_id_placeholder">ABC123DEF456G</string>
+  <string name="force_offline_payment">Force Offline Payment</string>
+  <string name="get_device_status">Get Device Status</string>
+  <string name="get_device_status_resend">Get Device Status (Resend)</string>
+  <string name="hello_message">Hello Message!</string>
+  <string name="header_title">Configuration</string>
+  <string name="header_summary">Configure the adapter protocol and port.</string>
+  <string name="item_name">Item Name</string>
+  <string name="item_cost_placeholder">$3.99</string>
+  <string name="item_title_placeholder">Medium Fountain Drink</string>
+  <string name="kiosk_not_installed">Please install the kiosk application</string>
+  <string name="lan_pay_address">wss://192.168.1.101:12345/remote_pay</string>
+  <string name="lan_pay_display">Network Clover Connector</string>
+  <string name="native_display">Native App Integration</string>
+  <string name="lan_terminal_notification_text">Tap to start Local Network Pay Display.</string>
+  <string name="lan_terminal_notification_title">Web Socket payment device connected</string>
+  <string name="low_storage_error">Device is low on storage space</string>
+  <string name="manual">Manual</string>
+  <string name="misc">Misc.</string>
+  <string name="_new">New</string>
+  <string name="no">No</string>
+  <string name="no_discount">No Discount</string>
+  <string name="non_blocking">Non-Blocking</string>
+  <string name="ok">Ok</string>
+  <string name="one">1</string>
+  <string name="open_cash_drawer">Open Cash Drawer</string>
+  <string name="order_amount_placeholder">$0.00</string>
+  <string name="order_id_placeholder">IDxxxx</string>
+  <string name="order_date_placeholder">Jan. 3, 2016</string>
+  <string name="orders">Orders</string>
+  <string name="orders_total_placeholder">$0000000.00</string>
+  <string name="payload_placeholder">{&quot;name&quot;:&quot;Bob&quot;}</string>
+  <string name="payment_example">$999.99</string>
+  <string name="payment_example_smaller">$99.99</string>
+  <string name="payment_id">PaymentID</string>
+  <string name="payment_id_example">JANRZXDFTF3JF</string>
+  <string name="pending">Pending</string>
+  <string name="preauth">PreAuth</string>
   <string name="pref_default_protocol">ws</string>
+  <string name="pref_label_server">Device Endpoint</string>
+  <string name="pref_title_protocol">Protocol</string>
+  <string name="preferences_title">Preferences</string>
+  <string name="print_image">Print Image</string>
+  <string name="print_text">Print Text</string>
+  <string name="print_this">Print This!!!!!</string>
+  <string name="query_payment">Query Payment</string>
+  <string name="read_card_data">Read Card Data</string>
+  <string name="refund">Refund</string>
+  <string name="refund_amount_placeholder">$23.56</string>
+  <string name="refund_date_placeholder">Jan 3, 2016</string>
+  <string name="register">Register</string>
+  <string name="reject">Reject</string>
+  <string name="reset_device">Reset Device</string>
+  <string name="sale">Sale</string>
+  <string name="sale_tip_amount">Sale Tip Amount</string>
+  <string name="scan_qr_code">Scan QRCode</string>
+  <string name="send_message">Send Message</string>
+  <string name="show_message">Show Message</string>
+  <string name="show_thank_you">Show Thank You</string>
+  <string name="show_welcome_message">Show Welcome Message</string>
+  <string name="signature_entry_location">Signature Entry Location</string>
+  <string name="signature_threshold">Signature Threshold</string>
+  <string name="start">Start</string>
+  <string name="status">STATUS</string>
+  <string name="subtotal">Subtotal:</string>
+  <string name="swipe">Swipe</string>
+  <string name="tax">Tax:</string>
+  <string name="test">Test</string>
+  <string name="tip">Tip:</string>
+  <string name="tip_adjust">Tip Adjust</string>
+  <string name="tip_mode">Tip Mode</string>
+  <string name="title_activity_example_pos">Clover Example POS</string>
+  <string name="title_activity_miscellaneous">MiscellaneousActivity</string>
+  <string name="title_activity_orders">OrdersActivity</string>
+  <string name="title_activity_startup">StartupActivity</string>
+  <string name="token">Token:</string>
+  <string name="total">Total:</string>
+  <string name="transaction_settings">Transaction Settings</string>
+  <string name="usb_clover_connector">USB Clover Connector</string>
+  <string name="unknown">Unknown</string>
+  <string name="unknown_payload">The payload received in a message from the calling system is not a known class.  messageType = </string>
+  <string name="vault_card">Vault Card</string>
+  <string name="_void">Void</string>
+  <string name="yes">Yes</string>
 
   <string-array name="pref_protocol_list_titles">
     <item>WS</item>
@@ -30,34 +146,6 @@
     <item>wss</item>
   </string-array>
 
-  <string name="pref_label_server">Device Endpoint</string>
-  <string name="device_endpoint_settings_label">Device Endpoint</string>
-  <string name="test_settings_button_label">Test</string>
-
-
-  <string name="address">start service to see listen address</string>
-
-
-  <string name="lan_terminal_notification_title">Web Socket payment device connected</string>
-  <string name="lan_terminal_notification_text">Tap to start Local Network Pay Display.</string>
-
-  <string name="checking_kiosk">Checking for kiosk application...</string>
-  <string name="kiosk_not_installed">Please install the kiosk application</string>
-
-  <string name="header_title">Configuration</string>
-  <string name="header_summary">Configure the adapter protocol and port.</string>
-
-  <string name="preferences_title">Preferences</string>
-
   <item type="id" name="button_exit"/>
-  <string name="title_activity_example_pos">Clover Example POS</string>
-  <string name="accept_button_text">Accept</string>
-  <string name="reject_button_text">Reject</string>
-
-
-  <string name="title_activity_orders">OrdersActivity</string>
-  <string name="title_activity_miscellaneous">MiscellaneousActivity</string>
-  <string name="title_activity_startup">StartupActivity</string>
-
 
 </resources>

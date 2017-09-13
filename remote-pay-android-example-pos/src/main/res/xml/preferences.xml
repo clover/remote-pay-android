@@ -23,5 +23,5 @@
       android:inputType="textWebEditText"
       android:singleLine="true"
       android:maxLines="1"
-  />
+      />
 </PreferenceScreen>

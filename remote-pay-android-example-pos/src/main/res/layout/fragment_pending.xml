@@ -16,24 +16,31 @@
   -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginBottom="20sp">
     <TextView android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:text="Pending Payments"
-              android:layout_weight="0"
-              android:background="@color/clover_green"
-              android:textSize="@dimen/order_table_text_size"
-              android:id="@+id/textView3"
-              android:paddingLeft="3dp"/>
+        android:layout_height="wrap_content"
+        android:text="Pending Payments"
+        android:layout_weight="0"
+        android:background="@color/clover_green"
+        android:textColor="@color/white"
+        android:textSize="@dimen/order_table_text_size"
+        android:id="@+id/textView3"
+        android:padding="3dp"/>
     <ListView android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:layout_weight="1"
-              android:id="@+id/PendingPaymentsListView"
-              android:layout_below="@+id/textView3" android:layout_alignParentStart="true" android:layout_alignParentBottom="@+id/button"></ListView>
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:id="@+id/PendingPaymentsListView"
+        android:layout_below="@+id/textView3"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="@+id/button"/>
     <Button android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Refresh"
-            android:onClick="refreshPendingPayments"
-            android:layout_alignParentRight="true" android:id="@+id/button" android:layout_alignParentBottom="true"/>
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_border_padding"
+        android:text="Refresh"
+        android:onClick="refreshPendingPayments"
+        android:layout_alignParentRight="true"
+        android:id="@+id/button"
+        android:layout_alignParentBottom="true"/>
 </RelativeLayout>

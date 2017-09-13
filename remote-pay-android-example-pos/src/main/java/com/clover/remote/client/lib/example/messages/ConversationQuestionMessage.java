@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Clover Network, Inc.
+ * Copyright (C) 2017 Clover Network, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.clover.remote.client.transport;
+package com.clover.remote.client.lib.example.messages;
 
-import java.io.IOException;
-
-public interface RemoteStringConduit {
-  void sendString(String var1) throws IOException, InterruptedException;
-
-  String receiveString() throws IOException, InterruptedException;
+public class ConversationQuestionMessage extends PayloadMessage{
+  public final String message;
+  public ConversationQuestionMessage(String message) {
+    super("ConversationQuestionMessage", MessageType.CONVERSATION_QUESTION);
+    this.message = message;
+  }
 }

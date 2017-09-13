@@ -16,6 +16,8 @@
 
 package com.clover.remote.client.lib.example.model;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -34,10 +36,12 @@ public class POSOrder {
   private List<POSLineItem> items;
   private List<POSExchange> payments;
   private POSDiscount discount;
+  private transient String pendingPaymentId;
   public String id;
   public Date date;
 
   private transient List<OrderObserver> observers = new ArrayList<OrderObserver>();
+  private final String TAG = POSOrder.class.getSimpleName();
 
   public POSOrder() {
     items = new ObservableList<POSLineItem>();
@@ -164,7 +168,15 @@ public class POSOrder {
     return removed;
   }
 
+  public void setPendingPaymentId (String pendingPaymentId){
+    Log.d(TAG, "externalPaymentID set to : " + pendingPaymentId);
+    this.pendingPaymentId = pendingPaymentId;
+  }
 
+  public String getPendingPaymentId(){
+    Log.d(TAG,"returning externalPaymentID: "+pendingPaymentId);
+    return pendingPaymentId;
+  }
 
 
   void addPayment(POSPayment payment) {
