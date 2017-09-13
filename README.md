@@ -2,13 +2,13 @@
 
 # Clover SDK for Android POS integration
 
-### Version 
+## Version 
 
 Current version: 1.3.2
 
 ## Overview
 
-This SDK allows your Android-based Point-of-Sale (POS) system to communicate with a [Clover® device](https://www.clover.com/pos-hardware/) and process payments. Learn more about [Clover Integrations](https://www.clover.com/integrations).
+This SDK allows your Android-based Point-of-Sale (POS) system to communicate with a [Clover® payment device](https://www.clover.com/pos-hardware/) and process payments. Learn more about [Clover Integrations](https://www.clover.com/integrations).
 
 The Android project includes a connector and an example POS. To work with the project effectively, you will need:
 - [Gradle](https://gradle.org) (suggested version 3.4).
@@ -16,7 +16,7 @@ The Android project includes a connector and an example POS. To work with the pr
 - An IDE, such as [Android Studio](http://developer.android.com/tools/studio/index.html).
 - To experience transactions end-to-end from the merchant and customer perspectives, we also recommend ordering a [Clover DevKit](http://cloverdevkit.com/collections/devkits/products/clover-mini-dev-kit).
 
-### Getting connected
+## Getting connected
 1. Download the USB Pay Display app from the Clover App Market onto your Clover DevKit.
 2. Open the USB Pay Display app.
 3. Run the Clover Connector Android Example POS app on your Android POS device or emulator.
@@ -24,7 +24,7 @@ The Android project includes a connector and an example POS. To work with the pr
 	1) You are connecting the correct cable to the correct connection point on the Clover device. (On the Clover Mini, this is the USB port with the Clover logo.) You will need to use the USB cable that came with the device. 
 	2) Your Android device supports “host” mode, which is also referred to as OTG mode. This functionality is required to communicate with the Clover Mini, which will operate in “accessory” mode.
   
-### Additional resources
+## Additional resources
 
 * [Release Notes](https://github.com/clover/remote-pay-android/releases)
 * [Tutorial for the Android SDK](https://docs.clover.com/build/getting-started-with-cloverconnector/?sdk=android)
