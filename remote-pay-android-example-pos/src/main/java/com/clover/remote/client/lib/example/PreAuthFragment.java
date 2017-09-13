@@ -123,7 +123,7 @@ public class PreAuthFragment extends Fragment {
     });
 
     preAuthsListView = (ListView) view.findViewById(R.id.PreAuthListView);
-    final CardsListViewAdapter cardsListViewAdapter = new CardsListViewAdapter(view.getContext(), R.id.PreAuthListView, store.getCards());
+    final PreAuthListViewAdapter cardsListViewAdapter = new PreAuthListViewAdapter(view.getContext(), R.id.PreAuthListView, store.getPreAuths());
     preAuthsListView.setAdapter(cardsListViewAdapter);
 
     preAuthsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -142,14 +142,14 @@ public class PreAuthFragment extends Fragment {
 
                   switch (index) {
                     case 0: {
-                    CapturePreAuthRequest car = new CapturePreAuthRequest();
-                    car.paymentID = posPayment.getPaymentID();
-                    car.amount = store.getCurrentOrder().getTotal();
-                    car.tipAmount = store.getCurrentOrder().getTips();
-                    cloverConnector.capturePreAuth(car);
-                    dialog.dismiss();
-                    break;
-                  }
+                      CapturePreAuthRequest car = new CapturePreAuthRequest();
+                      car.setPaymentID(posPayment.getPaymentID());
+                      car.setAmount(store.getCurrentOrder().getTotal());
+                      car.setTipAmount(store.getCurrentOrder().getTips());
+                      cloverConnector.capturePreAuth(car);
+                      dialog.dismiss();
+                      break;
+                    }
                   }
                 } else {
                   Toast.makeText(getActivity().getBaseContext(), "Clover Connector is null", Toast.LENGTH_LONG).show();

@@ -1,0 +1,10 @@
+<resources>
+    <string-array name="customIds">
+        <item>BasicExample</item>
+        <item>BasicConversationalExample</item>
+        <item>WebViewExample</item>
+        <item>CarouselExample</item>
+        <item>RatingsExample</item>
+        <item>NFCExample</item>
+    </string-array>
+</resources>

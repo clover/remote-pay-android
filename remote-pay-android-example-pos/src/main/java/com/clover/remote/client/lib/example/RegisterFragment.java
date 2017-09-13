@@ -20,12 +20,14 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import com.clover.remote.PendingPaymentEntry;
+import com.clover.remote.client.lib.example.utils.IdUtils;
 import com.clover.sdk.v3.payments.TransactionSettings;
 import com.clover.remote.client.ICloverConnector;
 import com.clover.remote.client.lib.example.adapter.AvailableItemsAdapter;
@@ -58,6 +60,7 @@ import java.util.Map;
 
 public class RegisterFragment extends Fragment implements CurrentOrderFragmentListener, AvailableItemListener {
   private OnFragmentInteractionListener mListener;
+  private static final String TAG = RegisterFragment.class.getSimpleName();
 
   POSStore store;
   ICloverConnector cloverConnector;
@@ -119,7 +122,7 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
     } catch (ClassCastException e) {
 
       throw new ClassCastException(activity.toString()
-          + " must implement OnFragmentInteractionListener: " + activity.getClass().getName());
+                                   + " must implement OnFragmentInteractionListener: " + activity.getClass().getName());
     }
   }
 
@@ -157,9 +160,13 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
 
   @Override
   public void onSaleClicked() {
-    SaleRequest request = new SaleRequest(store.getCurrentOrder().getTotal(), ExamplePOSActivity.getNextId());
+    String externalPaymentID = IdUtils.getNextId();
+    Log.d(TAG, "ExternalPaymentID:" + externalPaymentID);
+    store.getCurrentOrder().setPendingPaymentId(externalPaymentID);
+    SaleRequest request = new SaleRequest(store.getCurrentOrder().getTotal(), externalPaymentID);
     request.setCardEntryMethods(store.getCardEntryMethods());
     request.setAllowOfflinePayment(store.getAllowOfflinePayment());
+    request.setForceOfflinePayment(store.getForceOfflinePayment());
     request.setApproveOfflinePaymentWithoutPrompt(store.getApproveOfflinePaymentWithoutPrompt());
     request.setTippableAmount(store.getCurrentOrder().getTippableAmount());
     request.setTaxAmount(store.getCurrentOrder().getTaxAmount());
@@ -184,9 +191,13 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
 
   @Override
   public void onAuthClicked() {
-    AuthRequest request = new AuthRequest(store.getCurrentOrder().getTotal(), ExamplePOSActivity.getNextId());
+    String externalPaymentID = IdUtils.getNextId();
+    Log.d(TAG, "ExternalPaymentID:" + externalPaymentID);
+    store.getCurrentOrder().setPendingPaymentId(externalPaymentID);
+    AuthRequest request = new AuthRequest(store.getCurrentOrder().getTotal(), externalPaymentID);
     request.setCardEntryMethods(store.getCardEntryMethods());
     request.setAllowOfflinePayment(store.getAllowOfflinePayment());
+    request.setForceOfflinePayment(store.getForceOfflinePayment());
     request.setApproveOfflinePaymentWithoutPrompt(store.getApproveOfflinePaymentWithoutPrompt());
     request.setTippableAmount(store.getCurrentOrder().getTippableAmount());
     request.setTaxAmount(store.getCurrentOrder().getTaxAmount());
@@ -230,7 +241,7 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
 
     }
 
-    @Override 
+    @Override
     public void cardAdded(POSCard card) {
 
     }

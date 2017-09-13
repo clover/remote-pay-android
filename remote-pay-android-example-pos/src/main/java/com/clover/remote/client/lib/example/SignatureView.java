@@ -39,7 +39,7 @@ public class SignatureView extends View {
 
   public void onDraw(Canvas canvas) {
     Paint linePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    linePaint.setColor(Color.WHITE);
+    linePaint.setColor(Color.BLACK);
     linePaint.setStrokeWidth(1.5f);
     if (signature != null && signature.strokes != null) {
       for (Signature2.Stroke stroke : signature.strokes) {

@@ -16,43 +16,46 @@
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" android:id="@+id/listitem_order_layout">
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingRight="10sp"
+    android:id="@+id/listitem_order_layout">
   <TextView
       android:id="@+id/OrderItemQuantityLabel"
       android:layout_width="20dp"
       android:layout_height="wrap_content"
       android:layout_alignParentLeft="true"
       android:layout_alignParentTop="true"
-      android:text="1"
-  />
+      android:text="@string/one"
+      />
   <TextView
-          android:id="@+id/OrderItemNameLabel"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="Item Name"
-          android:layout_alignParentTop="true"
-          android:layout_toEndOf="@+id/OrderItemQuantityLabel" android:layout_toRightOf="@+id/OrderItemQuantityLabel"/>
+      android:id="@+id/OrderItemNameLabel"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/item_name"
+      android:layout_alignParentTop="true"
+      android:layout_toEndOf="@+id/OrderItemQuantityLabel"
+      android:layout_toRightOf="@+id/OrderItemQuantityLabel"/>
   <TextView
       android:id="@+id/OrderItemPriceLabel"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_alignParentRight="true"
-      android:text="0.00"
-  />
+      android:text="@string/order_amount_placeholder"
+      />
   <TextView
       android:id="@+id/OrderItemDiscountLabel"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="No Discount"
+      android:text="@string/no_discount"
       android:layout_below="@+id/OrderItemNameLabel"
       android:layout_toEndOf="@+id/OrderItemNameLabel"/>
   <TextView
       android:id="@+id/OrderItemDiscountPriceLabel"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="No Discount"
+      android:text="@string/no_discount"
       android:layout_below="@+id/OrderItemNameLabel"
       android:layout_alignParentRight="true"/>
 </RelativeLayout>

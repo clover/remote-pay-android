@@ -13,52 +13,65 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:context="com.clover.remote.client.lib.example.OrdersFragment">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.clover.remote.client.lib.example.OrdersFragment">
 
   <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:orientation="vertical"
-                android:layout_alignParentTop="true" android:layout_alignParentBottom="true">
+      android:layout_alignParentTop="true" android:layout_alignParentBottom="true">
     <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight=".5"
-                  android:orientation="vertical">
+        android:orientation="vertical">
       <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Orders"
-                android:layout_weight="0"
-                android:background="@color/clover_green" android:textSize="@dimen/order_table_text_size" android:paddingLeft="3dp"/>
+          android:layout_weight="0"
+          android:background="@color/clover_green"
+          android:textSize="@dimen/order_table_text_size"
+          android:textColor="@color/white"
+
+          android:padding="3dp"/>
 
       <ListView android:layout_width="fill_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:id="@+id/OrdersListView"
-                android:layout_marginBottom="5dp">
+          android:layout_height="0dp"
+          android:layout_weight="1"
+          android:id="@+id/OrdersListView"
+          android:layout_marginBottom="5dp">
       </ListView>
     </LinearLayout>
     <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight=".5"
-                  android:orientation="horizontal" android:layout_marginTop="5dp">
+        android:orientation="horizontal" android:layout_marginTop="5dp">
       <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:orientation="vertical"
-                    android:layout_weight=".5" android:id="@+id/itemsBox" android:layout_marginRight="5dp">
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Order Items"
-                  android:layout_weight="0"
-                  android:background="@color/clover_green" android:textSize="@dimen/order_table_text_size" android:paddingLeft="3dp"/>
+          android:layout_weight=".5" android:id="@+id/itemsBox" android:layout_marginRight="5dp">
+        <TextView android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Order Items"
+            android:layout_weight="0"
+            android:background="@color/clover_green"
+            android:textColor="@color/white"
+            android:textSize="@dimen/order_table_text_size"
+            android:padding="3dp"/>
         <ListView android:layout_width="match_parent"
-                  android:layout_weight="1"
-                  android:layout_height="0dp"
-                  android:id="@+id/ItemsGridView"
-                  android:layout_alignParentStart="true"></ListView>
+            android:layout_weight="1"
+            android:layout_height="0dp"
+            android:id="@+id/ItemsGridView"
+            android:layout_alignParentStart="true"></ListView>
       </LinearLayout>
       <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight=".5"
-                    android:id="@+id/paymentsBox" android:orientation="vertical" android:layout_marginLeft="5dp">
+          android:id="@+id/paymentsBox" android:orientation="vertical" android:layout_marginLeft="5dp">
 
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Order Payments"
-                  android:layout_weight="0"
-                  android:background="@color/clover_green" android:textSize="@dimen/order_table_text_size" android:paddingLeft="3dp"/>
+        <TextView android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Order Payments"
+            android:layout_weight="0"
+            android:background="@color/clover_green"
+            android:textColor="@color/white"
+            android:textSize="@dimen/order_table_text_size"
+            android:padding="3dp"/>
         <ListView android:layout_width="match_parent"
-                  android:layout_weight="1"
-                  android:layout_height="0dp"
-                  android:id="@+id/PaymentsGridView"
-                  android:layout_alignParentEnd="true"></ListView>
+            android:layout_weight="1"
+            android:layout_height="0dp"
+            android:id="@+id/PaymentsGridView"
+            android:layout_alignParentEnd="true"></ListView>
       </LinearLayout>
     </LinearLayout>
   </LinearLayout>

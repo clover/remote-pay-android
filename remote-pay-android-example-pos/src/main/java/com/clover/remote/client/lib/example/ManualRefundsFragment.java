@@ -116,7 +116,7 @@ public class ManualRefundsFragment extends Fragment {
             mListener = (OnFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + " must implement OnFragmentInteractionListener");
+                                         + " must implement OnFragmentInteractionListener");
         }
     }
 
