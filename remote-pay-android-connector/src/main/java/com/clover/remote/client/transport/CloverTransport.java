@@ -86,6 +86,10 @@ public abstract class CloverTransport implements ICloverTransport {
     }
   }
 
+  public int getRemoteMessageVersion(){
+    return 1;
+  }
+
   public void addObserver(ICloverTransportObserver observer) {
     observers.add(observer);
   }

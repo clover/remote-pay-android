@@ -22,6 +22,9 @@ import com.clover.remote.client.messages.AuthRequest;
 import com.clover.remote.client.messages.CapturePreAuthRequest;
 import com.clover.remote.client.messages.CloseoutRequest;
 import com.clover.remote.client.messages.CustomActivityRequest;
+import com.clover.remote.client.messages.OpenCashDrawerRequest;
+import com.clover.remote.client.messages.PrintJobStatusRequest;
+import com.clover.remote.client.messages.PrintRequest;
 import com.clover.remote.client.messages.RetrievePaymentRequest;
 import com.clover.remote.client.messages.ManualRefundRequest;
 import com.clover.remote.client.messages.MessageToActivity;
@@ -29,6 +32,7 @@ import com.clover.remote.client.messages.PreAuthRequest;
 import com.clover.remote.client.messages.ReadCardDataRequest;
 import com.clover.remote.client.messages.RefundPaymentRequest;
 import com.clover.remote.client.messages.RetrieveDeviceStatusRequest;
+import com.clover.remote.client.messages.RetrievePrintersRequest;
 import com.clover.remote.client.messages.SaleRequest;
 import com.clover.remote.client.messages.TipAdjustAuthRequest;
 import com.clover.remote.client.messages.VerifySignatureRequest;
@@ -172,6 +176,34 @@ public interface ICloverConnector extends Serializable {
    * @param request The request details
    */
   void closeout(CloseoutRequest request);
+
+  /**
+   * Request to print.
+   *
+   * @param request The request details: info and content needed to print
+   */
+  void print(PrintRequest request);
+
+  /**
+   * Request to retrieve available printers.
+   *
+   * @param request object that contains additional information to be applied during the request
+   */
+  void retrievePrinters(RetrievePrintersRequest request);
+
+  /**
+   * Request the status of a given print job
+   *
+   * @param request object defining the print job to be queried
+   */
+  void retrievePrintJobStatus(PrintJobStatusRequest request);
+
+  /**
+   * Request that the cash drawer connected to the device be opened.
+   *
+   * @param request object defining the reason the cash drawer is being opened, and an optional device identifier
+   */
+  void openCashDrawer(OpenCashDrawerRequest request);
 
   /**
    * Print simple lines of text to the Clover Mini printer

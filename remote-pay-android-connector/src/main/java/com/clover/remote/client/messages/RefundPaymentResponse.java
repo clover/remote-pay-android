@@ -15,7 +15,6 @@
  */
 
 package com.clover.remote.client.messages;
-
 import com.clover.sdk.v3.payments.Refund;
 
 /**
@@ -90,5 +89,4 @@ public class RefundPaymentResponse extends BaseResponse {
   public void setRefund(Refund refund) {
     this.refund = refund;
   }
-
 }

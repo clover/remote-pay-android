@@ -32,9 +32,9 @@ import com.google.gson.JsonObject;
 
 import java.net.URI;
 import java.security.KeyStore;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 public class WebSocketCloverTransport extends CloverTransport implements CloverNVWebSocketClientListener {
@@ -43,21 +43,8 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverN
   private static final String PAYLOAD = "payload";
 
   private long reconnectDelay; // delay before attempting reconnect
-  private final Runnable reconnectThread = new Runnable() {
-    @Override
-    public void run() {
-      if (!shutdown) {
-        try {
-          initializeConnection();
-        } catch (Exception e) {
-          reconnect();
-        }
-      }
-    }
-  };
   private long pingFrequency; // period between pings in seconds
-  private long pongTimeout; // how long to wait for a pong before closing connection
-  // but still wait
+  private long pongTimeout; // how long to wait for a pong before closing connection but still wait
   private long reportConnectionProblemAfter; // if pong hasn't come back in this time, report as disconnected
   // client, before it is actually disconnected so
   // if the pong is received before disconnect timeout, a deviceReady
@@ -72,10 +59,52 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverN
   private final String serialNumber;
   private String authToken;
   private boolean reportedDisconnect = false; // keeps track if a deviceDisconnected message has been sent to the
-  private Timer pingTimer;
-  private TimerTask pingTimerTask;
-  private TimerTask reportDisconnectTimerTask;
-  private TimerTask disconnectTimerTask;
+
+  private ScheduledFuture reconnectFuture;
+  private final Runnable reconnectRunnable = new Runnable() {
+    @Override
+    public void run() {
+      if (!shutdown) {
+        boolean reconnect = false;
+        try {
+          initializeConnection();
+        } catch (Exception e) {
+          reconnect = true;
+        }
+        synchronized (webSocketLock) {
+          reconnectFuture = null;
+        }
+
+        if (reconnect) {
+          reconnect();
+        }
+      }
+    }
+  };
+
+  private ScheduledFuture pingFuture;
+  private final Runnable pingRunnable = new Runnable() {
+    @Override
+    public void run() {
+      sendPing();
+    }
+  };
+
+  private ScheduledFuture reportDisconnectFuture;
+  private final Runnable reportDisconnectRunnable = new Runnable() {
+    @Override
+    public void run() {
+      reportDisconnect();
+    }
+  };
+
+  private ScheduledFuture disconnectFuture;
+  private final Runnable disconnectRunnable = new Runnable() {
+    @Override
+    public void run() {
+      disconnectMissedPong();
+    }
+  };
 
   private CloverNVWebSocketClient webSocket;
 
@@ -91,10 +120,17 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverN
 
   private boolean isPairing = true;
 
+  private static class WebSocketCloverTransportThreadFactory implements ThreadFactory {
+    @Override
+    public Thread newThread(Runnable r) {
+      return new Thread(r, "Remote-Pay Connection Thread");
+    }
+  }
+
   /**
-   * A single thread/queue to process reconnect requests
+   * A single thread/queue to process reconnect futures
    */
-  private final ScheduledThreadPoolExecutor reconnectPool = new ScheduledThreadPoolExecutor(1);
+  private ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1, new WebSocketCloverTransportThreadFactory());
 
   public WebSocketCloverTransport(URI endpoint, PairingDeviceConfiguration pairingConfig, KeyStore trustStore, String posName, String serialNumber, String authToken,
                                   long pongTimeout, long pingFrequency, long reconnectDelay, long reportConnectionProblemAfter) {
@@ -113,7 +149,7 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverN
     this.reconnectDelay = reconnectDelay;
     this.reportConnectionProblemAfter = reportConnectionProblemAfter;
 
-    this.pingTimer = new Timer("Remote-Pay Ping Timer");
+    executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
   }
 
   /**
@@ -143,6 +179,7 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverN
   private void clearWebsocket() {
     synchronized (webSocketLock) {
       if (webSocket != null) {
+        webSocket.disconnect();
         webSocket.clearListener();
         webSocket = null;
       }
@@ -161,15 +198,22 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverN
       webSocket = new CloverNVWebSocketClient(endpoint, this, trustStore);
     }
 
-    // This connect call is outside the synchronized block intentionally because this is a blocking call
-    // Potential race condition is handled by try/catch
-    try {
-      webSocket.connect();
-      Log.d(getClass().getSimpleName(), "connection attempt done.");
-    } catch (Exception ex) {
-      ex.printStackTrace();
-      reconnect();
-    }
+    // network access, so needs to be off UI thread
+    new AsyncTask<Object, Object, Object>() {
+      @Override
+      protected Object doInBackground(Object[] params) {
+        // This connect call is outside the synchronized block intentionally because this is a blocking call
+        // Potential race condition is handled by try/catch
+        try {
+          webSocket.connect();
+          Log.d(getClass().getSimpleName(), "connection attempt done.");
+        } catch (Exception ex) {
+          Log.w(WebSocketCloverTransport.class.getSimpleName(), "connection attempt failed.");
+          reconnect();
+        }
+        return null;
+      }
+    }.execute();
   }
 
   @Override
@@ -177,6 +221,7 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverN
     super.dispose();
     shutdown = true;
     close();
+    executor.shutdownNow();
   }
 
   private void close() {
@@ -196,12 +241,25 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverN
         notify = false;
       }
 
-      // Timer task cancel occurs in synchronization block to prevent canceling a newly created task prior to schedul
-      if (disconnectTimerTask != null) {
-        disconnectTimerTask.cancel();
+      // Timer task cancel occurs in synchronization block to prevent canceling a newly created task prior to schedule
+      if (reconnectFuture != null) {
+        reconnectFuture.cancel(false);
+        reconnectFuture = null;
       }
-      if (reportDisconnectTimerTask != null) {
-        reportDisconnectTimerTask.cancel();
+
+      if (disconnectFuture != null) {
+        disconnectFuture.cancel(false);
+        disconnectFuture = null;
+      }
+
+      if (reportDisconnectFuture != null) {
+        reportDisconnectFuture.cancel(false);
+        reportDisconnectFuture = null;
+      }
+
+      if (pingFuture != null) {
+        pingFuture.cancel(false);
+        pingFuture = null;
       }
     }
 
@@ -215,7 +273,19 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverN
       Log.d(getClass().getSimpleName(), "Not attempting to reconnect, shutdown...");
       return;
     }
-    reconnectPool.schedule(reconnectThread, reconnectDelay, TimeUnit.MILLISECONDS);
+
+    synchronized (webSocketLock) {
+      if (reconnectFuture != null) {
+        // Reconnect already in progress
+        return;
+      }
+
+      // Due to the asynchronous nature of this class, it is possible to attempt to schedule a future
+      // AFTER the transport has been shutdown, so always test...
+      if (!executor.isShutdown()) {
+        reconnectFuture = executor.schedule(reconnectRunnable, reconnectDelay, TimeUnit.MILLISECONDS);
+      }
+    }
   }
 
   @Override
@@ -280,11 +350,14 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverN
   private void resetPong() {
     synchronized (webSocketLock) {
       // Timer task cancel occurs in synchronization block to prevent canceling a newly created task prior to scheduling
-      if (disconnectTimerTask != null) {
-        disconnectTimerTask.cancel(); //Subsequent calls have no effect.
+      if (disconnectFuture != null) {
+        disconnectFuture.cancel(false);
+        disconnectFuture = null;
       }
-      if (reportDisconnectTimerTask != null) {
-        reportDisconnectTimerTask.cancel();//Subsequent calls have no effect.
+
+      if (reportDisconnectFuture != null) {
+        reportDisconnectFuture.cancel(false); //Subsequent calls have no effect.
+        reportDisconnectFuture = null;
       }
     }
 
@@ -304,26 +377,11 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverN
 
   private void schedulePing() {
     reportedDisconnect = false;
-    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-      @Override
-      protected Void doInBackground(Void[] params) {
-        synchronized (webSocketLock) {
-          // Timer task creation/cancel occurs in synchronization block to prevent canceling a newly created task prior to scheduling
-          if (pingTimerTask != null) {
-            pingTimerTask.cancel();
-          }
-          pingTimerTask = new TimerTask() {
-            @Override
-            public void run() {
-              sendPing();
-            }
-          };
-          pingTimer.schedule(pingTimerTask, pingFrequency);
-        }
-        return null;
-      }
-    };
-    task.execute();
+    // Due to the asynchronous nature of this class, it is possible to attempt to schedule a future
+    // AFTER the transport has been shutdown, so always test...
+    if (!executor.isShutdown()) {
+      pingFuture = executor.schedule(pingRunnable, pingFrequency, TimeUnit.MILLISECONDS);
+    }
   }
 
   private void sendPing() {
@@ -336,48 +394,28 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverN
   }
 
   private void scheduleDisconnect() {
-    if (reportConnectionProblemAfter < pongTimeout) {
-      AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-        @Override
-        protected Void doInBackground(Void[] params) {
-          synchronized (webSocketLock) {
-            // Timer task creation/cancel occurs in synchronization block to prevent canceling a newly created task prior to scheduling
-            if (reportDisconnectTimerTask != null) {
-              reportDisconnectTimerTask.cancel();
-            }
-            reportDisconnectTimerTask = new TimerTask() {
-              @Override
-              public void run() {
-                reportDisconnect();
-              }
-            };
-            pingTimer.schedule(reportDisconnectTimerTask, reportConnectionProblemAfter);
-          }
-          return null;
+    synchronized (webSocketLock) {
+      if (reportConnectionProblemAfter < pongTimeout) {
+        if (reportDisconnectFuture != null) {
+          reportDisconnectFuture.cancel(false);
         }
-      };
-      task.execute();
-    }
-    final AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-      @Override
-      protected Void doInBackground(Void[] params) {
-        synchronized (webSocketLock) {
-          // Timer task creation/cancel occurs in synchronization block to prevent canceling a newly created task prior to scheduling
-          if (disconnectTimerTask != null) {
-            disconnectTimerTask.cancel();
-          }
-          disconnectTimerTask = new TimerTask() {
-            @Override
-            public void run() {
-              disconnectMissedPong();
-            }
-          };
-          pingTimer.schedule(disconnectTimerTask, pongTimeout);
+
+        // Due to the asynchronous nature of this class, it is possible to attempt to schedule a future
+        // AFTER the transport has been shutdown, so always test...
+        if (!executor.isShutdown()) {
+          reportDisconnectFuture = executor.schedule(reportDisconnectRunnable, reportConnectionProblemAfter, TimeUnit.MILLISECONDS);
         }
-        return null;
       }
-    };
-    task.execute();
+
+      if (disconnectFuture != null) {
+        disconnectFuture.cancel(false);
+      }
+      // Due to the asynchronous nature of this class, it is possible to attempt to schedule a future
+      // AFTER the transport has been shutdown, so always test...
+      if (!executor.isShutdown()) {
+        disconnectFuture = executor.schedule(disconnectRunnable, pongTimeout, TimeUnit.MILLISECONDS);
+      }
+    }
   }
 
   private void reportDisconnect() {
@@ -399,7 +437,7 @@ public class WebSocketCloverTransport extends CloverTransport implements CloverN
     synchronized (webSocketLock) {
       if (webSocket != null) {
         Log.w(getClass().getSimpleName(), "forcing disconnect");
-        webSocket.disconnect();
+        webSocket.disconnectMissedPong();
       } else {
         dispose = true;
       }

@@ -34,6 +34,7 @@ public abstract class WebSocketCloverDeviceConfiguration implements PairingDevic
   private static final long PING_FREQUENCY = 3000;
   private static final long PONG_TIMEOUT = 6000;
   private static final long REPORT_CONNECTION_PROBLEM_AFTER = 6000;
+  private static final int MAX_CHAR_IN_MESSAGE = 50000;
 
   private final String posName;
   private final String serialNumber;
@@ -109,6 +110,11 @@ public abstract class WebSocketCloverDeviceConfiguration implements PairingDevic
   @Override
   public String getName() {
     return "Clover WebSocket Connector";
+  }
+
+  @Override
+  public int getMaxMessageCharacters(){
+    return MAX_CHAR_IN_MESSAGE;
   }
 
   @Override

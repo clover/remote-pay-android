@@ -137,8 +137,16 @@ public class USBCloverTransport extends CloverTransport {
   public void dispose() {
     super.dispose();
     if(context != null) {
-      context.unregisterReceiver(messageBroadcastReceiver);
-      context.unregisterReceiver(connectionBroadcastReceiver);
+      try {
+        context.unregisterReceiver(messageBroadcastReceiver);
+      } catch (Exception ex) {
+        // Fail silently to allow dispose to be called multiple times (e.g. explicitly via dispose() and implicitly via finalize())
+      }
+      try {
+        context.unregisterReceiver(connectionBroadcastReceiver);
+      } catch (Exception ex) {
+        // Fail silently to allow dispose to be called multiple times (e.g. explicitly via dispose() and implicitly via finalize())
+      }
     }
   }
 

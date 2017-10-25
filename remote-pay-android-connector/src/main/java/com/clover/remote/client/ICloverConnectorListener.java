@@ -22,6 +22,7 @@ import com.clover.remote.client.messages.CloseoutResponse;
 import com.clover.remote.client.messages.CloverDeviceErrorEvent;
 import com.clover.remote.client.messages.CloverDeviceEvent;
 import com.clover.remote.client.messages.CustomActivityResponse;
+import com.clover.remote.client.messages.PrintJobStatusResponse;
 import com.clover.remote.client.messages.RetrievePaymentResponse;
 import com.clover.remote.client.messages.MessageFromActivity;
 import com.clover.remote.client.messages.ConfirmPaymentRequest;
@@ -38,6 +39,7 @@ import com.clover.remote.client.messages.RefundPaymentResponse;
 import com.clover.remote.client.messages.ResetDeviceResponse;
 import com.clover.remote.client.messages.RetrieveDeviceStatusResponse;
 import com.clover.remote.client.messages.RetrievePendingPaymentsResponse;
+import com.clover.remote.client.messages.RetrievePrintersResponse;
 import com.clover.remote.client.messages.SaleResponse;
 import com.clover.remote.client.messages.TipAdjustAuthResponse;
 import com.clover.remote.client.messages.VaultCardResponse;
@@ -180,6 +182,20 @@ public interface ICloverConnectorListener {
    * @param response The response
    */
   void onVaultCardResponse(VaultCardResponse response);
+
+  /**
+   * Called to update the status of a print job
+   *
+   * @param response The response contains the print job identifier and that job's status
+   */
+    void onPrintJobStatusResponse(PrintJobStatusResponse response);
+
+  /**
+   * Called in response to a retrievePrinters() request
+   *
+   * @param response Response object containing an array of the printers being passed back
+   */
+  void onRetrievePrintersResponse(RetrievePrintersResponse response);
 
   /**
    * Will only be called if disablePrinting = true on the Sale, Auth, PreAuth or ManualRefund Request

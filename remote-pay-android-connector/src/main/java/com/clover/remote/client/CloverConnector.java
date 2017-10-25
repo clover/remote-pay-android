@@ -20,6 +20,7 @@ import com.clover.common2.Signature2;
 import com.clover.common2.payments.PayIntent;
 import com.clover.remote.CardData;
 import com.clover.remote.Challenge;
+import com.clover.remote.ErrorCode;
 import com.clover.remote.ExternalDeviceState;
 import com.clover.remote.ExternalDeviceStateData;
 import com.clover.remote.InputOption;
@@ -44,6 +45,10 @@ import com.clover.remote.client.messages.CloverDeviceEvent;
 import com.clover.remote.client.messages.ConfirmPaymentRequest;
 import com.clover.remote.client.messages.CustomActivityRequest;
 import com.clover.remote.client.messages.CustomActivityResponse;
+import com.clover.remote.client.messages.OpenCashDrawerRequest;
+import com.clover.remote.client.messages.PrintJobStatusRequest;
+import com.clover.remote.client.messages.PrintJobStatusResponse;
+import com.clover.remote.client.messages.PrintRequest;
 import com.clover.remote.client.messages.RetrievePaymentRequest;
 import com.clover.remote.client.messages.RetrievePaymentResponse;
 import com.clover.remote.client.messages.ManualRefundRequest;
@@ -67,6 +72,8 @@ import com.clover.remote.client.messages.ResultCode;
 import com.clover.remote.client.messages.RetrieveDeviceStatusRequest;
 import com.clover.remote.client.messages.RetrieveDeviceStatusResponse;
 import com.clover.remote.client.messages.RetrievePendingPaymentsResponse;
+import com.clover.remote.client.messages.RetrievePrintersRequest;
+import com.clover.remote.client.messages.RetrievePrintersResponse;
 import com.clover.remote.client.messages.SaleRequest;
 import com.clover.remote.client.messages.SaleResponse;
 import com.clover.remote.client.messages.TipAdjustAuthRequest;
@@ -90,9 +97,10 @@ import com.clover.sdk.v3.payments.Refund;
 import com.clover.sdk.v3.payments.TipMode;
 import com.clover.sdk.v3.payments.TransactionSettings;
 import com.clover.sdk.v3.payments.VaultedCard;
+import com.clover.sdk.v3.printer.PrintJobStatus;
+import com.clover.sdk.v3.printer.Printer;
 
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.PrintWriter;
@@ -112,6 +120,7 @@ public class CloverConnector implements ICloverConnector {
   public static final int CARD_ENTRY_METHOD_ICC_CONTACT = 0b0010 | 0b0010_00000000 | KIOSK_CARD_ENTRY_METHODS; // 33282
   public static final int CARD_ENTRY_METHOD_NFC_CONTACTLESS = 0b0100 | 0b0100_00000000 | KIOSK_CARD_ENTRY_METHODS; // 33796
   public static final int CARD_ENTRY_METHOD_MANUAL = 0b1000 | 0b1000_00000000 | KIOSK_CARD_ENTRY_METHODS; // 34824
+  public static final int MAX_PAYLOAD_SIZE = 10000000; // maximum size of the payload of a full message.  if the payload exceeds this, the message will not be sent.
 
   public static final InputOption CANCEL_INPUT_OPTION = new InputOption(KeyPress.ESC, "Cancel");
 
@@ -133,6 +142,7 @@ public class CloverConnector implements ICloverConnector {
   private CloverDeviceConfiguration configuration;
 
   boolean isReady = false;
+
 
   /**
    * CloverConnector constructor
@@ -171,13 +181,7 @@ public class CloverConnector implements ICloverConnector {
       device.subscribe(deviceObserver);
     }
 
-    new AsyncTask<Object, Object, Object>() {
-      @Override
-      protected Object doInBackground(Object[] params) {
-        device.initializeConnection(); // network access, so needs to be off UI thread
-        return null;
-      }
-    }.execute();
+    device.initializeConnection();
   }
 
   @Override
@@ -338,11 +342,11 @@ public class CloverConnector implements ICloverConnector {
   @Override
   public void acceptSignature(VerifySignatureRequest request) {
     if (device == null || !isReady) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, "In acceptSignature: Device is not connected."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, null, "In acceptSignature: Device is not connected."));
     } else if (request == null) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, "In acceptSignature: VerifySignatureRequest cannot be null."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, null, "In acceptSignature: VerifySignatureRequest cannot be null."));
     } else if (request.getPayment() == null || request.getPayment().getId() == null) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, "In acceptSignature: VerifySignatureRequest. Payment must have anID."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, null, "In acceptSignature: VerifySignatureRequest. Payment must have anID."));
     } else {
       device.doSignatureVerified(request.getPayment(), true);
     }
@@ -351,11 +355,11 @@ public class CloverConnector implements ICloverConnector {
   @Override
   public void rejectSignature(VerifySignatureRequest request) {
     if (device == null || !isReady) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, "In rejectSignature: Device is not connected."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, null, "In rejectSignature: Device is not connected."));
     } else if (request == null) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, "In rejectSignature: VerifySignatureRequest cannot be null."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, null, "In rejectSignature: VerifySignatureRequest cannot be null."));
     } else if (request.getPayment() == null || request.getPayment().getId() == null) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, "In rejectSignature: VerifySignatureRequest.Payment must have an ID."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, null, "In rejectSignature: VerifySignatureRequest.Payment must have an ID."));
     } else {
       device.doSignatureVerified(request.getPayment(), false);
     }
@@ -364,11 +368,11 @@ public class CloverConnector implements ICloverConnector {
   @Override
   public void acceptPayment(Payment payment) {
     if (device == null || !isReady) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, "In acceptPayment: Device is not connected."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, null, "In acceptPayment: Device is not connected."));
     } else if (payment == null) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, "In acceptPayment: Payment cannot be null."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, null, "In acceptPayment: Payment cannot be null."));
     } else if (payment.getId() == null) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, "In acceptPayment: Payment must have an ID."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, null, "In acceptPayment: Payment must have an ID."));
     } else {
       device.doAcceptPayment(payment);
     }
@@ -377,13 +381,13 @@ public class CloverConnector implements ICloverConnector {
   @Override
   public void rejectPayment(Payment payment, Challenge challenge) {
     if (device == null || !isReady) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, "In rejectPayment: Device is not connected."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, null, "In rejectPayment: Device is not connected."));
     } else if (payment == null) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, "In rejectPayment: Payment cannot be null."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, null, "In rejectPayment: Payment cannot be null."));
     } else if (payment.getId() == null) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, "In rejectPayment: Payment must have an ID."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, null, "In rejectPayment: Payment must have an ID."));
     } else if (challenge == null) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, "In rejectPayment: Challenge cannot be null."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, null, "In rejectPayment: Challenge cannot be null."));
     } else {
       device.doRejectPayment(payment, challenge);
     }
@@ -633,9 +637,9 @@ public class CloverConnector implements ICloverConnector {
   @Override
   public void sendMessageToActivity(MessageToActivity request) {
     if (device == null || !isReady) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, "In sendMessageToActivity: The Clover device is not connected."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, null, "In sendMessageToActivity: The Clover device is not connected."));
     } else if (request == null) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, "In sendMessageToActivity: Invalid argument. Null is not allowed."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, null, "In sendMessageToActivity: Invalid argument. Null is not allowed."));
     } else {
       device.doSendMessageToActivity(request.getAction(), request.getPayload());
     }
@@ -644,31 +648,97 @@ public class CloverConnector implements ICloverConnector {
   @Override
   public void closeout(CloseoutRequest request) {
     if (device == null || !isReady) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, "In closeout: CloseoutRequest - The Clover device is not connected."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, null, "In closeout: CloseoutRequest - The Clover device is not connected."));
     } else if (request == null) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, "In closeout: Invalid argument. Null is not allowed."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, null, "In closeout: Invalid argument. Null is not allowed."));
     } else {
       device.doCloseout(request.isAllowOpenTabs(), request.getBatchId());
+    }
+  }
+
+
+
+
+
+  @Override
+  public void print(PrintRequest request) {
+    if(device != null){
+      if(!isReady){
+        broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR,0, null, "Print: The Clover Device is not ready"));
+      }
+      else{
+        device.doPrint(request.getImages(), request.getImageURLs(), request.getText(), request.getPrintRequestId(), request.getPrintDeviceId());
+      }
+    }
+    else{
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR,0, null, "Print: The Clover Device is null"));
+    }
+  }
+
+
+  @Override
+  public void retrievePrinters(RetrievePrintersRequest request) {
+    if(device != null){
+      if(!isReady){
+        broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR,0, null, "RetrievePrinters: The Clover Device is not ready"));
+      }
+      else{
+        device.doRetrievePrinters(request.getCategory());
+      }
+    }
+    else{
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR,0, null, "RetrievePrinters: The Clover Device is null"));
+    }
+  }
+
+  @Override
+  public void retrievePrintJobStatus(PrintJobStatusRequest request) {
+    if(device != null){
+      if(!isReady){
+        broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR,0, null, "RetrievePrintJobStatus: The Clover Device is not ready"));
+      }
+      else{
+        device.doRetrievePrintJobStatus(request.getPrintRequestId());
+      }
+    }
+    else{
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR,0, null, "RetrievePrintJobStatus: The Clover Device is null"));
+    }
+  }
+
+  @Override
+  public void openCashDrawer(OpenCashDrawerRequest request) {
+    if(device != null){
+      if(!isReady){
+        broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR,0, null, "OpenCashDrawer: The Clover Device is not ready"));
+      }
+      else{
+        device.doOpenCashDrawer(request.getReason(), request.getDeviceId());
+      }
+    }
+    else{
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR,0, null, "OpenCashDrawer: The Clover Device is null"));
     }
   }
 
   @Override
   public void cancel() {
     if (device == null || !isReady) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, "In cancel: The Clover device is not connected."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, null, "In cancel: The Clover device is not connected."));
     } else {
       invokeInputOption(CANCEL_INPUT_OPTION);
     }
   }
 
+
   @Override
   public void printText(List<String> messages) {
     if (device == null || !isReady) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, "In printText: The Clover device is not connected."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, null, "In printText: The Clover device is not connected."));
     } else if (messages == null) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, "In printText: Invalid argument. Null is not allowed."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, null, "In printText: Invalid argument. Null is not allowed."));
     } else {
-      device.doPrintText(messages);
+      device.doPrintText(messages, null, null);
     }
   }
 
@@ -676,31 +746,31 @@ public class CloverConnector implements ICloverConnector {
   public void printImage(Bitmap bitmap) //Bitmap img
   {
     if (device == null || !isReady) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, "In printImage: The Clover device is not connected."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, null, "In printImage: The Clover device is not connected."));
     } else if (bitmap == null) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, "In printImage: Invalid argument.  Null is not allowed."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, null, "In printImage: Invalid argument.  Null is not allowed."));
     } else {
-      device.doPrintImage(bitmap);
+      device.doPrintImage(bitmap, null, null);
     }
   }
 
   @Override
   public void printImageFromURL(String url) {
     if (device == null || !isReady) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, "In printImageFromURL: The Clover device is not connected."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, null, "In printImageFromURL: The Clover device is not connected."));
     } else if (url == null) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, "In printImageFromURL: Invalid argument.  Null is not allowed."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, null, "In printImageFromURL: Invalid argument.  Null is not allowed."));
     } else {
-      device.doPrintImage(url);
+      device.doPrintImage(url, null, null);
     }
   }
 
   @Override
   public void showMessage(String message) {
     if (device == null || !isReady) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, "In showMessage: The Clover device is not connected."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, null, "In showMessage: The Clover device is not connected."));
     } else if (message == null) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, "In showMessage: Invalid argument.  Null is not allowed."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, null, "In showMessage: Invalid argument.  Null is not allowed."));
     } else {
       device.doTerminalMessage(message);
     }
@@ -709,7 +779,7 @@ public class CloverConnector implements ICloverConnector {
   @Override
   public void showWelcomeScreen() {
     if (device == null || !isReady) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, "In showWelcomeScreen: The Clover device is not connected."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, null, "In showWelcomeScreen: The Clover device is not connected."));
     } else {
       device.doShowWelcomeScreen();
     }
@@ -718,7 +788,7 @@ public class CloverConnector implements ICloverConnector {
   @Override
   public void showThankYouScreen() {
     if (device == null || !isReady) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, "In showThankYouScreen: The Clover device is not connected."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, null, "In showThankYouScreen: The Clover device is not connected."));
     } else {
       device.doShowThankYouScreen();
     }
@@ -727,11 +797,11 @@ public class CloverConnector implements ICloverConnector {
   @Override
   public void displayPaymentReceiptOptions(String orderId, String paymentId) {
     if (device == null || !isReady) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, "In displayPaymentReceiptOptions: The Clover device is not connected."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, null, "In displayPaymentReceiptOptions: The Clover device is not connected."));
     } else if (orderId == null) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, "In displayPaymentReceiptOptions: Invalid argument.  The orderId cannot be null."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, null, "In displayPaymentReceiptOptions: Invalid argument.  The orderId cannot be null."));
     } else if (paymentId == null) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, "In displayPaymentReceiptOptions: Invalid argument.  The paymentId cannot be null."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, null, "In displayPaymentReceiptOptions: Invalid argument.  The paymentId cannot be null."));
     } else {
       device.doShowPaymentReceiptScreen(orderId, paymentId);
     }
@@ -740,18 +810,18 @@ public class CloverConnector implements ICloverConnector {
   @Override
   public void openCashDrawer(String reason) {
     if (device == null || !isReady) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, "In openCashDrawer: The Clover device is not connected."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, null,  "In openCashDrawer: The Clover device is not connected."));
     } else {
-      device.doOpenCashDrawer(reason);
+      device.doOpenCashDrawer(reason, null);
     }
   }
 
   @Override
   public void showDisplayOrder(DisplayOrder order) {
     if (device == null || !isReady) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, "In showDisplayOrder: The Clover device is not connected."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, null,  "In showDisplayOrder: The Clover device is not connected."));
     } else if (order == null) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, "In showDisplayOrder: Invalid argument.  The order cannot be null."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, null, "In showDisplayOrder: Invalid argument.  The order cannot be null."));
     } else {
       device.doOrderUpdate(order, null);
     }
@@ -760,9 +830,9 @@ public class CloverConnector implements ICloverConnector {
   @Override
   public void removeDisplayOrder(DisplayOrder order) {
     if (device == null || !isReady) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, "In removeDisplayOrder: The Clover device is not connected."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, null, "In removeDisplayOrder: The Clover device is not connected."));
     } else if (order == null) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, "In removeDisplayOrder: Invalid argument.  The order cannot be null."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.VALIDATION_ERROR, 0, null, "In removeDisplayOrder: Invalid argument.  The order cannot be null."));
     } else {
       OrderDeletedOperation dao = new OrderDeletedOperation();
       dao.setId(order.getId());
@@ -782,7 +852,7 @@ public class CloverConnector implements ICloverConnector {
   @Override
   public void invokeInputOption(InputOption io) {
     if (device == null || !isReady) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, "In invokeInputOption: The Clover device is not connected."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, null, "In invokeInputOption: The Clover device is not connected."));
     } else {
       device.doKeyPress(io.keyPress);
     }
@@ -791,7 +861,7 @@ public class CloverConnector implements ICloverConnector {
   @Override
   public void resetDevice() {
     if (device == null || !isReady) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, "In resetDevice: The Clover device is not connected."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, null, "In resetDevice: The Clover device is not connected."));
     } else {
       device.doResetDevice();
     }
@@ -800,7 +870,7 @@ public class CloverConnector implements ICloverConnector {
   @Override
   public void retrieveDeviceStatus(RetrieveDeviceStatusRequest request) {
     if (device == null || !isReady) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, "In retrieveDeviceStatus: The Clover device is not connected."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, null, "In retrieveDeviceStatus: The Clover device is not connected."));
     } else {
       device.doRetrieveDeviceStatus(request.isSendLastMessage());
     }
@@ -809,7 +879,7 @@ public class CloverConnector implements ICloverConnector {
   @Override
   public void retrievePayment(RetrievePaymentRequest request) {
     if (device == null || !isReady) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, "In retrievePayment: The Clover device is not connected."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, null, "In retrievePayment: The Clover device is not connected."));
     } else {
       device.doRetrievePayment(request.getExternalPaymentId());
     }
@@ -822,7 +892,7 @@ public class CloverConnector implements ICloverConnector {
   @Override
   public void startCustomActivity(CustomActivityRequest request) {
     if (device == null || !isReady) {
-      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, "In startCustomActivity: The Clover device is not connected."));
+      broadcaster.notifyOnDeviceError(new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.COMMUNICATION_ERROR, 0, null, "In startCustomActivity: The Clover device is not connected."));
     } else {
       device.doStartActivity(request.getAction(), request.getPayload(), request.isNonBlocking());
     }
@@ -1009,6 +1079,14 @@ public class CloverConnector implements ICloverConnector {
     }
 
     @Override
+    public void onRetrievePrinterResponse(List<Printer> printers) {
+      RetrievePrintersResponse response = new RetrievePrintersResponse(printers);
+      response.setResult(printers != null ? ResultCode.SUCCESS : ResultCode.FAIL);
+      response.setSuccess(response.getResult() == ResultCode.SUCCESS);
+      cloverConnector.broadcaster.notifyOnRetrievePrinters(response);
+    }
+
+    @Override
     public void onPartialAuth(long partialAmount) {
       //TODO: For future use
     }
@@ -1051,13 +1129,17 @@ public class CloverConnector implements ICloverConnector {
     }
 
     @Override
-    public void onPaymentRefundResponse(String orderId, String paymentId, Refund refund, TxState code) {
+    public void onPaymentRefundResponse(String orderId, String paymentId, Refund refund, TxState code, ErrorCode reason, String message) {
       // hold the response for finishOk for the refund. See comments in onFinishOk(Refund)
       boolean success = code == TxState.SUCCESS;
       RefundPaymentResponse prr = new RefundPaymentResponse(success, success ? ResultCode.SUCCESS : ResultCode.FAIL);
       prr.setOrderId(orderId);
       prr.setPaymentId(paymentId);
       prr.setRefund(refund);
+      if(reason != null) {
+        prr.setReason(reason.toString());
+      }
+      prr.setMessage(message);
       lastPRR = prr; // set this so we have the appropriate information for when onFinish(Refund) is called
     }
 
@@ -1410,5 +1492,13 @@ public class CloverConnector implements ICloverConnector {
       // TODO: for future use
     }
 
+    @Override
+    public void onRetrievePrintJobStatus(String printRequestId, PrintJobStatus status){
+      PrintJobStatusResponse response = new PrintJobStatusResponse(printRequestId, status);
+      response.setResult(status != null ? ResultCode.SUCCESS : ResultCode.FAIL);
+      response.setSuccess(response.getResult() == ResultCode.SUCCESS);
+      cloverConnector.broadcaster.notifyOnPrintJobStatusResponse(response);
+
+    }
   }
 }

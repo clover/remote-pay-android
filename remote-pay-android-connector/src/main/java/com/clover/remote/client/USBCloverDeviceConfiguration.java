@@ -34,6 +34,7 @@ import java.io.Serializable;
  */
 public class USBCloverDeviceConfiguration implements CloverDeviceConfiguration, Serializable {
   private static final String TAG = USBCloverDeviceConfiguration.class.getSimpleName();
+  private static final int MAX_CHAR_IN_MESSAGE = 1000;
 
   private final Context context;
   private final String appId;
@@ -62,6 +63,11 @@ public class USBCloverDeviceConfiguration implements CloverDeviceConfiguration, 
   @Override
   public String getName() {
     return "Clover USB Connector";
+  }
+
+  @Override
+  public int getMaxMessageCharacters() {
+    return MAX_CHAR_IN_MESSAGE;
   }
 
   @Override

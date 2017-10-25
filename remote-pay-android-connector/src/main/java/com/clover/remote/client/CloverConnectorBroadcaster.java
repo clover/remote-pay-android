@@ -22,6 +22,7 @@ import com.clover.remote.client.messages.CloseoutResponse;
 import com.clover.remote.client.messages.CloverDeviceErrorEvent;
 import com.clover.remote.client.messages.CloverDeviceEvent;
 import com.clover.remote.client.messages.CustomActivityResponse;
+import com.clover.remote.client.messages.PrintJobStatusResponse;
 import com.clover.remote.client.messages.RetrievePaymentResponse;
 import com.clover.remote.client.messages.MessageFromActivity;
 import com.clover.remote.client.messages.ConfirmPaymentRequest;
@@ -38,6 +39,7 @@ import com.clover.remote.client.messages.RefundPaymentResponse;
 import com.clover.remote.client.messages.ResetDeviceResponse;
 import com.clover.remote.client.messages.RetrieveDeviceStatusResponse;
 import com.clover.remote.client.messages.RetrievePendingPaymentsResponse;
+import com.clover.remote.client.messages.RetrievePrintersResponse;
 import com.clover.remote.client.messages.SaleResponse;
 import com.clover.remote.client.messages.TipAdjustAuthResponse;
 import com.clover.remote.client.messages.VaultCardResponse;
@@ -355,6 +357,26 @@ class CloverConnectorBroadcaster extends CopyOnWriteArrayList<ICloverConnectorLi
     for (ICloverConnectorListener listener : this) {
       try {
         listener.onResetDeviceResponse(rdr);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
+    }
+  }
+
+  void notifyOnRetrievePrinters(RetrievePrintersResponse response){
+    for(ICloverConnectorListener listener : this){
+      try {
+        listener.onRetrievePrintersResponse(response);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
+    }
+  }
+
+  void notifyOnPrintJobStatusResponse(PrintJobStatusResponse response){
+    for(ICloverConnectorListener listener : this){
+      try {
+        listener.onPrintJobStatusResponse(response);
       } catch (Exception ex) {
         Log.w("Notification error", ex);
       }

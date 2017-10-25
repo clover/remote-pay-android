@@ -19,6 +19,7 @@ package com.clover.remote.client.device;
 import com.clover.common2.Signature2;
 import com.clover.remote.CardData;
 import com.clover.remote.Challenge;
+import com.clover.remote.ErrorCode;
 import com.clover.remote.ExternalDeviceState;
 import com.clover.remote.ExternalDeviceStateData;
 import com.clover.remote.InputOption;
@@ -39,6 +40,8 @@ import com.clover.sdk.v3.payments.Credit;
 import com.clover.sdk.v3.payments.Payment;
 import com.clover.sdk.v3.payments.Refund;
 import com.clover.sdk.v3.payments.VaultedCard;
+import com.clover.sdk.v3.printer.PrintJobStatus;
+import com.clover.sdk.v3.printer.Printer;
 
 import java.util.List;
 
@@ -74,7 +77,7 @@ public interface CloverDeviceObserver {
 
   void onKeyPressed(KeyPress keyPress);
 
-  void onPaymentRefundResponse(String orderId, String paymentId, Refund refund, TxState code);
+  void onPaymentRefundResponse(String orderId, String paymentId, Refund refund, TxState code, ErrorCode reason, String message);
 
   void onVaultCardResponse(VaultedCard vaultedCard, String code, String reason);
 
@@ -117,5 +120,9 @@ public interface CloverDeviceObserver {
   void onResetDeviceResponse(ResultCode result, String reason, ExternalDeviceState state);
 
   void onRetrievePaymentResponse(ResultCode result, String reason, String externalPaymentId, QueryStatus queryStatus, Payment payment);
+
+  void onRetrievePrinterResponse(List<Printer> printers);
+
+  void onRetrievePrintJobStatus(String printRequestId, PrintJobStatus status);
 
 }

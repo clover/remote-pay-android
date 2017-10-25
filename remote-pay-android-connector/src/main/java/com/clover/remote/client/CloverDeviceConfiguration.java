@@ -16,7 +16,6 @@
 
 package com.clover.remote.client;
 
-import com.clover.remote.client.CloverConnector;
 import com.clover.remote.client.transport.ICloverTransport;
 
 import java.io.Serializable;
@@ -46,6 +45,14 @@ public interface CloverDeviceConfiguration extends Serializable {
    * @return name
    */
   String getName();
+
+  /**
+   * Retrieve the max message characters
+   *
+   * @return max numner characters
+   */
+  int getMaxMessageCharacters();
+
 
   /**
    * Retrieve the configuration specified transport (e.g. network, etc.) associated with this configuration.  Note
