@@ -28,13 +28,17 @@ import com.clover.remote.client.lib.example.model.POSRefund;
 import com.clover.remote.client.lib.example.model.POSStore;
 import com.clover.remote.client.messages.SaleRequest;
 import com.clover.sdk.v3.payments.DataEntryLocation;
+import com.clover.sdk.v3.printer.Printer;
 
 import android.app.Activity;
 import android.app.Fragment;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -46,9 +50,11 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Switch;
+import org.java_websocket.WebSocket;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MiscellaneousFragment extends Fragment implements AdapterView.OnItemSelectedListener {
   private static final String ARG_STORE = "store";
@@ -80,6 +86,9 @@ public class MiscellaneousFragment extends Fragment implements AdapterView.OnIte
   private Button startCustomActivityButton;
   private Button sendMessageToActivityButton;
   private Spinner customActivityId;
+  private List<Printer> printers;
+  private String lastPrintRequestId;
+  private String printCommand;
 
   public static MiscellaneousFragment newInstance(POSStore store, ICloverConnector cloverConnector) {
     MiscellaneousFragment fragment = new MiscellaneousFragment();
@@ -176,10 +185,26 @@ public class MiscellaneousFragment extends Fragment implements AdapterView.OnIte
     tipModeSpinner.setOnItemSelectedListener(this);
     signatureEntryLocationSpinner.setOnItemSelectedListener(this);
 
+    printers = ExamplePOSActivity.printers;
+    lastPrintRequestId = ExamplePOSActivity.lastPrintRequestId;
+
+    EditText printStatusId = ((EditText) view.findViewById(R.id.QueryPrintStatusText));
+    printStatusId.setText(lastPrintRequestId);
+
+
     manualSwitch.setTag(CloverConnector.CARD_ENTRY_METHOD_MANUAL);
     swipeSwitch.setTag(CloverConnector.CARD_ENTRY_METHOD_MAG_STRIPE);
     chipSwitch.setTag(CloverConnector.CARD_ENTRY_METHOD_ICC_CONTACT);
     contactlessSwitch.setTag(CloverConnector.CARD_ENTRY_METHOD_NFC_CONTACTLESS);
+
+    Button printImageButton = ((Button) view.findViewById(R.id.PrintImageButton));
+    registerForContextMenu(printImageButton);
+    Button printTextButton = ((Button) view.findViewById(R.id.PrintTextButton));
+    registerForContextMenu(printTextButton);
+    Button printImageUrlButton = ((Button) view.findViewById(R.id.PrintImageURLButton));
+    registerForContextMenu(printImageUrlButton);
+    Button openCashDrawer = ((Button) view.findViewById(R.id.CashDrawerButton));
+    registerForContextMenu(openCashDrawer);
 
     EditText.OnFocusChangeListener signatureThresholdChangeListener = new EditText.OnFocusChangeListener() {
 
@@ -327,7 +352,7 @@ public class MiscellaneousFragment extends Fragment implements AdapterView.OnIte
     }
 
     ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity().getApplicationContext(),
-        android.R.layout.simple_spinner_dropdown_item, values);
+        R.layout.spinner_item, values);
     tipModeSpinner.setAdapter(adapter);
     tipModeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
       @Override
@@ -357,7 +382,7 @@ public class MiscellaneousFragment extends Fragment implements AdapterView.OnIte
     }
 
     ArrayAdapter<String> sigAdapter = new ArrayAdapter<>(getActivity().getApplicationContext(),
-        android.R.layout.simple_spinner_dropdown_item, sigValues);
+        R.layout.spinner_item, sigValues);
     signatureEntryLocationSpinner.setAdapter(sigAdapter);
     signatureEntryLocationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
       @Override
@@ -420,6 +445,46 @@ public class MiscellaneousFragment extends Fragment implements AdapterView.OnIte
     });
     updateSwitches(view);
     return view;
+  }
+
+  @Override
+  public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo){
+    menu.setHeaderTitle("Printers");
+    if(v == getView().findViewById(R.id.PrintImageButton)){
+      printCommand = "IMAGE";
+    }
+    else if(v == getView().findViewById(R.id.PrintTextButton)){
+      printCommand = "TEXT";
+    }
+    else if(v == getView().findViewById(R.id.PrintImageURLButton)){
+      printCommand = "URL";
+    }
+    else if(v == getView().findViewById(R.id.CashDrawerButton)){
+      printCommand = "CASH";
+    }
+    for(int i = 0; i < printers.size(); i++){
+      menu.add(Menu.NONE, i , Menu.NONE, printers.get(i).getName()+ " - "+ printers.get(i).getId());
+    }
+  }
+
+  @Override
+  public boolean onContextItemSelected (MenuItem item) {
+    Printer printer = printers.get(item.getItemId());
+    ExamplePOSActivity activity =  (ExamplePOSActivity) getActivity();
+    activity.setPrinter(printer);
+    if(printCommand == "IMAGE"){
+      activity.printImageClick(null);
+    }
+    else if (printCommand == "TEXT"){
+      activity.printTextClick(null);
+    }
+    else if (printCommand == "URL"){
+      activity.printImageURLClick(null);
+    }
+    else if(printCommand == "CASH"){
+      activity.onOpenCashDrawerClick(null);
+    }
+    return super.onContextItemSelected(item);
   }
 
   public void onButtonPressed(Uri uri) {

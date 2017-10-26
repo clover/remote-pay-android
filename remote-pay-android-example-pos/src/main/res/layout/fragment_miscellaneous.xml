@@ -21,7 +21,8 @@
     android:fillViewport="false"
     android:id="@+id/MiscParentScrollView">
 
-  <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  <LinearLayout
+      android:orientation="vertical"
       android:layout_width="match_parent"
       android:layout_height="match_parent">
 
@@ -38,66 +39,117 @@
       </LinearLayout>
     </LinearLayout>
 
-    <EditText
-        android:layout_width="300dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/ShowMessageText"
-        android:layout_alignBottom="@+id/ShowMessageButton"
-        android:layout_alignParentLeft="true"
-        android:layout_alignEnd="@+id/PrintTextText"
-        android:text="@string/hello_message"/>
+        android:orientation="vertical">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/show_message"
-        android:id="@+id/ShowMessageButton"
-        android:layout_alignParentTop="true"
-        android:onClick="showMessageClick"
-        android:layout_toEndOf="@+id/ShowMessageText"
-        android:layout_toRightOf="@+id/ShowMessageText"/>
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="horizontal">
+        <EditText
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_width="fill_parent"
+            android:id="@+id/ShowMessageText"
+            android:text="@string/hello_message"/>
+        <Button
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="@string/show_message"
+            android:id="@+id/ShowMessageButton"
+            android:onClick="showMessageClick"/>
+      </LinearLayout>
 
-    <EditText
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:inputType="textMultiLine"
-        android:ems="10"
-        android:id="@+id/PrintTextText"
-        android:layout_alignBottom="@+id/PrintTextButton"
-        android:layout_alignParentLeft="true"
-        android:text="@string/print_this"/>
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="horizontal">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/print_text"
-        android:id="@+id/PrintTextButton"
-        android:onClick="printTextClick"
-        android:layout_below="@+id/ShowMessageText"
-        android:layout_alignRight="@+id/ShowMessageButton"
-        android:layout_toEndOf="@+id/ShowMessageText"
-        android:layout_toRightOf="@+id/PrintTextText"/>
+        <EditText
+            android:layout_weight="1"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:ems="10"
+            android:id="@+id/PrintTextText"
+            android:text="@string/print_this"/>
 
-    <EditText
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:inputType="textMultiLine"
-        android:ems="10"
-        android:id="@+id/QueryPaymentText"
-        android:layout_alignBottom="@+id/QueryPaymentButton"
-        android:layout_alignParentLeft="true"
-        android:text="@string/payment_id_example"/>
+        <Button
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="@string/print_text"
+            android:id="@+id/PrintTextButton"
+            android:onClick="printTextClick"/>
+      </LinearLayout>
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="horizontal">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/query_payment"
-        android:id="@+id/QueryPaymentButton"
-        android:onClick="queryPaymentClick"
-        android:layout_below="@+id/PrintTextButton"
-        android:layout_alignRight="@+id/PrintTextButton"
-        android:layout_toEndOf="@+id/PrintTextText"
-        android:layout_toRightOf="@+id/QueryPaymentText"/>
+        <EditText
+            android:layout_weight="1"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:ems="10"
+            android:id="@+id/PrintImageURLText"
+            android:text="http://slodive.com/wp-content/uploads/2013/02/black-and-white-patterns/grooved.jpg"/>
+
+        <Button
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="Print Image from URL"
+            android:id="@+id/PrintImageURLButton"
+            android:onClick="printImageURLClick"/>
+      </LinearLayout>
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="horizontal">
+        <EditText
+            android:layout_weight="1"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:ems="10"
+            android:id="@+id/QueryPaymentText"
+            android:text="@string/payment_id_example"/>
+
+        <Button
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="@string/query_payment"
+            android:id="@+id/QueryPaymentButton"
+            android:onClick="queryPaymentClick"/>
+
+      </LinearLayout>
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="horizontal">
+        <EditText
+            android:layout_weight="1"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:ems="10"
+            android:id="@+id/QueryPrintStatusText"/>
+
+        <Button
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="@string/get_print_status"
+            android:id="@+id/QueryPrintStatus"
+            android:onClick="queryPrintStatusClick"/>
+
+      </LinearLayout>
+
+
+
+    </LinearLayout>
+
 
     <LinearLayout
         android:orientation="horizontal"
@@ -328,7 +380,7 @@
 
     <LinearLayout
         android:orientation="vertical"
-        android:layout_width="800dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignRight="@+id/CancelCashBox"
@@ -523,7 +575,7 @@
             android:paddingBottom="3dp"/>
 
         <Spinner
-            android:layout_width="wrap_content"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:id="@+id/TipModeSpinner">
         </Spinner>
@@ -545,7 +597,7 @@
             android:paddingBottom="3dp"/>
 
         <EditText
-            android:layout_width="90dp"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:inputType="number"
             android:ems="10"
@@ -569,7 +621,7 @@
             android:paddingBottom="3dp"/>
 
         <Spinner
-            android:layout_width="wrap_content"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:id="@+id/SignatureEntryLocationSpinner">
         </Spinner>
@@ -591,7 +643,7 @@
             android:paddingBottom="3dp"/>
 
         <EditText
-            android:layout_width="90dp"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:inputType="number"
             android:ems="10"
@@ -629,5 +681,5 @@
           android:text="@string/automatically_confirm_payment_challenges"
           android:id="@+id/AutomaticPaymentConfirmationSwitch"/>
     </LinearLayout>
-  </RelativeLayout>
+  </LinearLayout>
 </ScrollView>

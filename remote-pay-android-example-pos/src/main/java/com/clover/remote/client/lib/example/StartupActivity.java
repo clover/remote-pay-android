@@ -67,7 +67,7 @@ public class StartupActivity extends Activity {
         String barcode = barcodeResult.getBarcode();
         Log.d(TAG, "Barcode from clover handler is " + barcode);
         if (barcode != null) {
-          connect(parseValidateAndStoreURI(barcode), WS_CONFIG);
+          connect(parseValidateAndStoreURI(barcode), WS_CONFIG, false);
         }
       }
     }
@@ -79,7 +79,9 @@ public class StartupActivity extends Activity {
 
     loadBaseURL();
 
-    getActionBar().hide();
+    if (null != getActionBar()) {
+      getActionBar().hide();
+    }
 
     RadioGroup group = (RadioGroup)findViewById(R.id.radioGroup);
     group.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -180,27 +182,27 @@ public class StartupActivity extends Activity {
     SharedPreferences prefs = this.getSharedPreferences(EXAMPLE_APP_NAME, Context.MODE_PRIVATE);
     SharedPreferences.Editor editor = prefs.edit();
     URI uri = null;
-    String config = null;
-
+    String config;
 
     if(group.getCheckedRadioButtonId() == R.id.usbRadioButton) {
       config = USB;
       editor.putString(CONNECTION_MODE, USB);
-      editor.commit();
+      editor.apply();
     } else { // (group.getCheckedRadioButtonId() == R.id.lanRadioButton)
       String uriStr = ((TextView)findViewById(R.id.lanPayDisplayAddress)).getText().toString();
       config = WS_CONFIG;
       uri = parseValidateAndStoreURI(uriStr);
     }
-    connect(uri, config);
+    connect(uri, config, clearToken);
   }
 
-  private void connect(URI uri, String config) {
+  private void connect(URI uri, String config, boolean clearToken) {
     Intent intent = new Intent();
     intent.setClass(this, ExamplePOSActivity.class);
 
     if(config.equals("USB") || (config.equals(WS_CONFIG) && uri != null)) {
       intent.putExtra(ExamplePOSActivity.EXTRA_CLOVER_CONNECTOR_CONFIG, config);
+      intent.putExtra(ExamplePOSActivity.EXTRA_CLEAR_TOKEN, clearToken);
       intent.putExtra(ExamplePOSActivity.EXTRA_WS_ENDPOINT, uri);
       startActivity(intent);
     }
@@ -214,7 +216,7 @@ public class StartupActivity extends Activity {
       String addressOnly = String.format("%s://%s:%d%s", uri.getScheme(), uri.getHost(), uri.getPort(), uri.getPath());
       editor.putString(LAN_PAY_DISPLAY_URL, addressOnly);
       editor.putString(CONNECTION_MODE, LAN);
-      editor.commit();
+      editor.apply();
       return uri;
     } catch(URISyntaxException e) {
       Log.e(TAG, "Invalid URL" ,e);
@@ -234,7 +236,7 @@ public class StartupActivity extends Activity {
       if (resultCode == CommonStatusCodes.SUCCESS) {
         if (data != null) {
           Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
-          connect(parseValidateAndStoreURI(barcode.displayValue), WS_CONFIG);
+          connect(parseValidateAndStoreURI(barcode.displayValue), WS_CONFIG, false);
         }
       } else Log.e(TAG, String.format(getString(R.string.barcode_error_format),
           CommonStatusCodes.getStatusCodeString(resultCode)));

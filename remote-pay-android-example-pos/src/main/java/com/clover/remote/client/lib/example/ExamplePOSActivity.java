@@ -58,15 +58,19 @@ import com.clover.remote.client.messages.ManualRefundRequest;
 import com.clover.remote.client.messages.ManualRefundResponse;
 import com.clover.remote.client.messages.MessageFromActivity;
 import com.clover.remote.client.messages.MessageToActivity;
+import com.clover.remote.client.messages.OpenCashDrawerRequest;
 import com.clover.remote.client.messages.PaymentResponse;
 import com.clover.remote.client.messages.PreAuthRequest;
 import com.clover.remote.client.messages.PreAuthResponse;
+import com.clover.remote.client.messages.PrintJobStatusRequest;
+import com.clover.remote.client.messages.PrintJobStatusResponse;
 import com.clover.remote.client.messages.PrintManualRefundDeclineReceiptMessage;
 import com.clover.remote.client.messages.PrintManualRefundReceiptMessage;
 import com.clover.remote.client.messages.PrintPaymentDeclineReceiptMessage;
 import com.clover.remote.client.messages.PrintPaymentMerchantCopyReceiptMessage;
 import com.clover.remote.client.messages.PrintPaymentReceiptMessage;
 import com.clover.remote.client.messages.PrintRefundPaymentReceiptMessage;
+import com.clover.remote.client.messages.PrintRequest;
 import com.clover.remote.client.messages.ReadCardDataRequest;
 import com.clover.remote.client.messages.ReadCardDataResponse;
 import com.clover.remote.client.messages.RefundPaymentResponse;
@@ -77,6 +81,8 @@ import com.clover.remote.client.messages.RetrieveDeviceStatusResponse;
 import com.clover.remote.client.messages.RetrievePaymentRequest;
 import com.clover.remote.client.messages.RetrievePaymentResponse;
 import com.clover.remote.client.messages.RetrievePendingPaymentsResponse;
+import com.clover.remote.client.messages.RetrievePrintersRequest;
+import com.clover.remote.client.messages.RetrievePrintersResponse;
 import com.clover.remote.client.messages.SaleResponse;
 import com.clover.remote.client.messages.TipAdjustAuthResponse;
 import com.clover.remote.client.messages.VaultCardResponse;
@@ -85,6 +91,8 @@ import com.clover.remote.client.messages.VoidPaymentResponse;
 import com.clover.remote.message.TipAddedMessage;
 import com.clover.sdk.v3.payments.Credit;
 import com.clover.sdk.v3.payments.Payment;
+import com.clover.sdk.v3.printer.PrintJobStatus;
+import com.clover.sdk.v3.printer.Printer;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -145,6 +153,10 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
   public static final String EXTRA_CLEAR_TOKEN = "CLEAR_TOKEN";
   private static final String DEFAULT_EID = "DFLTEMPLYEE";
   private static int RESULT_LOAD_IMG = 1;
+  public static List<Printer> printers;
+  private Printer printer;
+  public static String lastPrintRequestId;
+  private int printRequestId = 0;
 
   // Package name for example custom activities
   public static final String CUSTOM_ACTIVITY_PACKAGE = "com.clover.cfp.examples.";
@@ -238,9 +250,17 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
       KeyStore trustStore = createTrustStore();
 
       if(authToken == null) {
-        authToken = sharedPreferences.getString("AUTH_TOKEN", null);
+        boolean clearToken = getIntent().getBooleanExtra(EXTRA_CLEAR_TOKEN, false);
+        if (!clearToken) {
+          authToken = sharedPreferences.getString("AUTH_TOKEN", null);
+        }
       }
       config = new WebSocketCloverDeviceConfiguration(uri, applicationId, trustStore, posName, serialNumber, authToken) {
+        @Override
+        public int getMaxMessageCharacters() {
+          return 0;
+        }
+
         @Override
         public void onPairingCode(final String pairingCode) {
           runOnUiThread(new Runnable() {
@@ -304,6 +324,10 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
 
   }
 
+  public List<Printer> getPrinters(){
+    return this.printers;
+  }
+
 
   private KeyStore createTrustStore() {
     try {
@@ -361,7 +385,6 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
     //store.setApproveOfflinePaymentWithoutPrompt(true);
     //store.setAutomaticSignatureConfirmation(true);
     //store.setAutomaticPaymentConfirmation(true);
-
   }
 
   @Override
@@ -453,6 +476,8 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
             ((TextView) findViewById(R.id.ConnectionStatusLabel)).setText(String.format("Connected: %s (%s)", merchantInfo.getDeviceInfo().getSerial(), merchantInfo.getMerchantName()));
           }
         });
+        RetrievePrintersRequest rpr = new RetrievePrintersRequest();
+        cloverConnector.retrievePrinters(rpr);
       }
 
       public void onError(final Exception e) {
@@ -900,6 +925,7 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
         }
       }
 
+
       @Override
       public void onTipAdded(TipAddedMessage message) {
         if (message.tipAmount > 0) {
@@ -954,6 +980,16 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
             cloverConnector.showWelcomeScreen();
           }
         }
+      }
+
+      @Override
+      public void onPrintJobStatusResponse(PrintJobStatusResponse response) {
+        showMessage("PrintJobStatus: " + response.getStatus(), Toast.LENGTH_SHORT);
+      }
+
+      @Override
+      public void onRetrievePrintersResponse(RetrievePrintersResponse response) {
+        printers = response.getPrinters();
       }
 
       @Override
@@ -1358,6 +1394,10 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
     }
   }
 
+  private int getNextPrintRequestId(){
+    return ++printRequestId;
+  }
+
   public void captureCardClick(View view) {
     cloverConnector.vaultCard(store.getCardEntryMethods());
   }
@@ -1386,7 +1426,45 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
   public void printTextClick(View view) {
     String[] textLines = ((TextView) findViewById(R.id.PrintTextText)).getText().toString().split("\n");
     List<String> lines = Arrays.asList(textLines);
-    cloverConnector.printText(lines);
+    if(printer != null){
+      PrintRequest pr = new PrintRequest(lines);
+      lastPrintRequestId = String.valueOf(getNextPrintRequestId());
+      pr.setPrintRequestId(lastPrintRequestId);
+      pr = new PrintRequest(lines, lastPrintRequestId, printer.getId());
+      cloverConnector.print(pr);
+      printer = null;
+    }
+    else {
+      cloverConnector.printText(lines);
+    }
+
+    updatePrintStatusText();
+  }
+
+  public void printImageURLClick(View view) {
+    String URL = ((TextView) findViewById(R.id.PrintImageURLText)).getText().toString();
+    if(printer != null){
+      PrintRequest pr = new PrintRequest(URL);
+      lastPrintRequestId = String.valueOf(getNextPrintRequestId());
+      pr.setPrintRequestId(lastPrintRequestId);
+      pr = new PrintRequest(URL, lastPrintRequestId, printer.getId());
+      cloverConnector.print(pr);
+      printer = null;
+    }
+    else{
+      cloverConnector.printImageFromURL(URL);
+    }
+    updatePrintStatusText();
+  }
+
+  public void queryPrintStatusClick(View view){
+    PrintJobStatusRequest pjsr = new PrintJobStatusRequest(lastPrintRequestId);
+    cloverConnector.retrievePrintJobStatus(pjsr);
+  }
+
+  private void updatePrintStatusText(){
+    EditText printStatusId = ((EditText) findViewById(R.id.QueryPrintStatusText));
+    printStatusId.setText(lastPrintRequestId);
   }
 
   public void showMessageClick(View view) {
@@ -1402,7 +1480,11 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
   }
 
   public void onOpenCashDrawerClick(View view) {
-    cloverConnector.openCashDrawer("Test");
+    OpenCashDrawerRequest ocdr = new OpenCashDrawerRequest("Test");
+    if(printer != null) {
+      ocdr.setDeviceId(printer.getId());
+    }
+    cloverConnector.openCashDrawer(ocdr);
   }
 
   public void preauthCardClick(View view) {
@@ -1432,9 +1514,25 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
     startActivityForResult(galleryIntent, RESULT_LOAD_IMG);
   }
 
-  private void printImage(String imgDecodableString){
+  public void setPrinter(Printer printer){
+    this.printer = printer;
+  }
+
+  public void printImage(String imgDecodableString){
     Bitmap bitmap = BitmapFactory.decodeFile(imgDecodableString);
-    cloverConnector.printImage(bitmap);
+    if(this.printer != null){
+      PrintRequest pr = new PrintRequest(bitmap);
+      lastPrintRequestId = String.valueOf(getNextPrintRequestId());
+      pr.setPrintRequestId(lastPrintRequestId);
+      pr = new PrintRequest(bitmap, lastPrintRequestId, printer.getId());
+      cloverConnector.print(pr);
+      printer = null;
+    }
+    else{
+      cloverConnector.printImage(bitmap);
+    }
+
+    updatePrintStatusText();
   }
 
 

@@ -60,7 +60,8 @@
       android:layout_alignParentTop="true"
       android:scaleType="fitCenter"/>
   <Button
-      android:layout_width="wrap_content"
+      android:layout_marginTop="15sp"
+      android:layout_width="200sp"
       android:layout_height="wrap_content"
       android:text="@string/connect"
       android:background="@drawable/button_border_padding"
@@ -70,9 +71,11 @@
       android:layout_below="@+id/radioGroup"
       android:layout_centerHorizontal="true"/>
   <Button
-      android:layout_width="wrap_content"
+      android:layout_marginTop="15sp"
+      android:layout_width="200sp"
       android:layout_height="wrap_content"
       android:text="@string/scan_qr_code"
+      android:background="@drawable/button_border_padding"
       android:onClick="scanQRCode"
       android:id="@+id/scanQRCode"
       android:layout_below="@+id/connectButton"
