@@ -210,7 +210,7 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
     initStore();
 
     String posName = "Clover Example POS";
-    String applicationId = posName + ":1.4";
+    String applicationId = posName + ":1.4.0";
     CloverDeviceConfiguration config;
 
     String configType = getIntent().getStringExtra(EXTRA_CLOVER_CONNECTOR_CONFIG);
