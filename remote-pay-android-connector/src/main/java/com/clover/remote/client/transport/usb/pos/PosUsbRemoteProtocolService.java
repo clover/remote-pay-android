@@ -347,10 +347,8 @@ public class PosUsbRemoteProtocolService extends PosRemoteProtocolService implem
             if (mRemoteUsbManager != null) {
               mRemoteUsbManager.sendString(msg);
             }
-          } catch (IOException e) {
-            e.printStackTrace();
-          } catch (InterruptedException e) {
-            e.printStackTrace();
+          } catch (IOException | InterruptedException e) {
+            // Do nothing
           }
         }
       });

@@ -23,20 +23,30 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="com.clover.remote.client.lib.example.OrdersActivity">
 
-  <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:gravity="right"
+  <LinearLayout
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content"
+      android:gravity="right"
       android:id="@+id/linearLayout5">
-    <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Register"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Register"/>
   </LinearLayout>
 
-  <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical"
-      android:layout_below="@+id/linearLayout5" android:layout_above="@+id/linearLayout6">
+  <LinearLayout
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:orientation="vertical"
+      android:layout_below="@+id/linearLayout5"
+      android:layout_above="@+id/linearLayout6">
 
-    <ListView android:layout_width="fill_parent"
+    <ListView
+        android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_weight=".5"
-        android:id="@+id/OrdersListView"
-        android:layout_below="@+id/linearLayout5"
-        android:layout_above="@+id/ItemsListView"/>
+        android:id="@+id/OrdersListView"/>
+
     <LinearLayout android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:orientation="horizontal"
@@ -56,11 +66,24 @@
     </LinearLayout>
   </LinearLayout>
 
-  <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:gravity="right"
-      android:layout_alignParentBottom="true" android:id="@+id/linearLayout6">
-    <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Void"/>
-    <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Refund"/>
-    <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tip Adjust"/>
+  <LinearLayout
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content"
+      android:gravity="right"
+      android:layout_alignParentBottom="true"
+      android:id="@+id/linearLayout6">
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Void"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Refund"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tip Adjust"/>
   </LinearLayout>
 
 </RelativeLayout>

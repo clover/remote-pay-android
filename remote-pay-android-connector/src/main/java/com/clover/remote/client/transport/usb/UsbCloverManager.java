@@ -28,6 +28,7 @@ import android.util.Log;
 import android.util.Pair;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -297,7 +298,7 @@ public abstract class UsbCloverManager<T> {
     return mConnection != null && mInterface != null && endPointsOkay;
   }
 
-  public int write(byte[] outputData, T params) throws InterruptedException {
+  public int write(byte[] outputData, T params) throws IOException, InterruptedException {
     if (!isConnected() || outputData == null || outputData.length == 0) {
       Log.w(TAG, "Ignoring write request");
       return -1;
@@ -310,7 +311,7 @@ public abstract class UsbCloverManager<T> {
     return numBytes;
   }
 
-  public byte[] read(T params) throws InterruptedException {
+  public byte[] read(T params) throws IOException, InterruptedException {
     if (!isConnected()) {
       Log.w(TAG, "Ignoring read request");
       return null;
@@ -330,7 +331,7 @@ public abstract class UsbCloverManager<T> {
     // Do nothing
   }
 
-  private int bulkWrite(byte[] data, T params) throws InterruptedException {
+  private int bulkWrite(byte[] data, T params) throws IOException, InterruptedException {
     data = processOutputData(data, params);
 
     if (data == null) {
@@ -355,7 +356,14 @@ public abstract class UsbCloverManager<T> {
         Log.v(TAG, String.format("[write] requesting transfer of %s bytes", writePacket.length));
       }
 
-      int bulkTransferResultSize = mConnection.bulkTransfer(mEndpointOut, writePacket, writePacket.length,
+      // Load member variable into local variable for handling asynchronous closing of the connection
+      UsbDeviceConnection localConnection = mConnection;
+      if (localConnection == null) {
+        // Connection closed underneath
+        throw new IOException("Connection closed - [write] interrupted");
+      }
+
+      int bulkTransferResultSize = localConnection.bulkTransfer(mEndpointOut, writePacket, writePacket.length,
           WRITE_TIMEOUT_MS + 2 * writePacket.length);
 
       if (VERBOSE) {
@@ -389,7 +397,7 @@ public abstract class UsbCloverManager<T> {
     return writePacket;
   }
 
-  private byte[] bulkRead(T params) throws InterruptedException {
+  private byte[] bulkRead(T params) throws IOException, InterruptedException {
     ByteArrayOutputStream baos = new ByteArrayOutputStream(getReadSize());
 
     while (true) {
@@ -404,7 +412,13 @@ public abstract class UsbCloverManager<T> {
         Log.v(TAG, "[read] requesting transfer");
       }
 
-      int numBytesRead = mConnection.bulkTransfer(mEndpointIn, mReadBuffer, getReadSize(), getReadTimeOut());
+      // Load member variable into local variable for handling asynchronous closing of the connection
+      UsbDeviceConnection localConnection = mConnection;
+      if (localConnection == null) {
+        // Connection closed underneath
+        throw new IOException("Connection closed - [read] interrupted");
+      }
+      int numBytesRead = localConnection.bulkTransfer(mEndpointIn, mReadBuffer, getReadSize(), getReadTimeOut());
 
       if (VERBOSE) {
         Log.v(TAG, String.format("[read] bulkTransfer returned %s bytes", numBytesRead));

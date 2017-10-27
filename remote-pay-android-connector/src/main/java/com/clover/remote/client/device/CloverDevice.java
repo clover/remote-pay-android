@@ -24,6 +24,7 @@ import com.clover.remote.order.DisplayOrder;
 import com.clover.sdk.v3.order.Order;
 import com.clover.sdk.v3.order.VoidReason;
 import com.clover.sdk.v3.payments.Payment;
+import com.clover.sdk.v3.printer.PrintCategory;
 
 import android.graphics.Bitmap;
 import android.util.Log;
@@ -101,7 +102,7 @@ public abstract class CloverDevice {
 
   public abstract void doTipAdjustAuth(String orderId, String paymentId, long amount);
 
-  public abstract void doPrintText(List<String> textLines);
+  public abstract void doPrintText(List<String> textLines, String printRequestId, String printDeviceId);
 
   public abstract void doShowWelcomeScreen();
 
@@ -109,11 +110,17 @@ public abstract class CloverDevice {
 
   public abstract void doShowThankYouScreen();
 
-  public abstract void doOpenCashDrawer(String reason);
+  public abstract void doOpenCashDrawer(String reason, String deviceId);
 
-  public abstract void doPrintImage(Bitmap bitmap);
+  public abstract void doPrintImage(Bitmap bitmap, String printRequestId, String printDeviceId);
 
-  public abstract void doPrintImage(String url);
+  public abstract void doPrintImage(String url, String printRequestId, String printDeviceId);
+
+  public abstract void doPrint(List<Bitmap> img, List<String> urls, List<String> text, String printRequestId, String deviceId);
+
+  public abstract void doRetrievePrinters(PrintCategory category);
+
+  public abstract void doRetrievePrintJobStatus(String requestId);
 
   public abstract void doCloseout(boolean allowOpenTabs, String batchId);
 

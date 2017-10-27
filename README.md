@@ -4,7 +4,7 @@
 
 ## Version 
 
-Current version: 1.3.2
+Current version: 1.4.0
 
 ## Overview
 
@@ -28,5 +28,5 @@ The Android project includes a connector and an example POS. To work with the pr
 
 * [Release Notes](https://github.com/clover/remote-pay-android/releases)
 * [Tutorial for the Android SDK](https://docs.clover.com/build/getting-started-with-cloverconnector/?sdk=android)
-* [API Documentation](https://clover.github.io/clover-android-sdk/)
+* [API Documentation](https://clover.github.io/remote-pay-android/1.4.0/docs/)
 * [Clover Developer Community](https://community.clover.com/index.html)
