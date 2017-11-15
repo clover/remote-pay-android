@@ -158,7 +158,8 @@ public interface ICloverConnectorListener {
   void onCloseoutResponse(CloseoutResponse response);
 
   /**
-   * Called at the completion of a Sale() request. The SaleResponse contains a ResultCode 
+   * Called at the completion of a Sale() request. The SaleResponse contains a
+   * {@see com.clover.remote.client.messages.ResultCode} and 
    * and a Success boolean. A successful Sale transaction will also have the payment 
    * object, which can be for the full or partial amount of the Sale request. 
    *
@@ -173,7 +174,7 @@ public interface ICloverConnectorListener {
 
   /**
    * Called in response to a manualRefund() request. Contains a 
-   * {@link #com.clover.remote.client.messages.ResultCode} and 
+   * {@see com.clover.remote.client.messages.ResultCode} and 
    * a Success boolean. If successful, the ManualRefundResponse will have 
    * a Credit object associated with the relevant Payment information.
    *
@@ -183,7 +184,7 @@ public interface ICloverConnectorListener {
 
   /**
    * Called in response to a RefundPayment() request. Contains a 
-   * {@link #com.clover.remote.client.messages.ResultCode} and a Success boolean. 
+   * {@see com.clover.remote.client.messages.ResultCode} and a Success boolean. 
    * The response to a successful transaction will contain the Refund. The Refund includes 
    * the original paymentId as a reference.
    *
@@ -200,7 +201,7 @@ public interface ICloverConnectorListener {
 
   /**
    * Called in response to a voidPayment() request. Contains a 
-   * {@link #com.clover.remote.client.messages.ResultCode} and a Success boolean. 
+   * {@see com.clover.remote.client.messages.ResultCode} and a Success boolean. 
    * If successful, the response will also contain the paymentId for the voided Payment.
    *
    * @param response The response to the transaction request.
@@ -227,7 +228,7 @@ public interface ICloverConnectorListener {
 
   /**
    * Called in response to a vaultCard() request. Contains a 
-   * {@link #com.clover.remote.client.messages.ResultCode} and a Success boolean.
+   * {@see com.clover.remote.client.messages.ResultCode} and a Success boolean.
    * If successful, the response will contain a VaultedCard object with a token value 
    * that's unique for the card and merchant that can be used for future 
    * Sale() and Auth() requests.
@@ -347,30 +348,4 @@ public interface ICloverConnectorListener {
    */
   void onRetrievePaymentResponse(RetrievePaymentResponse response);
   
-  /**
-   * Called when the Clover device connects to the Clover Connector.
-   * 
-   * @deprecated Use {@link #onDeviceConnected()} instead.
-   */
-   @Deprecated
-   void onConnected();
-   
-  /**
-   * Called when the Clover device is ready to respond to requests.
-   * 
-   * @deprecated Use {@link #onDeviceReady()} instead.
-   * 
-   * @param merchantInfo The merchant information to associate with the device.
-   */
-   @Deprecated
-   void onReady();
-  
-   /**
-   * Called when the Clover device disconnects from the Clover Connector.
-   * 
-   * @deprecated Use {@link #onDeviceDisconnected()} instead.
-   */
-   @Deprecated
-   void onDisconnected();
-
 }

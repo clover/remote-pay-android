@@ -252,7 +252,7 @@ public interface ICloverConnector extends Serializable {
    *
    * @param messages An array of text messages to print.
    *
-   * @deprecated Use {@link #print()} instead.
+   * @deprecated Use {@link #print(PrintRequest request)} instead.
    */
   @Deprecated
   void printText(List<String> messages);
@@ -262,7 +262,7 @@ public interface ICloverConnector extends Serializable {
    *
    * @param image The image to print.
    *
-   * @deprecated Use {@link #print()} instead.
+   * @deprecated Use {@link #print(PrintRequest request)} instead.
    */
   @Deprecated
   void printImage(Bitmap image);
@@ -273,7 +273,7 @@ public interface ICloverConnector extends Serializable {
    *
    * @param url The URL for the image to print.
    * 
-   * @deprecated Use {@link #print()} instead.
+   * @deprecated Use {@link #print(PrintRequest request)} instead.
    */
   @Deprecated
   void printImageFromURL(String url);
