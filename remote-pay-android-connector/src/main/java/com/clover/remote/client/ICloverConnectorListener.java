@@ -348,4 +348,30 @@ public interface ICloverConnectorListener {
    */
   void onRetrievePaymentResponse(RetrievePaymentResponse response);
   
+  /**
+   * Called when the Clover device connects to the Clover Connector.
+   * 
+   * @deprecated Use {@link #onDeviceConnected()} instead.
+   */
+   @Deprecated
+   void onConnected();
+   
+   /**
+   * Called when the Clover device disconnects from the Clover Connector.
+   * 
+   * @deprecated Use {@link #onDeviceDisconnected()} instead.
+   */
+   @Deprecated
+   void onDisconnected();
+   
+   /**
+   * Called when the Clover device is ready to respond to requests.
+   * 
+   * @deprecated Use {@link #onDeviceReady()} instead.
+   * 
+   * @param merchantInfo The merchant information to associate with the device.
+   */
+   @Deprecated
+    void onReady();
+  
 }
