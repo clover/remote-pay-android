@@ -51,12 +51,11 @@ import java.util.List;
 @SuppressWarnings("unused")
 public interface ICloverConnector extends Serializable {
 
-  /**
-   * Initializes the connection and starts communication with the Clover device. This is 
-   * called after the connector is created and listeners have been added to it. 
-   * initializeConnection() must be called before calling any other method, other than 
-   * those that add or remove listeners.
-   * @param listener The connection listener.
+ /**
+   * Initializes the connection and starts communication with the Clover device.  
+   * This method is called after the connector has been created and listeners have been 
+   * added to it. It must be called before any other method (other than those that add or 
+   * remove listeners).
    */
   void initializeConnection();
 
@@ -75,7 +74,7 @@ public interface ICloverConnector extends Serializable {
   void removeCloverConnectorListener(ICloverConnectorListener listener);
 
   /**
-   * Requests a Sale transaction (purchase).
+   * Requests a Sale transaction (i.e. purchase).
    *
    * @param request A SaleRequest object containing basic information for the transaction.
    */
@@ -91,11 +90,11 @@ public interface ICloverConnector extends Serializable {
   void acceptSignature(VerifySignatureRequest request);
 
   /**
-   * If a signature is captured during a transaction, this method rejects the signature 
-   * as entered.
+   * If a signature is captured during a transaction, this method rejects the signature as 
+   * entered.
    *
-   * @param VerifySignatureRequest The rejected VerifySignatureRequest() the device 
-   * passed to onVerifySignatureRequest().
+   * @param request The rejected VerifySignatureRequest() the device passed to 
+   * onVerifySignatureRequest().
    */
   void rejectSignature(VerifySignatureRequest request);
 
@@ -125,7 +124,7 @@ public interface ICloverConnector extends Serializable {
    * <p>
    * <b>Note:</b> The MerchantInfo.SupportsAuths boolean must be set to true.
    * 
-   * @param request The request details.
+   * @param request The AuthRequest details.
    */
   void auth(AuthRequest request);
 
@@ -138,7 +137,7 @@ public interface ICloverConnector extends Serializable {
    * <p>
    * <b>Note:</b> The MerchantInfo.SupportsPreAuths boolean must be set to true.
    *
-   * @param request The request details.
+   * @param request The PreAuthRequest details.
    */
   void preAuth(PreAuthRequest request);
 
@@ -147,9 +146,10 @@ public interface ICloverConnector extends Serializable {
    * captured, it is effectively the same as an Auth Payment. 
    *
    * <p>
-   * <b>Note:</b> Should only be called if the request's PaymentID is from a PreAuthResponse.
+   * <b>Note:</b> Should only be called if the request's PaymentID is from a 
+   * PreAuthResponse.
    *
-   * @param CapturePreAuthRequest The request details.
+   * @param request The CapturePreAuthRequest details.
    */
   void capturePreAuth(CapturePreAuthRequest request);
 
@@ -158,9 +158,10 @@ public interface ICloverConnector extends Serializable {
    * the Auth Payment has been finalized by a Closeout. 
    *
    * <p>
-   * <b>Note:</b> Should only be called if the request's PaymentID is from an AuthResponse.
+   * <b>Note:</b> Should only be called if the request's PaymentID is from an 
+   * AuthResponse.
    *
-   * @param TipAdjustAuthRequest The request details.
+   * @param request The TipAdjustAuthRequest details.
    */
   void tipAdjustAuth(TipAdjustAuthRequest request);
 
@@ -175,7 +176,7 @@ public interface ICloverConnector extends Serializable {
   /**
    * Refunds the full or partial amount of a Payment.
    *
-   * @param request The request details.
+   * @param request The RefundPaymentRequest details.
    */
   void refundPayment(RefundPaymentRequest request);
 
@@ -190,8 +191,8 @@ public interface ICloverConnector extends Serializable {
   /**
    * Asks the Clover device to capture card information and request a payment token 
    * from the payment gateway. The payment token can be used for future 
-   * Sale and Auth requests in place of the card details. Note that the merchant account 
-   * must be configured to return payment tokens.
+   * Sale and Auth requests in place of the card details. The merchant account 
+   * must be configured to allow payment tokens.
    *
    * <p>
    * <b>Note:</b> The MerchantInfo.SupportsVaultCards boolean must be set to true.
@@ -204,7 +205,7 @@ public interface ICloverConnector extends Serializable {
   void vaultCard(Integer cardEntryMethods);
 
 /**
-   * Sends a 'cancel' button press to the Clover device.
+   * Sends a "cancel" button press to the Clover device.
    * 
    * @deprecated Use {@link #invokeInputOption(InputOption)} instead.
    */
@@ -214,7 +215,7 @@ public interface ICloverConnector extends Serializable {
   /**
    * Sends a request to the Clover server to close out all transactions.
    *
-   * @param CloseoutRequest The request details.
+   * @param request The CloseoutRequest details.
    */
   void closeout(CloseoutRequest request);
 
@@ -222,20 +223,20 @@ public interface ICloverConnector extends Serializable {
    * Sends a print request using the PrintRequest object. Used to print text, images, 
    * and images from a URL using the specified printer.
    * 
-   * @param PrintRequest The request details.
+   * @param request The PrintRequest details.
    */
   void print(PrintRequest request);
 
   /**
    * Queries available printers attached to the Clover device using the 
    * RetrievePrintersRequest object.
-   * @param RetrievePrintersRequest The request details.
+   * @param request The RetrievePrintersRequest details.
    */
   void retrievePrinters(RetrievePrintersRequest request);
 
   /**
    * Queries the status of a print job using the PrintJobStatusRequest object.
-   * @param request The request details.
+   * @param request The PrintJobStatusRequest details.
    */
   void retrievePrintJobStatus(PrintJobStatusRequest request);
 
@@ -243,7 +244,8 @@ public interface ICloverConnector extends Serializable {
    * Opens the first cash drawer found connected to the Clover device. The reason for 
    * opening the cash drawer must be set on OpenCashDrawerRequest.
    *
-   * @param OpenCashDrawerRequest The request details.
+   * @param request The OpenCashDrawerRequest object defining the reason 
+   * the cash drawer is being opened, and an optional device identifier.
    */
   void openCashDrawer(OpenCashDrawerRequest request);
 
@@ -291,7 +293,7 @@ public interface ICloverConnector extends Serializable {
   void showWelcomeScreen();
 
   /**
-   * Displays the "Thank you" screen on the Clover device.
+   * Displays the thank you screen on the Clover device.
    */
   void showThankYouScreen();
 
@@ -305,8 +307,8 @@ public interface ICloverConnector extends Serializable {
   void displayPaymentReceiptOptions(String orderId, String paymentId);
 
   /**
-   * Displays an Order and its lineItems on the Clover device. Will replace an Order 
-   * that is already displayed on the device screen.
+   * Displays an Order and associated lineItems on the Clover device. Will replace an 
+   * Order that is already displayed on the device screen.
    *
    * @param order The Order to display.
    */
@@ -320,14 +322,14 @@ public interface ICloverConnector extends Serializable {
   void removeDisplayOrder(DisplayOrder order);
 
   /**
-   * Disposes of the connection to the Clover device. After this is called, the connection 
+   * Disposes the connection to the Clover device. After this is called, the connection 
    * to the device is severed, and the CloverConnector object is no longer usable. 
    * Instantiate a new CloverConnector object in order to call initializeConnection().
    */
   void dispose();
 
   /**
-   * Sends a keystroke to the Clover device that invokes an input option (e.g., OK, 
+   * Sends a keystroke to the Clover device that invokes an input option (e.g. OK, 
    * CANCEL, DONE, etc.) on the customer's behalf. InputOptions are on the 
    * CloverDeviceEvent passed to onDeviceActivityStart().
    *
@@ -337,10 +339,9 @@ public interface ICloverConnector extends Serializable {
 
   /**
    * Sends a request to reset the Clover device back to the welcome screen. Can be used 
-   * when the device is in an unknown or invalid state from the POS' perspective.
-   *
-   * <p>
-   * <b>Note:</b> This request could cause the POS to miss a transaction or other information. 
+   * when the device is in an unknown or invalid state from the perspective of the POS.
+   *  
+   * NOTE: This request could cause the POS to miss a transaction or other information. 
    * Use cautiously as a last resort.
    */
   void resetDevice();
@@ -354,33 +355,33 @@ public interface ICloverConnector extends Serializable {
   /**
    * Requests card information (specifically Track 1 and Track 2 card data).
    *
-   * @param ReadCardDataRequest The request details.
+   * @param request The ReadCardDataRequest details.
    */
   void readCardData(ReadCardDataRequest request);
 
   /**
    * Sends a message to a Custom Activity running on a Clover device.
    *
-   * @param MessageToActivity Request with message to send to the Custom Activity.
+   * @param request The MessageToActivity with the message to send to the Custom Activity.
    */
   void sendMessageToActivity(MessageToActivity request);
 
   /**
    * Starts a Custom Activity on the Clover device.
    *
-   * @param CustomActivityRequest The request details.
+   * @param request The CustomActivityRequest details.
    */
   void startCustomActivity(CustomActivityRequest request);
 
   /**
    * Sends a message requesting the current status of the Clover device.
    *
-   * @param RetrieveDeviceStatusRequest The request details.
+   * @param request The RetrieveDeviceStatusRequest details.
    */
   void retrieveDeviceStatus(RetrieveDeviceStatusRequest request);
 
   /**
-   * Requests the Payment information corresponding to the externalPaymentId passed in. 
+   * Requests the Payment information associated with the externalPaymentId passed in.
    * Only valid for Payments made in the past 24 hours on the Clover device queried.
    *
    * @param request The request details.

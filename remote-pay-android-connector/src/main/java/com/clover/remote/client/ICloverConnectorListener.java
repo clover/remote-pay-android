@@ -133,10 +133,10 @@ public interface ICloverConnectorListener {
 
   /**
    * Called when the Clover device encounters a Challenge at the payment gateway 
-   * and requires confirmation. A Challenge is triggered by a potential duplicate 
-   * Payment (DUPLICATE_CHALLENGE) or an offline Payment (OFFLINE_CHALLENGE). 
+   * and requires confirmation. A Challenge is triggered by a potential duplicate Payment. 
+   * (DUPLICATE_CHALLENGE) or an offline Payment (OFFLINE_CHALLENGE). 
    * The device sends a ConfirmPaymentRequest() asking the merchant 
-   * to either AcceptPayment() or RejectPayment().
+   * to reply by sending either an AcceptPayment() or RejectPayment() call.
    *
    * <p>
    * <b>Note:</b> Duplicate Payment Challenges are raised when multiple Payments are made 
@@ -158,15 +158,15 @@ public interface ICloverConnectorListener {
   void onCloseoutResponse(CloseoutResponse response);
 
   /**
-   * Called at the completion of a Sale() request. The SaleResponse contains a
-   * {@see com.clover.remote.client.messages.ResultCode} and 
-   * and a Success boolean. A successful Sale transaction will also have the payment 
+   * Called at the completion of a Sale() request. The SaleResponse contains a 
+   * {@see com.clover.remote.client.messages.ResultCode} 
+   * and a Success boolean. A successful Sale transaction will also have the Payment 
    * object, which can be for the full or partial amount of the Sale request. 
    *
    * <p>
    * <b>Note:</b> A Sale transaction my come back as a tip-adjustable Auth, depending 
    * on the payment gateway. The SaleResponse has a boolean isSale flag that indicates 
-   * whether the sale is final, or will be finalized during closeout.
+   * whether the Sale is final, or will be finalized during closeout.
    *
    * @param SaleResponse The response to the transaction request.
    */
@@ -185,7 +185,7 @@ public interface ICloverConnectorListener {
   /**
    * Called in response to a RefundPayment() request. Contains a 
    * {@see com.clover.remote.client.messages.ResultCode} and a Success boolean. 
-   * The response to a successful transaction will contain the Refund. The Refund includes 
+   * The response to a successful transaction will contain the Refund, which includes 
    * the original paymentId as a reference.
    *
    * @param RefundPaymentResponse The response to the transaction request.
@@ -225,13 +225,12 @@ public interface ICloverConnectorListener {
    * @param merchantInfo The merchant information to associate with the device.
    */
   void onDeviceReady(MerchantInfo merchantInfo);
-
   /**
    * Called in response to a vaultCard() request. Contains a 
    * {@see com.clover.remote.client.messages.ResultCode} and a Success boolean.
    * If successful, the response will contain a VaultedCard object with a token value 
-   * that's unique for the card and merchant that can be used for future 
-   * Sale() and Auth() requests.
+   * that's unique for the card and merchant. The token can be used for future Sale() and 
+   * Auth() requests.
    *
    * @param response The response to the request.
    */
@@ -308,7 +307,8 @@ public interface ICloverConnectorListener {
   void onRetrievePendingPaymentsResponse(RetrievePendingPaymentsResponse response);
 
   /**
-   * Called in response to a readCardData() request.
+   * Called in response to a readCardData() request. Contains card information 
+   * (specifically Track 1 and Track 2 card data).
    *
    * @param response The response to the request.
    */
