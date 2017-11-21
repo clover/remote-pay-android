@@ -82,12 +82,12 @@ public interface ICloverConnectorListener {
   void onDeviceError(CloverDeviceErrorEvent deviceErrorEvent);
 
   /**
-   * Called in response to a PreAuth() request. 
+   * Called in response to a preAuth() request. 
    *
    * <p>
    * <b>Note:</b> The boolean isPreAuth flag in the PreAuthResponse indicates whether 
    * CapturePreAuth() can be called for the returned Payment. If the isPreAuth flag is 
-   * false and the isAuth flag is true, then the payment gateway coerced the PreAuth() 
+   * false and the isAuth flag is true, then the payment gateway coerced the preAuth() 
    * request to an Auth. The payment will need to be voided or it will be 
    * automatically captured at closeout.
    *
@@ -96,7 +96,7 @@ public interface ICloverConnectorListener {
   void onPreAuthResponse(PreAuthResponse response);
 
   /**
-   * Called in response to an Auth() request. 
+   * Called in response to an auth() request. 
    *
    * <p>
    * <b>Note:</b> An Auth transaction may come back as a final Sale, depending on the 
@@ -116,7 +116,7 @@ public interface ICloverConnectorListener {
   void onTipAdjustAuthResponse(TipAdjustAuthResponse response);
 
   /**
-   * Called in response to a CapturePreAuth() request. 
+   * Called in response to a capturePreAuth() request. 
    * Contains the new Amount and TipAmount if successful.
    *
    * @param response The response to the transaction request.
@@ -135,8 +135,8 @@ public interface ICloverConnectorListener {
    * Called when the Clover device encounters a Challenge at the payment gateway 
    * and requires confirmation. A Challenge is triggered by a potential duplicate Payment. 
    * (DUPLICATE_CHALLENGE) or an offline Payment (OFFLINE_CHALLENGE). 
-   * The device sends a ConfirmPaymentRequest() asking the merchant 
-   * to reply by sending either an AcceptPayment() or RejectPayment() call.
+   * The device sends a confirmPaymentRequest() asking the merchant 
+   * to reply by sending either an acceptPayment() or rejectPayment() call.
    *
    * <p>
    * <b>Note:</b> Duplicate Payment Challenges are raised when multiple Payments are made 
@@ -151,14 +151,14 @@ public interface ICloverConnectorListener {
   void onConfirmPaymentRequest(ConfirmPaymentRequest request);
 
   /**
-   * Called in response to a Closeout() request.
+   * Called in response to a closeout() request.
    *
    * @param response The response to the transaction request.
    */
   void onCloseoutResponse(CloseoutResponse response);
 
   /**
-   * Called at the completion of a Sale() request. The SaleResponse contains a 
+   * Called at the completion of a sale() request. The SaleResponse contains a 
    * {@see com.clover.remote.client.messages.ResultCode} 
    * and a Success boolean. A successful Sale transaction will also have the Payment 
    * object, which can be for the full or partial amount of the Sale request. 
@@ -183,7 +183,7 @@ public interface ICloverConnectorListener {
   void onManualRefundResponse(ManualRefundResponse response);
 
   /**
-   * Called in response to a RefundPayment() request. Contains a 
+   * Called in response to a refundPayment() request. Contains a 
    * {@see com.clover.remote.client.messages.ResultCode} and a Success boolean. 
    * The response to a successful transaction will contain the Refund, which includes 
    * the original paymentId as a reference.
@@ -229,8 +229,8 @@ public interface ICloverConnectorListener {
    * Called in response to a vaultCard() request. Contains a 
    * {@see com.clover.remote.client.messages.ResultCode} and a Success boolean.
    * If successful, the response will contain a VaultedCard object with a token value 
-   * that's unique for the card and merchant. The token can be used for future Sale() and 
-   * Auth() requests.
+   * that's unique for the card and merchant. The token can be used for future sale() and 
+   * auth() requests.
    *
    * @param response The response to the request.
    */
@@ -252,7 +252,7 @@ public interface ICloverConnectorListener {
 
   /**
    * Called when a user requests a paper receipt for a Manual Refund. Will only be called 
-   * if disablePrinting = true on the ManualRefund() request.
+   * if disablePrinting = true on the manualRefund() request.
    *
    * @param printManualRefundReceiptMessage A callback that asks the POS to print 
    * a receipt for a ManualRefund. Contains a Credit object.
@@ -261,7 +261,7 @@ public interface ICloverConnectorListener {
 
   /**
    * Called when a user requests a paper receipt for a declined Manual Refund. Will only 
-   * be called if disablePrinting = true on the ManualRefund() request.
+   * be called if disablePrinting = true on the manualRefund() request.
    *
    * @param message The PrintManualRefundDeclineReceiptMessage.
    */
@@ -269,7 +269,7 @@ public interface ICloverConnectorListener {
 
   /**
    * Called when a user requests a paper receipt for a Payment. Will only be called 
-   * if disablePrinting = true on the Sale(), Auth(), or PreAuth() request.
+   * if disablePrinting = true on the sale(), auth(), or preAuth() request.
    *
    * @param message The message.
    */
@@ -277,7 +277,7 @@ public interface ICloverConnectorListener {
 
   /**
    * Called when a user requests a paper receipt for a declined Payment. Will only be 
-   * called if disablePrinting = true on the Sale(), Auth(), or PreAuth() request.
+   * called if disablePrinting = true on the sale(), auth(), or preAuth() request.
    *
    * @param message The message.
    */
@@ -285,7 +285,7 @@ public interface ICloverConnectorListener {
 
   /**
    * Called when a user requests a merchant copy of a Payment receipt. Will only be called 
-   * if disablePrinting = true on the Sale(), Auth(), or PreAuth() request.
+   * if disablePrinting = true on the sale(), auth(), or preAuth() request.
    *
    * @param message The message.
    */
@@ -293,7 +293,7 @@ public interface ICloverConnectorListener {
 
   /**
    * Called when a user requests a paper receipt for a Payment Refund. Will only be called 
-   * if disablePrinting = true on the Sale(), Auth(), PreAuth() or ManualRefund() request.
+   * if disablePrinting = true on the sale(), auth(), preAuth(), or manualRefund() request.
    *
    * @param message The message.
    */
@@ -328,21 +328,21 @@ public interface ICloverConnectorListener {
   void onCustomActivityResponse(CustomActivityResponse response);
 
   /**
-   * Called in response to a RetrieveDeviceStatus() request.
+   * Called in response to a retrieveDeviceStatus() request.
    *
    * @param response The response to the request.
    */
   void onRetrieveDeviceStatusResponse(RetrieveDeviceStatusResponse response);
 
   /**
-   * Called in response to a ResetDevice() request.
+   * Called in response to a resetDevice() request.
    *
    * @param response The response to the request.
    */
   void onResetDeviceResponse(ResetDeviceResponse response);
 
   /**
-   * Called in response to a RetrievePayment() request.
+   * Called in response to a retrievePayment() request.
    *
    * @param response The response to the request.
    */
