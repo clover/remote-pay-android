@@ -250,10 +250,9 @@ public interface ICloverConnector extends Serializable {
   void openCashDrawer(OpenCashDrawerRequest request);
   
   /**
-   * Opens the first cash drawer found connected to the Clover device. The reason for 
-   * opening the cash drawer must be set on OpenCashDrawerRequest.
+   * Opens the first cash drawer found connected to the Clover device. 
    *
-   * @param reason
+   * @param reason The reason for opening the cash drawer.
    */
    @Deprecated
   void openCashDrawer(String reason);
