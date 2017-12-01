@@ -74,7 +74,7 @@ public interface ICloverConnector extends Serializable {
   void removeCloverConnectorListener(ICloverConnectorListener listener);
 
   /**
-   * Requests a Sale transaction (i.e. purchase).
+   * Requests a Sale transaction (purchase).
    *
    * @param request A SaleRequest object containing basic information for the transaction.
    */
@@ -337,7 +337,7 @@ public interface ICloverConnector extends Serializable {
   void dispose();
 
   /**
-   * Sends a keystroke to the Clover device that invokes an input option (e.g. OK, 
+   * Sends a keystroke to the Clover device that invokes an input option (OK, 
    * CANCEL, DONE, etc.) on the customer's behalf. InputOptions are on the 
    * CloverDeviceEvent passed to onDeviceActivityStart().
    *
