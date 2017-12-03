@@ -313,7 +313,16 @@ public interface ICloverConnector extends Serializable {
    * @param paymentId The ID of the Payment associated with the receipt.
    * @param orderId The ID of the Order associated with the receipt.
    */ 
+   @Deprecated
   void displayPaymentReceiptOptions(String orderId, String paymentId);
+  
+  /**
+   * Displays the customer-facing receipt options (print, email, etc.) for a Payment on
+   * the Clover device.
+   *
+   * @param request The request details.
+   */
+  void displayPaymentReceiptOptions(DisplayReceiptOptionsRequest request);
 
   /**
    * Displays an Order and associated lineItems on the Clover device. Will replace an 
