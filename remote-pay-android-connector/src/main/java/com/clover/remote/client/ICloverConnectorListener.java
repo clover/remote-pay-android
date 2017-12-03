@@ -133,7 +133,7 @@ public interface ICloverConnectorListener {
 
   /**
    * Called when the Clover device encounters a Challenge at the payment gateway 
-   * and requires confirmation. A Challenge is triggered by a potential duplicate Payment. 
+   * and requires confirmation. A Challenge is triggered by a potential duplicate Payment 
    * (DUPLICATE_CHALLENGE) or an offline Payment (OFFLINE_CHALLENGE). 
    * The device sends a confirmPaymentRequest() asking the merchant 
    * to reply by sending either an acceptPayment() or rejectPayment() call.
