@@ -46,294 +46,364 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * Interface to define the available methods to send requests to a connected Clover device.
+ * The CloverConnector API serves as the interface for connecting to a Clover device. 
+ * This document defines the available methods.
  */
 @SuppressWarnings("unused")
 public interface ICloverConnector extends Serializable {
 
-  /**
-   * Initialize the CloverConnector's connection and start communication with the device.
-   * Must be called before calling any other method other than to add or remove listeners
+ /**
+   * Initializes the connection and starts communication with the Clover device.  
+   * This method is called after the connector has been created and listeners have been 
+   * added to it. It must be called before any other method (other than those that add or 
+   * remove listeners).
    */
   void initializeConnection();
 
   /**
-   * Adds a clover connection listener.
+   * Adds a Clover Connector listener.
    *
    * @param listener The connection listener.
    */
   void addCloverConnectorListener(ICloverConnectorListener listener);
 
   /**
-   * Removes a clover connector listener.
+   * Removes a Clover Connector listener.
    *
    * @param listener The connection listener.
    */
   void removeCloverConnectorListener(ICloverConnectorListener listener);
 
   /**
-   * Sale method, aka "purchase"
+   * Requests a Sale transaction (purchase).
    *
-   * @param request A SaleRequest object containing basic information needed for the transaction
+   * @param request A SaleRequest object containing basic information for the transaction.
    */
   void sale(SaleRequest request);
 
   /**
-   * If signature is captured during a Sale, this method accepts the signature as entered
+   * If a signature is captured during a transaction, this method accepts the signature 
+   * as entered.
    *
-   * @param request Accepted request
+   * @param request The accepted VerifySignatureRequest the device passed 
+   * to onVerifySignatureRequest().
    */
   void acceptSignature(VerifySignatureRequest request);
 
   /**
-   * If signature is captured during a Sale, this method rejects the signature as entered
+   * If a signature is captured during a transaction, this method rejects the signature as 
+   * entered.
    *
-   * @param request Rejected request
+   * @param request The rejected VerifySignatureRequest() the device passed to 
+   * onVerifySignatureRequest().
    */
   void rejectSignature(VerifySignatureRequest request);
 
   /**
-   * If payment confirmation is required during a Sale, this method accepts the payment
+   * If Payment confirmation is required during a transaction due to a Challenge, 
+   * this method accepts the Payment. A Challenge may be triggered by a potential 
+   * duplicate Payment or an offline Payment.
    *
-   * @param payment Payment to accept
+   * @param payment The Payment to accept.
    */
   void acceptPayment(Payment payment);
 
   /**
-   * If payment confirmation is required during a Sale, this method rejects the payment
+   * If Payment confirmation is required during a transaction due to a Challenge, 
+   * this method rejects the Payment. A Challenge may be triggered by a potential 
+   * duplicate Payment or an offline Payment.
    *
-   * @param payment Payment to reject
-   * @param challenge The challenge which resulted in payment rejection
+   * @param payment The Payment to reject.
+   * @param challenge The Challenge that resulted in Payment rejection.
    */
   void rejectPayment(Payment payment, Challenge challenge);
 
   /**
-   * Auth method to obtain an Auth payment that can be used as the payment
-   * to call tipAdjust
+   * Requests an Auth transaction. The tip for an Auth can be adjusted through the 
+   * TipAdjustAuth() call until the batch Closeout is processed.
    *
-   * @param request The request details
+   * <p>
+   * <b>Note:</b> The MerchantInfo.SupportsAuths boolean must be set to true.
+   * 
+   * @param request The AuthRequest details.
    */
   void auth(AuthRequest request);
 
   /**
-   * PreAuth method to obtain a Pre-Auth for a card
+   * Initiates a PreAuth transaction (a pre-authorization for a certain amount). This
+   * transaction lets the merchant know whether the account associated with a card has 
+   * sufficient funds, without actually charging the card. When the merchant is ready to 
+   * charge a final amount, the POS will call CapturePreAuth() to complete the Payment.
    *
-   * @param request The request details
+   * <p>
+   * <b>Note:</b> The MerchantInfo.SupportsPreAuths boolean must be set to true.
+   *
+   * @param request The PreAuthRequest details.
    */
   void preAuth(PreAuthRequest request);
 
   /**
-   * Capture a previous Auth. Note: Should only be called if request's PaymentID is from an AuthResponse
+   * Marks a PreAuth Payment for capture by a Closeout process. After a PreAuth is 
+   * captured, it is effectively the same as an Auth Payment. 
    *
-   * @param request The request details
+   * <p>
+   * <b>Note:</b> Should only be called if the request's PaymentID is from a 
+   * PreAuthResponse.
+   *
+   * @param request The CapturePreAuthRequest details.
    */
   void capturePreAuth(CapturePreAuthRequest request);
 
   /**
-   * Adjust the tip for a previous Auth. Note: Should only be called if request's PaymentID is from an AuthResponse
+   * Adjusts the tip for a previous Auth transaction. This call can be made until 
+   * the Auth Payment has been finalized by a Closeout. 
    *
-   * @param request The request details
+   * <p>
+   * <b>Note:</b> Should only be called if the request's PaymentID is from an 
+   * AuthResponse.
+   *
+   * @param request The TipAdjustAuthRequest details.
    */
   void tipAdjustAuth(TipAdjustAuthRequest request);
 
   /**
-   * Void a transaction, given a previously used order ID and/or payment ID
+   * Voids a transaction.
    *
-   * @param request The request details
+   * @param request A VoidRequest object containing basic information needed to 
+   * void the transaction.
    */
   void voidPayment(VoidPaymentRequest request);
 
   /**
-   * Refund a specific payment
+   * Refunds the full or partial amount of a Payment.
    *
-   * @param request The request details
+   * @param request The RefundPaymentRequest details.
    */
   void refundPayment(RefundPaymentRequest request);
 
   /**
-   * Manual refund method, aka "naked credit"
+   * Initiates a Manual Refund transaction (a “Refund” or credit that is not associated 
+   * with a previous Payment).
    *
-   * @param request The request details
+   * @param request A ManualRefundRequest object with the request details.
    */
   void manualRefund(ManualRefundRequest request);
 
   /**
-   * Vault card information. Requests the mini capture card information and request a payment token from the payment gateway.
-   * The value returned in the response is a card, with all the information necessary to use for payment in a SaleRequest or AuthRequest
+   * Asks the Clover device to capture card information and request a payment token 
+   * from the payment gateway. The payment token can be used for future 
+   * Sale and Auth requests in place of the card details. The merchant account 
+   * must be configured to allow payment tokens.
    *
-   * @param cardEntryMethods The card entry methods allowed to capture the payment token. null will provide default values
+   * <p>
+   * <b>Note:</b> The MerchantInfo.SupportsVaultCards boolean must be set to true.
+   *
+   * @param cardEntryMethods The card entry methods allowed to capture the payment token. 
+   * If this parameter is null, the default values (CARD_ENTRY_METHOD_MAG_STRIPE,
+   * CARD_ENTRY_METHOD_ICC_CONTACT, and CARD_ENTRY_METHOD_NFC_CONTACTLESS) 
+   * will be used.
    */
   void vaultCard(Integer cardEntryMethods);
 
-  /**
-   * Cancels the current user action on the device.
+/**
+   * Sends a "cancel" button press to the Clover device.
+   * 
+   * @deprecated Use {@link #invokeInputOption(InputOption)} instead.
    */
+  @Deprecated
   void cancel();
 
   /**
-   * Request a closeout of all orders.
+   * Sends a request to the Clover server to close out all transactions.
    *
-   * @param request The request details
+   * @param request The CloseoutRequest details.
    */
   void closeout(CloseoutRequest request);
 
   /**
-   * Request to print.
-   *
-   * @param request The request details: info and content needed to print
+   * Sends a print request using the PrintRequest object. Used to print text, images, 
+   * and images from a URL using the specified printer.
+   * 
+   * @param request The PrintRequest details.
    */
   void print(PrintRequest request);
 
   /**
-   * Request to retrieve available printers.
-   *
-   * @param request object that contains additional information to be applied during the request
+   * Queries available printers attached to the Clover device using the 
+   * RetrievePrintersRequest object.
+   * @param request The RetrievePrintersRequest details.
    */
   void retrievePrinters(RetrievePrintersRequest request);
 
   /**
-   * Request the status of a given print job
-   *
-   * @param request object defining the print job to be queried
+   * Queries the status of a print job using the PrintJobStatusRequest object.
+   * @param request The PrintJobStatusRequest details.
    */
   void retrievePrintJobStatus(PrintJobStatusRequest request);
 
   /**
-   * Request that the cash drawer connected to the device be opened.
+   * Opens the first cash drawer found connected to the Clover device. The reason for 
+   * opening the cash drawer must be set on OpenCashDrawerRequest.
    *
-   * @param request object defining the reason the cash drawer is being opened, and an optional device identifier
+   * @param request The OpenCashDrawerRequest object defining the reason 
+   * the cash drawer is being opened, and an optional device identifier.
    */
   void openCashDrawer(OpenCashDrawerRequest request);
+  
+  /**
+   * Opens the first cash drawer found connected to the Clover device. 
+   *
+   * @param reason The reason for opening the cash drawer.
+   */
+   @Deprecated
+  void openCashDrawer(String reason);
 
   /**
-   * Print simple lines of text to the Clover Mini printer
+   * Prints custom messages in plain text through the Clover Mini's built-in printer.
    *
-   * @param messages A list of text to print
+   * @param messages An array of text messages to print.
+   *
+   * @deprecated Use {@link #print(PrintRequest request)} instead.
    */
+  @Deprecated
   void printText(List<String> messages);
 
   /**
-   * Print an image on the Clover Mini printer
+   * Prints an image on paper receipts through the Clover Mini's built-in printer.
    *
-   * @param image An image to print
+   * @param image The image to print.
    *
-   * NOTE:  This method is not implemented for the Java SDK.  Use {@link #printImageFromURL(String)} instead.
+   * @deprecated Use {@link #print(PrintRequest request)} instead.
    */
   @Deprecated
   void printImage(Bitmap image);
 
   /**
-   * Print an image on the Clover Mini printer
+   * Prints an image from the web on paper receipts through the Clover device's built-in 
+   * printer.
    *
-   * @param url The url of an image to print
+   * @param url The URL for the image to print.
+   * 
+   * @deprecated Use {@link #print(PrintRequest request)} instead.
    */
+  @Deprecated
   void printImageFromURL(String url);
 
   /**
-   * Show a message on the Clover Mini screen
+   * Displays a string-based message on the Clover device's screen.
    *
-   * @param message The message to display
+   * @param message The string message to display.
    */
   void showMessage(String message);
 
   /**
-   * Return the device to the Welcome Screen
+   * Displays the welcome screen on the Clover device.
    */
   void showWelcomeScreen();
 
   /**
-   * Show the thank you screen on the device
+   * Displays the thank you screen on the Clover device.
    */
   void showThankYouScreen();
 
   /**
-   * Display the payment receipt screen for the orderId/paymentId combination.
+   * Displays the customer-facing receipt options (print, email, etc.) for a Payment on 
+   * the Clover device.
    *
-   * @param paymentId The ID of the payment to print a receipt for
-   * @param orderId The ID of the order to print a receipt for
-   */
+   * @param paymentId The ID of the Payment associated with the receipt.
+   * @param orderId The ID of the Order associated with the receipt.
+   */ 
+   @Deprecated
   void displayPaymentReceiptOptions(String orderId, String paymentId);
-
+  
   /**
-   * Will trigger cash drawer to open that is connected to Clover Mini
+   * Displays the customer-facing receipt options (print, email, etc.) for a Payment on
+   * the Clover device.
    *
-   * @param reason Reason for opening the cash drawer
+   * @param request The request details.
    */
-  void openCashDrawer(String reason);
+  void displayPaymentReceiptOptions(DisplayReceiptOptionsRequest request);
 
   /**
-   * Show the DisplayOrder on the device. Replaces the existing DisplayOrder on the device.
+   * Displays an Order and associated lineItems on the Clover device. Will replace an 
+   * Order that is already displayed on the device screen.
    *
-   * @param order The order to display
+   * @param order The Order to display.
    */
   void showDisplayOrder(DisplayOrder order);
 
   /**
-   * Remove the DisplayOrder from the device.
+   * Removes the DisplayOrder object from the Clover device's screen.
    *
-   * @param order The order to remove
+   * @param order The Order to remove.
    */
   void removeDisplayOrder(DisplayOrder order);
 
   /**
-   * Will dispose of the underlying connection to the device
+   * Disposes the connection to the Clover device. After this is called, the connection 
+   * to the device is severed, and the CloverConnector object is no longer usable. 
+   * Instantiate a new CloverConnector object in order to call initializeConnection().
    */
   void dispose();
 
   /**
-   * Used to invoke user options on the mini such as "OK", "CANCEL", "DONE", etc.
+   * Sends a keystroke to the Clover device that invokes an input option (OK, 
+   * CANCEL, DONE, etc.) on the customer's behalf. InputOptions are on the 
+   * CloverDeviceEvent passed to onDeviceActivityStart().
    *
-   * @param io The option to invoke
+   * @param InputOption The input option to invoke.
    */
   void invokeInputOption(InputOption io);
 
   /**
-   * Used to reset the device if it gets in an invalid state from POS perspective.
-   * This could cause a missed transaction or other missed information, so it
-   * needs to be used cautiously as a last resort
+   * Sends a request to reset the Clover device back to the welcome screen. Can be used 
+   * when the device is in an unknown or invalid state from the perspective of the POS.
+   *  
+   * NOTE: This request could cause the POS to miss a transaction or other information. 
+   * Use cautiously as a last resort.
    */
   void resetDevice();
 
   /**
-   * Used to request a list of pending payments that have been taken offline, but
-   * haven't processed yet.  Will trigger an onRetrievePendingPaymentsResponse callback.
+   * Retrieves a list of unprocessed Payments that were taken offline and 
+   * are pending submission to the server.
    */
   void retrievePendingPayments();
 
   /**
-   * Used to request card information. Specifically track1 and track2 information
+   * Requests card information (specifically Track 1 and Track 2 card data).
    *
-   * @param request The request details
+   * @param request The ReadCardDataRequest details.
    */
   void readCardData(ReadCardDataRequest request);
 
   /**
-   * Send a message to a running custom activity on the Clover device
+   * Sends a message to a Custom Activity running on a Clover device.
    *
-   * @param request The request details
+   * @param request The MessageToActivity with the message to send to the Custom Activity.
    */
   void sendMessageToActivity(MessageToActivity request);
 
   /**
-   * Request to start a Custom Activity on the Clover device
+   * Starts a Custom Activity on the Clover device.
    *
-   * @param request The request details
+   * @param request The CustomActivityRequest details.
    */
   void startCustomActivity(CustomActivityRequest request);
 
   /**
-   * Send a message requesting the current status of the device.
+   * Sends a message requesting the current status of the Clover device.
    *
-   * @param request The request details
+   * @param request The RetrieveDeviceStatusRequest details.
    */
   void retrieveDeviceStatus(RetrieveDeviceStatusRequest request);
 
   /**
-   * Sends a request to get a payment.
-   * Only valid for payments made in the past 24 hours on the device queried.
+   * Requests the Payment information associated with the externalPaymentId passed in.
+   * Only valid for Payments made in the past 24 hours on the Clover device queried.
    *
-   * @param request The request details
+   * @param request The request details.
    */
   void retrievePayment(RetrievePaymentRequest request);
-
-}
+  
+ }

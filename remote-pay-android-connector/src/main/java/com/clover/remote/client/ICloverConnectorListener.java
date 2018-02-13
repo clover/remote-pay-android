@@ -48,249 +48,330 @@ import com.clover.remote.client.messages.VoidPaymentResponse;
 import com.clover.remote.message.TipAddedMessage;
 
 /**
- * These are the methods to implement for intercepting messages that are sent from a Clover device.
+ * These are the methods to implement for intercepting messages sent from a Clover device.
  */
 @SuppressWarnings("unused")
 public interface ICloverConnectorListener {
 
   /**
-   * Called when a Clover device activity starts.
+   * Called when the Clover device transitions to a new screen or activity. The 
+   * CloverDeviceEvent passed in will contain an event type, a description, and a list of 
+   * available InputOptions.
    *
    * @param deviceEvent The device event.
    */
   void onDeviceActivityStart(CloverDeviceEvent deviceEvent);
 
   /**
-   * Called when a Clover device activity ends.
+   * Called when the Clover device transitions away from a screen or activity. The 
+   * CloverDeviceEvent passed in will contain an event type and description. 
+   *
+   * <p>
+   * <b>Note:</b> The start and end events are not guaranteed to process in order. 
+   * The event type should be used to make sure these events are paired.
    *
    * @param deviceEvent The device event.
    */
   void onDeviceActivityEnd(CloverDeviceEvent deviceEvent);
 
   /**
-   * Called when a Clover device error event is encountered
+   * Called when an error occurs while trying to send messages to the Clover device.
    *
    * @param deviceErrorEvent The device error event.
    */
   void onDeviceError(CloverDeviceErrorEvent deviceErrorEvent);
 
   /**
-   * Called in response to a pre auth request
+   * Called in response to a preAuth() request. 
    *
-   * @param response The response
+   * <p>
+   * <b>Note:</b> The boolean isPreAuth flag in the PreAuthResponse indicates whether 
+   * CapturePreAuth() can be called for the returned Payment. If the isPreAuth flag is 
+   * false and the isAuth flag is true, then the payment gateway coerced the preAuth() 
+   * request to an Auth. The payment will need to be voided or it will be 
+   * automatically captured at closeout.
+   *
+   * @param response The response to the transaction request.
    */
   void onPreAuthResponse(PreAuthResponse response);
 
   /**
-   * Called in response to an auth request
+   * Called in response to an auth() request. 
    *
-   * @param response The response
+   * <p>
+   * <b>Note:</b> An Auth transaction may come back as a final Sale, depending on the 
+   * payment gateway. The AuthResponse has a boolean isAuth flag that indicates whether 
+   * the Payment can still be tip-adjusted.
+   *
+   * @param response The response to the transaction request.
    */
   void onAuthResponse(AuthResponse response);
 
   /**
-   * Called in response to a tip adjust of an auth payment
+   * Called in response to a tip adjustment for an Auth transaction. 
+   * Contains the tipAmount if successful.
    *
-   * @param response The response
+   * @param response The response to the transaction request.
    */
   void onTipAdjustAuthResponse(TipAdjustAuthResponse response);
 
   /**
-   * Called in response to a capture of a pre auth payment
+   * Called in response to a capturePreAuth() request. 
+   * Contains the new Amount and TipAmount if successful.
    *
-   * @param response The response
+   * @param response The response to the transaction request.
    */
   void onCapturePreAuthResponse(CapturePreAuthResponse response);
 
   /**
-   * Called when the Clover device requires a signature to be verified
+   * Called when the Clover device requests verification for a user's on-screen signature. 
+   * The Payment and Signature will be passed in.
    *
-   * @param request The request
+   * @param request The verification request.
    */
   void onVerifySignatureRequest(VerifySignatureRequest request);
 
   /**
-   * Called when the Clover device requires confirmation for a payment
-   * e.g. Duplicates or Offline
+   * Called when the Clover device encounters a Challenge at the payment gateway 
+   * and requires confirmation. A Challenge is triggered by a potential duplicate Payment 
+   * (DUPLICATE_CHALLENGE) or an offline Payment (OFFLINE_CHALLENGE). 
+   * The device sends a confirmPaymentRequest() asking the merchant 
+   * to reply by sending either an acceptPayment() or rejectPayment() call.
    *
-   * @param request The request
+   * <p>
+   * <b>Note:</b> Duplicate Payment Challenges are raised when multiple Payments are made 
+   * with the same card type and last four digits within the same hour. For this reason, 
+   * we recommend that you do not programmatically call CloverConnector.RejectPayment() 
+   * on all instances of DUPLICATE_CHALLENGE. For more information, see 
+   * <a href="https://docs.clover.com/build/working-with-challenges/">Working with 
+   * Challenges</a>. 
+   *
+   * @param request The request for confirmation.
    */
   void onConfirmPaymentRequest(ConfirmPaymentRequest request);
 
   /**
-   * Called in response to a closeout being processed
+   * Called in response to a closeout() request.
    *
-   * @param response The response
+   * @param response The response to the transaction request.
    */
   void onCloseoutResponse(CloseoutResponse response);
 
   /**
-   * Called in response to a sale request
+   * Called at the completion of a sale() request. The SaleResponse contains a 
+   * {@see com.clover.remote.client.messages.ResultCode} 
+   * and a Success boolean. A successful Sale transaction will also have the Payment 
+   * object, which can be for the full or partial amount of the Sale request. 
    *
-   * @param response The response
+   * <p>
+   * <b>Note:</b> A Sale transaction my come back as a tip-adjustable Auth, depending 
+   * on the payment gateway. The SaleResponse has a boolean isSale flag that indicates 
+   * whether the Sale is final, or will be finalized during closeout.
+   *
+   * @param SaleResponse The response to the transaction request.
    */
   void onSaleResponse(SaleResponse response);
 
   /**
-   * Called in response to a manual refund request
+   * Called in response to a manualRefund() request. Contains a 
+   * {@see com.clover.remote.client.messages.ResultCode} and 
+   * a Success boolean. If successful, the ManualRefundResponse will have 
+   * a Credit object associated with the relevant Payment information.
    *
-   * @param response The response
+   * @param ManualRefundResponse The response to the transaction request.
    */
   void onManualRefundResponse(ManualRefundResponse response);
 
   /**
-   * Called in response to a refund payment request
+   * Called in response to a refundPayment() request. Contains a 
+   * {@see com.clover.remote.client.messages.ResultCode} and a Success boolean. 
+   * The response to a successful transaction will contain the Refund, which includes 
+   * the original paymentId as a reference.
    *
-   * @param response The response
+   * @param RefundPaymentResponse The response to the transaction request.
    */
   void onRefundPaymentResponse(RefundPaymentResponse response);
 
   /**
-   * Called when a customer selects a tip amount on the Clover device screen
+   * Called when a customer selects a tip amount on the Clover device's screen.
    *
-   * @param message The message
+   * @param message The TipAddedMessage.
    */
   void onTipAdded(TipAddedMessage message);
 
   /**
-   * Called in response to a void payment request
+   * Called in response to a voidPayment() request. Contains a 
+   * {@see com.clover.remote.client.messages.ResultCode} and a Success boolean. 
+   * If successful, the response will also contain the paymentId for the voided Payment.
    *
-   * @param response The response
+   * @param response The response to the transaction request.
    */
   void onVoidPaymentResponse(VoidPaymentResponse response);
 
   /**
-   * Called when the Clover device is disconnected
+   * Called when the Clover device is disconnected from the CloverConnector or 
+   * not responding.
    */
   void onDeviceDisconnected();
 
   /**
-   * Called when the Clover device is connected, but not ready to communicate
+   * Called when the Clover device is initially connected, but not ready to communicate.
    */
   void onDeviceConnected();
 
   /**
-   * Called when the Clover device is ready to communicate
+   * Called when the Clover device is ready to communicate and respond to requests.
    *
-   * @param merchantInfo The merchant info for the device
+   * @param merchantInfo The merchant information to associate with the device.
    */
   void onDeviceReady(MerchantInfo merchantInfo);
-
   /**
-   * Called in response to a vault card request
+   * Called in response to a vaultCard() request. Contains a 
+   * {@see com.clover.remote.client.messages.ResultCode} and a Success boolean.
+   * If successful, the response will contain a VaultedCard object with a token value 
+   * that's unique for the card and merchant. The token can be used for future sale() and 
+   * auth() requests.
    *
-   * @param response The response
+   * @param response The response to the request.
    */
   void onVaultCardResponse(VaultCardResponse response);
 
-  /**
-   * Called to update the status of a print job
-   *
-   * @param response The response contains the print job identifier and that job's status
+  /** 
+   * Called in response to a retrievePrintJobStatus() request.
+   * 
+   * @param PrintJobStatusResponse The response to the request.
    */
     void onPrintJobStatusResponse(PrintJobStatusResponse response);
 
   /**
-   * Called in response to a retrievePrinters() request
-   *
-   * @param response Response object containing an array of the printers being passed back
+   * Called in response to a retrievePrinters() request.
+   * 
+   * @param RetrievePrintersResponse The response to the request.
    */
   void onRetrievePrintersResponse(RetrievePrintersResponse response);
 
   /**
-   * Will only be called if disablePrinting = true on the Sale, Auth, PreAuth or ManualRefund Request
-   * Called when a user requests to print a receipt for a ManualRefund
+   * Called when a user requests a paper receipt for a Manual Refund. Will only be called 
+   * if disablePrinting = true on the manualRefund() request.
    *
-   * @param message The message
+   * @param printManualRefundReceiptMessage A callback that asks the POS to print 
+   * a receipt for a ManualRefund. Contains a Credit object.
    */
   void onPrintManualRefundReceipt(PrintManualRefundReceiptMessage message);
 
   /**
-   * Will only be called if disablePrinting = true on the Sale, Auth, PreAuth or ManualRefund Request
-   * Called when a user requests to print a receipt for a declined ManualRefund
+   * Called when a user requests a paper receipt for a declined Manual Refund. Will only 
+   * be called if disablePrinting = true on the manualRefund() request.
    *
-   * @param message The message
+   * @param message The PrintManualRefundDeclineReceiptMessage.
    */
   void onPrintManualRefundDeclineReceipt(PrintManualRefundDeclineReceiptMessage message);
 
   /**
-   * Will only be called if disablePrinting = true on the Sale, Auth, PreAuth or ManualRefund Request
-   * Called when a user requests to print a receipt for a payment
+   * Called when a user requests a paper receipt for a Payment. Will only be called 
+   * if disablePrinting = true on the sale(), auth(), or preAuth() request.
    *
-   * @param message The message
+   * @param message The message.
    */
   void onPrintPaymentReceipt(PrintPaymentReceiptMessage message);
 
   /**
-   * Will only be called if disablePrinting = true on the Sale, Auth, PreAuth or ManualRefund Request
-   * Called when a user requests to print a receipt for a declined payment
+   * Called when a user requests a paper receipt for a declined Payment. Will only be 
+   * called if disablePrinting = true on the sale(), auth(), or preAuth() request.
    *
-   * @param message The message
+   * @param message The message.
    */
   void onPrintPaymentDeclineReceipt(PrintPaymentDeclineReceiptMessage message);
 
   /**
-   * Will only be called if disablePrinting = true on the Sale, Auth, PreAuth or ManualRefund Request
-   * Called when a user requests to print a merchant copy of a payment receipt
+   * Called when a user requests a merchant copy of a Payment receipt. Will only be called 
+   * if disablePrinting = true on the sale(), auth(), or preAuth() request.
    *
-   * @param message The message
+   * @param message The message.
    */
   void onPrintPaymentMerchantCopyReceipt(PrintPaymentMerchantCopyReceiptMessage message);
 
   /**
-   * Will only be called if disablePrinting = true on the Sale, Auth, PreAuth or ManualRefund Request
-   * Called when a user requests to print a receipt for a payment refund
+   * Called when a user requests a paper receipt for a Payment Refund. Will only be called 
+   * if disablePrinting = true on the sale(), auth(), preAuth(), or manualRefund() request.
    *
-   * @param message The message
+   * @param message The message.
    */
   void onPrintRefundPaymentReceipt(PrintRefundPaymentReceiptMessage message);
 
   /**
-   * Called in response to a retrievePendingPayment(...) request.
+   * Called in response to a retrievePendingPayment() request.
    *
-   * @param response The response
+   * @param retrievePendingPaymentResponse The response to the request.
    */
   void onRetrievePendingPaymentsResponse(RetrievePendingPaymentsResponse response);
 
   /**
-   * Called in response to a readCardData(...) request.
+   * Called in response to a readCardData() request. Contains card information 
+   * (specifically Track 1 and Track 2 card data).
    *
-   * @param response The response
+   * @param response The response to the request.
    */
   void onReadCardDataResponse(ReadCardDataResponse response);
 
   /**
-   * Called when a message is sent from a custom activity
-   * @param message The message
+   * Called when a Custom Activity sends a message to the POS.
+   * @param message The message.
    */
   void onMessageFromActivity(MessageFromActivity message);
 
   /**
-   * Called when a custom activity finishes
+   * Called when a Custom Activity finishes normally.
    *
-   * @param response The response
+   * @param response The CustomActivityResponse.
    */
   void onCustomActivityResponse(CustomActivityResponse response);
 
   /**
-   * Called in response to a RetrieveDeviceState request
+   * Called in response to a retrieveDeviceStatus() request.
    *
-   * @param response The response
+   * @param response The response to the request.
    */
   void onRetrieveDeviceStatusResponse(RetrieveDeviceStatusResponse response);
 
   /**
-   * Called in response to a ResetDevice request
+   * Called in response to a resetDevice() request.
    *
-   * @param response The response
+   * @param response The response to the request.
    */
   void onResetDeviceResponse(ResetDeviceResponse response);
 
   /**
-   * Called in response to a RetrievePaymentRequest
+   * Called in response to a retrievePayment() request.
    *
-   * @param response The response
+   * @param response The response to the request.
    */
   void onRetrievePaymentResponse(RetrievePaymentResponse response);
-
+  
+  /**
+   * Called when the Clover device connects to the Clover Connector.
+   * 
+   * @deprecated Use {@link #onDeviceConnected()} instead.
+   */
+   @Deprecated
+   void onConnected();
+   
+   /**
+   * Called when the Clover device disconnects from the Clover Connector.
+   * 
+   * @deprecated Use {@link #onDeviceDisconnected()} instead.
+   */
+   @Deprecated
+   void onDisconnected();
+   
+   /**
+   * Called when the Clover device is ready to respond to requests.
+   * 
+   * @deprecated Use {@link #onDeviceReady()} instead.
+   * 
+   * @param merchantInfo The merchant information to associate with the device.
+   */
+   @Deprecated
+    void onReady();
+  
 }
