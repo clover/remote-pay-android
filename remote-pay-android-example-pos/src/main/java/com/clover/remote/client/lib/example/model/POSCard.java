@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Clover Network, Inc.
+ * Copyright (C) 2018 Clover Network, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,21 @@
 package com.clover.remote.client.lib.example.model;
 
 public class POSCard {
+  private String vaultedName;
   private String name;
   private String first6;
   private String last4;
   private String month;
   private String year;
   private String token;
+
+  public String getVaultedName() {
+    return vaultedName;
+  }
+
+  public void setVaultedName(String vaultedName) {
+    this.vaultedName = vaultedName;
+  }
 
   public String getName() {
     return name;

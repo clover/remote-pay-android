@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Clover Network, Inc.
+ * Copyright (C) 2018 Clover Network, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,14 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import com.clover.remote.client.lib.example.R;
 import com.clover.remote.client.lib.example.model.POSOrder;
+import com.clover.remote.client.lib.example.model.POSTransaction;
 import com.clover.remote.client.lib.example.utils.CurrencyUtils;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
+
 
 public class OrdersListViewAdapter extends ArrayAdapter<POSOrder> {
 
@@ -54,18 +58,34 @@ public class OrdersListViewAdapter extends ArrayAdapter<POSOrder> {
 
     if (posOrder != null) {
       TextView idColumn = (TextView) v.findViewById(R.id.OrdersRowIdColumn);
-      TextView dateColumn = (TextView) v.findViewById(R.id.OrdersRowDateColumn);
+      TextView time = (TextView) v.findViewById(R.id.OrderTime);
+      TextView date = (TextView) v.findViewById(R.id.OrderDate);
+      TextView tender = (TextView) v.findViewById(R.id.OrderTender);
       TextView statusColumn = (TextView) v.findViewById(R.id.OrdersRowStatusColumn);
       TextView subtotalColumn = (TextView) v.findViewById(R.id.OrdersRowSubtotalColumn);
-      TextView taxColumn = (TextView) v.findViewById(R.id.OrdersRowTaxColumn);
-      TextView totalColumn = (TextView) v.findViewById(R.id.OrdersRowTotalColumn);
 
+      SimpleDateFormat localDateFormat = new SimpleDateFormat("hh:mm a");
+      DateFormat formatter = new SimpleDateFormat("dd/MM/yy");
       idColumn.setText(posOrder.id);
-      dateColumn.setText(posOrder.date.toString());
-      statusColumn.setText(posOrder.getStatus().toString());
-      subtotalColumn.setText(CurrencyUtils.format(posOrder.getPreTaxSubTotal(), Locale.getDefault()));
-      taxColumn.setText(CurrencyUtils.format(posOrder.getTaxAmount(), Locale.getDefault()));
-      totalColumn.setText(CurrencyUtils.format(posOrder.getTotal(), Locale.getDefault()));
+      time.setText(localDateFormat.format(posOrder.date));
+      date.setText(formatter.format(posOrder.date));
+      if(posOrder.getPayments().size() > 0) {
+        POSTransaction payment = posOrder.getPayments().get(0);
+        tender.setText(payment.getTender());
+      }
+      String status = posOrder.getStatus().toString();
+      statusColumn.setText(status);
+      if(status == "PAID"){
+        statusColumn.setTextColor(v.getResources().getColor(R.color.green_text));
+      }
+      else if(status == "REFUNDED" || status == "MANUALLY REFUNDED"){
+        statusColumn.setTextColor(v.getResources().getColor(R.color.red_text));
+      }
+      else{
+        statusColumn.setTextColor(v.getResources().getColor(R.color.yellow_text));
+      }
+
+      subtotalColumn.setText(CurrencyUtils.format(posOrder.getTotal(), Locale.getDefault()));
     }
 
     return v;

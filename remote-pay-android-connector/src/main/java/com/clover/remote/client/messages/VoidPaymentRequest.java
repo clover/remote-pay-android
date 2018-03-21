@@ -26,6 +26,8 @@ public class VoidPaymentRequest extends BaseRequest {
 
   private String employeeId;//optional TODO: Revisit
   private String orderId; //optional TODO: Revisit
+  private boolean disablePrinting; //optional
+  private boolean disableReceiptSelection; //optional
 
   /**
    * Get the field value
@@ -97,6 +99,42 @@ public class VoidPaymentRequest extends BaseRequest {
    */
   public void setOrderId(String orderId) {
     this.orderId = orderId;
+  }
+
+  /**
+   * Get the field value
+   *
+   * @return The disablePrinting transaction override value
+   */
+  public boolean getDisablePrinting() {
+    return disablePrinting;
+  }
+
+  /**
+   * Set the field value
+   *
+   * @param disablePrinting The transaction override to turn off Clover device printing
+   */
+  public void setDisablePrinting(boolean disablePrinting) {
+    this.disablePrinting = disablePrinting;
+  }
+
+  /**
+   * Get the field value
+   *
+   * @return The disableReceiptSelection transaction override value
+   */
+  public boolean getDisableReceiptSelection() {
+    return disableReceiptSelection;
+  }
+
+  /**
+   * Set the field value
+   *
+   * @param disableReceiptSelection The transaction override to turn off the Clover customer print screen
+   */
+  public void setDisableReceiptSelection(boolean disableReceiptSelection) {
+    this.disableReceiptSelection = disableReceiptSelection;
   }
 }
 

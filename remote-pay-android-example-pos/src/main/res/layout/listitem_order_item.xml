@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2016 Clover Network, Inc.
+  ~ Copyright (C) 2018 Clover Network, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -27,8 +27,7 @@
       android:layout_height="wrap_content"
       android:layout_alignParentLeft="true"
       android:layout_alignParentTop="true"
-      android:text="@string/one"
-      />
+      android:text="@string/one"/>
   <TextView
       android:id="@+id/OrderItemNameLabel"
       android:layout_width="wrap_content"
@@ -42,8 +41,7 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_alignParentRight="true"
-      android:text="@string/order_amount_placeholder"
-      />
+      android:text="@string/order_amount_placeholder"/>
   <TextView
       android:id="@+id/OrderItemDiscountLabel"
       android:layout_width="wrap_content"

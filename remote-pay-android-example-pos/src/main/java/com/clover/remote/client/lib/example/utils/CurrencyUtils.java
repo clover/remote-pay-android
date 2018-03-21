@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Clover Network, Inc.
+ * Copyright (C) 2018 Clover Network, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,5 +31,35 @@ public class CurrencyUtils {
     NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(locale);
 
     return currencyFormatter.format(amount);
+  }
+
+  public static Long convertToLong(String amount){
+    amount = amount.replace(",", "");
+    amount = amount.substring(1,amount.length());
+    String [] pieces = amount.split("\\.");
+    amount = pieces[0]+pieces[1];
+    return Long.parseLong(amount);
+  }
+
+  public static String convertToString(Long amount){
+    if(amount == 0L){
+      return "$0.00";
+    }
+    else {
+      String amountString = String.valueOf(amount);
+      String first = "";
+      if(amountString.length()>1) {
+        first = amountString.substring(0, amountString.length() - 2);
+      }
+      else{
+        return "$0.0"+amountString;
+      }
+      if(first.length() < 1){
+        first = "0";
+      }
+      String last = amountString.substring(amountString.length()-2);
+      return "$"+first+"."+last;
+
+    }
   }
 }

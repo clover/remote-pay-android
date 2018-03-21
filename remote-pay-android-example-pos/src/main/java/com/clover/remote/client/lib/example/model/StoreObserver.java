@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Clover Network, Inc.
+ * Copyright (C) 2018 Clover Network, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,13 @@ import com.clover.remote.PendingPaymentEntry;
 import java.util.List;
 
 public interface StoreObserver {
+  public abstract void onCurrentOrderChanged(POSOrder currentOrder);
   public abstract void newOrderCreated(POSOrder order, boolean userInitiated);
   public abstract void cardAdded(POSCard card);
-  public abstract void refundAdded(POSNakedRefund refund);
-
+  public abstract void refundAdded(POSTransaction refund);
   public abstract void preAuthAdded(POSPayment payment);
   public abstract void preAuthRemoved(POSPayment payment);
-
   public abstract void pendingPaymentsRetrieved(List<PendingPaymentEntry> pendingPayments);
+  public abstract void transactionsChanged(List<POSTransaction> transactions);
 }
 

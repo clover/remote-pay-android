@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Clover Network, Inc.
+ * Copyright (C) 2018 Clover Network, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,16 @@
 package com.clover.remote.client.lib.example;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.Fragment;
-import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.EditText;
+import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Toast;
+
 import com.clover.remote.PendingPaymentEntry;
 import com.clover.remote.client.ICloverConnector;
 import com.clover.remote.client.lib.example.adapter.ItemsListViewAdapter;
@@ -39,18 +35,13 @@ import com.clover.remote.client.lib.example.adapter.PaymentsListViewAdapter;
 import com.clover.remote.client.lib.example.model.OrderObserver;
 import com.clover.remote.client.lib.example.model.POSCard;
 import com.clover.remote.client.lib.example.model.POSDiscount;
-import com.clover.remote.client.lib.example.model.POSExchange;
 import com.clover.remote.client.lib.example.model.POSLineItem;
-import com.clover.remote.client.lib.example.model.POSNakedRefund;
 import com.clover.remote.client.lib.example.model.POSOrder;
 import com.clover.remote.client.lib.example.model.POSPayment;
 import com.clover.remote.client.lib.example.model.POSRefund;
 import com.clover.remote.client.lib.example.model.POSStore;
+import com.clover.remote.client.lib.example.model.POSTransaction;
 import com.clover.remote.client.lib.example.model.StoreObserver;
-import com.clover.remote.client.messages.RefundPaymentRequest;
-import com.clover.remote.client.messages.TipAdjustAuthRequest;
-import com.clover.remote.client.messages.VoidPaymentRequest;
-import com.clover.sdk.v3.order.VoidReason;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -69,11 +60,13 @@ public class OrdersFragment extends Fragment implements OrderObserver {
   private ListView itemsListView;
   private View view;
   private ListView ordersListView;
+  private Button openInRegister;
   POSOrder selectedOrder = null;
 
   public static OrdersFragment newInstance(POSStore store, ICloverConnector cloverConnector) {
     OrdersFragment fragment = new OrdersFragment();
     fragment.setStore(store);
+    fragment.setCloverConnector(cloverConnector);
     Bundle args = new Bundle();
     fragment.setArguments(args);
 
@@ -102,13 +95,15 @@ public class OrdersFragment extends Fragment implements OrderObserver {
     // Inflate the layout for this fragment
     view = inflater.inflate(R.layout.fragment_orders, container, false);
 
+    openInRegister = (Button) view.findViewById(R.id.OrdersGoToRegister);
+
     itemsListView = (ListView) view.findViewById(R.id.ItemsGridView);
     final ItemsListViewAdapter itemsListViewAdapter = new ItemsListViewAdapter(view.getContext(), R.id.ItemsGridView, Collections.EMPTY_LIST);
     itemsListView.setAdapter(itemsListViewAdapter);
 
     final ListView paymentsListView = (ListView) view.findViewById(R.id.PaymentsGridView);
     final PaymentsListViewAdapter paymentsListViewAdapter = new PaymentsListViewAdapter(view.getContext(), R.id.PaymentsGridView, Collections.EMPTY_LIST);
-    itemsListView.setAdapter(paymentsListViewAdapter);
+    paymentsListView.setAdapter(paymentsListViewAdapter);
 
     ordersListView = (ListView) view.findViewById(R.id.OrdersListView);
     OrdersListViewAdapter ordersListViewAdapter = new OrdersListViewAdapter(view.getContext(), R.id.OrdersListView, store.getOrders());
@@ -130,90 +125,14 @@ public class OrdersFragment extends Fragment implements OrderObserver {
       @Override
       public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-        final POSExchange posExchange = (POSExchange) paymentsListView.getItemAtPosition(position);
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        String[] options = null;
-
-        if (posExchange instanceof POSPayment) {
-          if (((POSPayment)posExchange).getPaymentStatus() == POSPayment.Status.AUTHORIZED) {
-            options = new String[]{"Void Payment", "Refund Payment", "Tip Adjust Payment", "Receipt Options"};
-          } else if (((POSPayment)posExchange).getPaymentStatus() == POSPayment.Status.PAID) {
-            options = new String[]{"Void Payment", "Refund Payment", "Receipt Options"};
-          } else {
-            return;
-          }
-          final String[] finalPaymentOptions = options;
-          builder.setTitle("Payment Actions").
-              setItems(finalPaymentOptions, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int index) {
-                  final ICloverConnector cloverConnector = cloverConnectorWeakReference.get();
-                  if (cloverConnector != null) {
-                    final String option = finalPaymentOptions[index];
-                    switch (option) {
-                      case "Void Payment": {
-                        VoidPaymentRequest vpr = new VoidPaymentRequest();
-                        vpr.setPaymentId(posExchange.getPaymentID());
-                        vpr.setOrderId(posExchange.getOrderId());
-                        vpr.setVoidReason(VoidReason.USER_CANCEL.name());
-                        cloverConnector.voidPayment(vpr);
-                        break;
-                      }
-                      case "Refund Payment": {
-                        RefundPaymentRequest rpr = new RefundPaymentRequest();
-                        rpr.setPaymentId(posExchange.getPaymentID());
-                        rpr.setOrderId(posExchange.orderID);
-                        rpr.setFullRefund(true);
-                        cloverConnector.refundPayment(rpr);
-                        break;
-                      }
-                      case "Tip Adjust Payment": {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                        final EditText input = new EditText(getActivity());
-                        input.setInputType(InputType.TYPE_CLASS_NUMBER);
-                        builder.setView(input);
-
-                        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                          @Override
-                          public void onClick(DialogInterface dialog, int which) {
-                            double val = Double.parseDouble(input.getText().toString());
-                            long value = (long) val;
-
-                            TipAdjustAuthRequest taar = new TipAdjustAuthRequest();
-                            taar.setPaymentId(posExchange.getPaymentID());
-                            taar.setOrderId(posExchange.getOrderId());
-                            taar.setTipAmount(value);
-                            cloverConnector.tipAdjustAuth(taar);
-                            dialog.dismiss();
-                          }
-                        });
-                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                          @Override
-                          public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                          }
-                        });
-
-                        builder.show();
-                        break;
-                      }
-                      case "Receipt Options": {
-                        cloverConnector.displayPaymentReceiptOptions(posExchange.orderID, posExchange.getPaymentID());
-                        break;
-                      }
-
-                    }
-                  } else {
-                    Toast.makeText(getActivity().getBaseContext(), "Clover Connector is null", Toast.LENGTH_LONG).show();
-                  }
-                }
-              });
-          final Dialog dlg = builder.create();
-          dlg.show();
+        POSTransaction posTransaction = (POSTransaction) paymentsListView.getItemAtPosition(position);
+        if(posTransaction instanceof POSRefund){
+          posTransaction = store.getPaymentByCloverId(((POSRefund)posTransaction).getPaymentId());
         }
-
+        ((ExamplePOSActivity)getActivity()).showPaymentDetails(posTransaction);
       }
     });
+
 
     return view;
   }
@@ -239,8 +158,26 @@ public class OrdersFragment extends Fragment implements OrderObserver {
         final ListView paymentsListView = (ListView) view.findViewById(R.id.PaymentsGridView);
         PaymentsListViewAdapter paymentsListViewAdapter = new PaymentsListViewAdapter(view.getContext(), R.id.PaymentsGridView, posOrder.getPayments());
         paymentsListView.setAdapter(paymentsListViewAdapter);
+        if(posOrder.getPayments().size() < 1 || posOrder.getStatus().toString() == "OPEN"){
+          openInRegister.setVisibility(View.VISIBLE);
+          openInRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+              openInRegister(posOrder);
+            }
+          });
+        }
+        else if(posOrder.getPayments().size() > 0) {
+          openInRegister.setVisibility(View.INVISIBLE);
+        }
       }
     });
+  }
+
+  public void openInRegister(POSOrder order){
+    store.setCurrentOrder(order);
+    ((ExamplePOSActivity)getActivity()).showRegister(null);
+
   }
 
   // TODO: Rename method, update argument and hook method into UI event
@@ -272,6 +209,11 @@ public class OrdersFragment extends Fragment implements OrderObserver {
 
     store.addStoreObserver(new StoreObserver() {
       @Override
+      public void onCurrentOrderChanged(POSOrder currentOrder) {
+
+      }
+
+      @Override
       public void newOrderCreated(POSOrder order, boolean userInitiated) {
         updateOrderList();
       }
@@ -280,7 +222,7 @@ public class OrdersFragment extends Fragment implements OrderObserver {
 
       }
 
-      @Override public void refundAdded(POSNakedRefund refund) {
+      @Override public void refundAdded(POSTransaction refund) {
 
       }
 
@@ -293,6 +235,11 @@ public class OrdersFragment extends Fragment implements OrderObserver {
       }
 
       @Override public void pendingPaymentsRetrieved(List<PendingPaymentEntry> pendingPayments) {
+
+      }
+
+      @Override
+      public void transactionsChanged(List<POSTransaction> transactions) {
 
       }
 
@@ -319,7 +266,7 @@ public class OrdersFragment extends Fragment implements OrderObserver {
         updateOrderList();
       }
 
-      @Override public void paymentChanged(POSOrder posOrder, POSExchange pay) {
+      @Override public void paymentChanged(POSOrder posOrder, POSTransaction pay) {
         updateOrderList();
       }
 
@@ -374,19 +321,21 @@ public class OrdersFragment extends Fragment implements OrderObserver {
   }
 
   @Override public void refundAdded(POSOrder posOrder, POSRefund refund) {
+    updateOrderList();
     updateDisplaysForOrder(posOrder);
   }
 
-  @Override public void paymentChanged(POSOrder posOrder, POSExchange pay) {
+  @Override public void paymentChanged(POSOrder posOrder, POSTransaction pay) {
+    updateOrderList();
     updatePayments(posOrder);
   }
 
   @Override public void discountAdded(POSOrder posOrder, POSDiscount discount) {
-
+    updateOrderList();
   }
 
   @Override public void discountChanged(POSOrder posOrder, POSDiscount discount) {
-
+    updateOrderList();
   }
 
   /**

@@ -24,7 +24,9 @@ public class RefundPaymentRequest extends BaseRequest {
   private String orderId;
   private String paymentId;
   private long amount; // optional
-  private boolean fullRefund; //
+  private boolean fullRefund; // optional
+  private boolean disablePrinting; // optional
+  private boolean disableReceiptSelection; // optional
 
   /**
    * Get the field value
@@ -96,6 +98,42 @@ public class RefundPaymentRequest extends BaseRequest {
    */
   public void setFullRefund(boolean fullRefund) {
     this.fullRefund = fullRefund;
+  }
+
+  /**
+   * Get the field value
+   *
+   * @return The disablePrinting transaction override value
+   */
+  public boolean getDisablePrinting() {
+    return disablePrinting;
+  }
+
+  /**
+   * Set the field value
+   *
+   * @param disablePrinting The transaction override to turn off Clover device printing
+   */
+  public void setDisablePrinting(boolean disablePrinting) {
+    this.disablePrinting = disablePrinting;
+  }
+
+  /**
+   * Get the field value
+   *
+   * @return The disableReceiptSelection transaction override value
+   */
+  public boolean getDisableReceiptSelection() {
+    return disableReceiptSelection;
+  }
+
+  /**
+   * Set the field value
+   *
+   * @param disableReceiptSelection The transaction override to turn off the Clover customer print screen
+   */
+  public void setDisableReceiptSelection(boolean disableReceiptSelection) {
+    this.disableReceiptSelection = disableReceiptSelection;
   }
 }
 

@@ -25,6 +25,7 @@ import com.clover.remote.client.messages.CustomActivityRequest;
 import com.clover.remote.client.messages.OpenCashDrawerRequest;
 import com.clover.remote.client.messages.PrintJobStatusRequest;
 import com.clover.remote.client.messages.PrintRequest;
+import com.clover.remote.client.messages.DisplayReceiptOptionsRequest;
 import com.clover.remote.client.messages.RetrievePaymentRequest;
 import com.clover.remote.client.messages.ManualRefundRequest;
 import com.clover.remote.client.messages.MessageToActivity;
@@ -237,6 +238,15 @@ public interface ICloverConnector extends Serializable {
   void showMessage(String message);
 
   /**
+   * Sends request to the clover device to send the log to the clover server
+   *
+   * @param message The message to display
+   */
+  void sendDebugLog(String message);
+
+
+
+  /**
    * Return the device to the Welcome Screen
    */
   void showWelcomeScreen();
@@ -252,7 +262,16 @@ public interface ICloverConnector extends Serializable {
    * @param paymentId The ID of the payment to print a receipt for
    * @param orderId The ID of the order to print a receipt for
    */
+  @Deprecated
   void displayPaymentReceiptOptions(String orderId, String paymentId);
+
+  /**
+   * Display the payment receipt screen for the orderId/paymentId combination
+   * in the DisplayReceiptOptionsRequest object.
+   *
+   * @param request The request details
+   */
+  void displayPaymentReceiptOptions(DisplayReceiptOptionsRequest request);
 
   /**
    * Will trigger cash drawer to open that is connected to Clover Mini
@@ -335,5 +354,6 @@ public interface ICloverConnector extends Serializable {
    * @param request The request details
    */
   void retrievePayment(RetrievePaymentRequest request);
+
 
 }

@@ -18,11 +18,12 @@
   <!-- Default screen margins, per the Android Design guidelines. -->
   <dimen name="activity_horizontal_margin">8dp</dimen>
   <dimen name="activity_vertical_margin">8dp</dimen>
-  <dimen name="text_size_status">12pt</dimen>
-  <dimen name="text_size_list_item">10pt</dimen>
-  <dimen name="order_table_text_size">10pt</dimen>
-  <dimen name="table_primary_text_size">10pt</dimen>
-  <dimen name="table_secondary_text_size">9pt</dimen>
-  <dimen name="table_tertiary_text_size">8pt</dimen>
-  <dimen name="availItemNameTextSize">9pt</dimen>
+  <dimen name="text_size_status">18sp</dimen>
+  <dimen name="text_size_list_item">16sp</dimen>
+  <dimen name="order_table_text_size">16sp</dimen>
+  <dimen name="table_primary_text_size">16sp</dimen>
+  <dimen name="table_secondary_text_size">14sp</dimen>
+  <dimen name="table_tertiary_text_size">13sp</dimen>
+  <dimen name="availItemNameTextSize">14sp</dimen>
+  <dimen name="home_button_margin">15sp</dimen>
 </resources>

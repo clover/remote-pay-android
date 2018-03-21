@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Clover Network, Inc.
+ * Copyright (C) 2018 Clover Network, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,7 @@
 package com.clover.remote.client.lib.example;
 
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
+import android.app.DialogFragment;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -30,7 +29,7 @@ import com.clover.remote.client.ICloverConnector;
 import com.clover.remote.client.messages.VerifySignatureRequest;
 
 
-public class SignatureFragment extends Fragment {
+public class SignatureFragment extends DialogFragment {
 
 
   private Signature2 signature;
@@ -58,6 +57,7 @@ public class SignatureFragment extends Fragment {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    setStyle(STYLE_NO_TITLE, R.style.CustomDialog);
 
   }
 
@@ -77,18 +77,14 @@ public class SignatureFragment extends Fragment {
       acceptButton.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          FragmentTransaction fragmentTransaction = getActivity().getFragmentManager().beginTransaction();
-          fragmentTransaction.hide(SignatureFragment.this);
-          fragmentTransaction.commit();
+          dismiss();
           cloverConnector.acceptSignature(verifySignatureRequest);
         }
       });
       rejectButton.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          FragmentTransaction fragmentTransaction = getActivity().getFragmentManager().beginTransaction();
-          fragmentTransaction.hide(SignatureFragment.this);
-          fragmentTransaction.commit();
+          dismiss();
           cloverConnector.rejectSignature(verifySignatureRequest);
         }
       });
