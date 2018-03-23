@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Clover Network, Inc.
+ * Copyright (C) 2018 Clover Network, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,14 +27,13 @@ import com.clover.remote.client.lib.example.R;
 import com.clover.remote.client.lib.example.model.OrderObserver;
 import com.clover.remote.client.lib.example.model.POSCard;
 import com.clover.remote.client.lib.example.model.POSDiscount;
-import com.clover.remote.client.lib.example.model.POSExchange;
 import com.clover.remote.client.lib.example.model.POSItem;
 import com.clover.remote.client.lib.example.model.POSLineItem;
-import com.clover.remote.client.lib.example.model.POSNakedRefund;
 import com.clover.remote.client.lib.example.model.POSOrder;
 import com.clover.remote.client.lib.example.model.POSPayment;
 import com.clover.remote.client.lib.example.model.POSRefund;
 import com.clover.remote.client.lib.example.model.POSStore;
+import com.clover.remote.client.lib.example.model.POSTransaction;
 import com.clover.remote.client.lib.example.model.StoreObserver;
 import com.clover.remote.client.lib.example.utils.CurrencyUtils;
 
@@ -82,7 +81,7 @@ public class AvailableItemsAdapter extends ArrayAdapter<POSItem>
 
       }
 
-      @Override public void paymentChanged(POSOrder posOrder, POSExchange pay) {
+      @Override public void paymentChanged(POSOrder posOrder, POSTransaction pay) {
 
       }
 
@@ -95,6 +94,11 @@ public class AvailableItemsAdapter extends ArrayAdapter<POSItem>
       }
     });
     this.store.addStoreObserver(new StoreObserver() {
+      @Override
+      public void onCurrentOrderChanged(POSOrder currentOrder) {
+
+      }
+
       @Override public void newOrderCreated(POSOrder order, boolean userInitiated) {
         itemToCount.clear();
       }
@@ -103,7 +107,7 @@ public class AvailableItemsAdapter extends ArrayAdapter<POSItem>
 
       }
 
-      @Override public void refundAdded(POSNakedRefund refund) {
+      @Override public void refundAdded(POSTransaction refund) {
 
       }
 
@@ -116,6 +120,11 @@ public class AvailableItemsAdapter extends ArrayAdapter<POSItem>
       }
 
       @Override public void pendingPaymentsRetrieved(List<PendingPaymentEntry> pendingPayments) {
+
+      }
+
+      @Override
+      public void transactionsChanged(List<POSTransaction> transactions) {
 
       }
     });

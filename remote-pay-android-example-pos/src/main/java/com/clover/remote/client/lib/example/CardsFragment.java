@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Clover Network, Inc.
+ * Copyright (C) 2018 Clover Network, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,41 +17,37 @@
 package com.clover.remote.client.lib.example;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.Fragment;
-import android.content.DialogInterface;
+import android.app.FragmentManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Toast;
+
 import com.clover.remote.PendingPaymentEntry;
 import com.clover.remote.client.ICloverConnector;
 import com.clover.remote.client.lib.example.adapter.CardsListViewAdapter;
 import com.clover.remote.client.lib.example.model.POSCard;
-import com.clover.remote.client.lib.example.model.POSNakedRefund;
 import com.clover.remote.client.lib.example.model.POSOrder;
 import com.clover.remote.client.lib.example.model.POSPayment;
 import com.clover.remote.client.lib.example.model.POSStore;
+import com.clover.remote.client.lib.example.model.POSTransaction;
 import com.clover.remote.client.lib.example.model.StoreObserver;
-import com.clover.remote.client.lib.example.utils.IdUtils;
-import com.clover.remote.client.messages.AuthRequest;
-import com.clover.remote.client.messages.SaleRequest;
-import com.clover.sdk.v3.payments.VaultedCard;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-public class CardsFragment extends Fragment {
+public class CardsFragment extends Fragment implements EnterCustomerNameFragment.EnterCustomerNameListener {
     private static final String ARG_STORE = "store";
     private static final String TAG = CardsFragment.class.getSimpleName();
 
+    private String customerName = "";
+    private Button vaultNewCard;
     private POSStore store;
 
     private OnFragmentInteractionListener mListener;
@@ -62,6 +58,7 @@ public class CardsFragment extends Fragment {
     public static CardsFragment newInstance(POSStore store, ICloverConnector cloverConnector) {
         CardsFragment fragment = new CardsFragment();
         fragment.setStore(store);
+        fragment.setCloverConnector(cloverConnector);
         Bundle args = new Bundle();
         fragment.setArguments(args);
 
@@ -84,13 +81,31 @@ public class CardsFragment extends Fragment {
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_cards, container, false);
 
+        vaultNewCard = (Button) view.findViewById(R.id.VaultNewCardButton);
+        vaultNewCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showEnterCustomerName();
+            }
+        });
 
         store.addStoreObserver(new StoreObserver() {
+            @Override
+            public void onCurrentOrderChanged(POSOrder currentOrder) {
+
+            }
+
             @Override public void newOrderCreated(POSOrder order, boolean userInitiated) {
 
             }
 
             @Override public void cardAdded(POSCard card) {
+                POSCard lastCard = store.getLastVaultedCard();
+                if(lastCard != null) {
+                    lastCard.setVaultedName(customerName);
+                    store.setLastVaultedCard(null);
+                    customerName = "";
+                }
                 final CardsListViewAdapter cardsListViewAdapter = new CardsListViewAdapter(view.getContext(), R.id.CardsListView, store.getCards());
                 new AsyncTask(){
                     @Override protected Object doInBackground(Object[] params) {
@@ -103,7 +118,7 @@ public class CardsFragment extends Fragment {
                 }.execute();
             }
 
-            @Override public void refundAdded(POSNakedRefund refund) {
+            @Override public void refundAdded(POSTransaction refund) {
 
             }
 
@@ -118,6 +133,11 @@ public class CardsFragment extends Fragment {
             @Override public void pendingPaymentsRetrieved(List<PendingPaymentEntry> pendingPayments) {
 
             }
+
+            @Override
+            public void transactionsChanged(List<POSTransaction> transactions) {
+
+            }
         });
 
         cardsListView = (ListView)view.findViewById(R.id.CardsListView);
@@ -129,83 +149,18 @@ public class CardsFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final POSCard posCard = (POSCard) cardsListView.getItemAtPosition(position);
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                String[] paymentOptions = null;
-
-                String[] payOptions = new String[]{"Sale for current order", "Auth for current order"/*, "Pre-Auth"*/};
-
-                builder.setTitle("Pay With Card").
-                    setItems(payOptions, new DialogInterface.OnClickListener() {
-                        @Override public void onClick(DialogInterface dialog, int index) {
-                            final ICloverConnector cloverConnector = cloverConnectorWeakReference.get();
-                            if(cloverConnector != null) {
-
-                                VaultedCard vaultedCard = new VaultedCard();
-                                vaultedCard.setCardholderName(posCard.getName());
-                                vaultedCard.setFirst6(posCard.getFirst6());
-                                vaultedCard.setLast4(posCard.getLast4());
-                                vaultedCard.setExpirationDate(posCard.getMonth() + posCard.getYear());
-                                vaultedCard.setToken(posCard.getToken());
-
-                                String externalPaymentID = IdUtils.getNextId();
-                                Log.d(TAG, "ExternalPaymentID:" + externalPaymentID);
-                                store.getCurrentOrder().setPendingPaymentId(externalPaymentID);
-
-                                switch(index) {
-                                    case 0: {
-                                        SaleRequest request = new SaleRequest(store.getCurrentOrder().getTotal(), externalPaymentID);
-                                        request.setCardEntryMethods(store.getCardEntryMethods());
-                                        request.setAllowOfflinePayment(store.getAllowOfflinePayment());
-                                        request.setForceOfflinePayment(store.getForceOfflinePayment());
-                                        request.setApproveOfflinePaymentWithoutPrompt(store.getApproveOfflinePaymentWithoutPrompt());
-                                        request.setTippableAmount(store.getCurrentOrder().getTippableAmount());
-                                        request.setTaxAmount(store.getCurrentOrder().getTaxAmount());
-                                        request.setDisablePrinting(store.getDisablePrinting());
-                                        request.setTipMode(store.getTipMode());
-                                        request.setSignatureEntryLocation(store.getSignatureEntryLocation());
-                                        request.setSignatureThreshold(store.getSignatureThreshold());
-                                        request.setDisableReceiptSelection(store.getDisableReceiptOptions());
-                                        request.setDisableDuplicateChecking(store.getDisableDuplicateChecking());
-                                        request.setTipAmount(store.getTipAmount());
-                                        request.setAutoAcceptPaymentConfirmations(store.getAutomaticPaymentConfirmation());
-                                        request.setAutoAcceptSignature(store.getAutomaticSignatureConfirmation());
-                                        request.setVaultedCard(vaultedCard);
-                                        cloverConnector.sale(request);
-                                        dialog.dismiss();
-                                        break;
-                                    }
-                                    case 1: {
-                                        AuthRequest request = new AuthRequest(store.getCurrentOrder().getTotal(), externalPaymentID);
-                                        request.setCardEntryMethods(store.getCardEntryMethods());
-                                        request.setAllowOfflinePayment(store.getAllowOfflinePayment());
-                                        request.setForceOfflinePayment(store.getForceOfflinePayment());
-                                        request.setApproveOfflinePaymentWithoutPrompt(store.getApproveOfflinePaymentWithoutPrompt());
-                                        request.setTippableAmount(store.getCurrentOrder().getTippableAmount());
-                                        request.setTaxAmount(store.getCurrentOrder().getTaxAmount());
-                                        request.setDisablePrinting(store.getDisablePrinting());
-                                        request.setSignatureEntryLocation(store.getSignatureEntryLocation());
-                                        request.setSignatureThreshold(store.getSignatureThreshold());
-                                        request.setDisableReceiptSelection(store.getDisableReceiptOptions());
-                                        request.setDisableDuplicateChecking(store.getDisableDuplicateChecking());
-                                        request.setAutoAcceptPaymentConfirmations(store.getAutomaticPaymentConfirmation());
-                                        request.setAutoAcceptSignature(store.getAutomaticSignatureConfirmation());
-                                        request.setVaultedCard(vaultedCard);
-                                        cloverConnector.auth(request);
-                                        dialog.dismiss();
-                                        break;
-                                    }
-                                }
-                            } else {
-                                Toast.makeText(getActivity().getBaseContext(), "Clover Connector is null", Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    });
-                final Dialog dlg = builder.create();
-                dlg.show();
+                ((ExamplePOSActivity)getActivity()).startVaulted(posCard);
             }
         });
 
         return view;
+    }
+
+    private void showEnterCustomerName () {
+        FragmentManager fm = getFragmentManager();
+        EnterCustomerNameFragment enterCustomerNameFragment = EnterCustomerNameFragment.newInstance();
+        enterCustomerNameFragment.addListener(this);
+        enterCustomerNameFragment.show(fm, "fragment_enter_customer_name_dialog");
     }
 
     public void onButtonPressed(Uri uri) {
@@ -235,8 +190,18 @@ public class CardsFragment extends Fragment {
         this.store = store;
     }
 
+    @Override
+    public void onContinue(String name) {
+        this.customerName = name;
+        getCloverConnector().vaultCard(store.getCardEntryMethods());
+    }
+
     public interface OnFragmentInteractionListener {
         public void onFragmentInteraction(Uri uri);
+    }
+
+    public ICloverConnector getCloverConnector(){
+        return cloverConnectorWeakReference.get();
     }
 
     public void setCloverConnector(ICloverConnector cloverConnector) {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2016 Clover Network, Inc.
+  ~ Copyright (C) 2018 Clover Network, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -15,52 +15,84 @@
   ~ limitations under the License.
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:paddingTop="3dp"
     android:paddingBottom="3dp"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:gravity="center_vertical">
+  <ImageView
+      android:id="@+id/OrderTransactionImage"
+      android:layout_width="25dp"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="20dp"
+      android:layout_marginEnd="10dp"/>
 
-  <TextView android:layout_width="wrap_content"
+  <LinearLayout
+      android:layout_width="75dp"
       android:layout_height="wrap_content"
-      android:textSize="@dimen/order_table_text_size"
-      android:id="@+id/PaymentsRowStatusColumn"
-      android:layout_weight="2"
-      android:text="@string/authorized"/>
-  <TextView android:layout_width="wrap_content"
+      android:orientation="vertical"
+      android:layout_marginEnd="20dp">
+    <TextView
+        android:id="@+id/OrderTransactionTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"/>
+    <TextView
+        android:id="@+id/OrderTransactionDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+  </LinearLayout>
+  <LinearLayout
+      android:layout_width="0dp"
+      android:layout_weight="1"
       android:layout_height="wrap_content"
-      android:textSize="@dimen/table_tertiary_text_size"
-      android:id="@+id/PaymentsRowTipColumn"
-      android:layout_weight="2"
-      android:text="@string/payment_example_smaller"
-      android:textColor="@color/secondary_table_text_color"
-      android:layout_alignRight="@+id/PaymentsRowTotalColumn"
-      android:layout_below="@+id/PaymentsRowTotalColumn"/>
-  <TextView android:layout_width="wrap_content"
+      android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+      <ImageView
+          android:id="@+id/OrderTransactionTenderImage"
+          android:layout_width="40dp"
+          android:layout_height="wrap_content"
+          android:src="@drawable/tender_default"
+          android:scaleType="fitCenter"/>
+      <LinearLayout
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="10dp"
+          android:orientation="vertical">
+        <TextView
+            android:id="@+id/OrderTransactionTender"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/OrderTransactionCardDetails"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+      </LinearLayout>
+    </LinearLayout>
+  </LinearLayout>
+  <LinearLayout
+      android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:textSize="@dimen/order_table_text_size"
-      android:id="@+id/PaymentsRowTotalColumn"
-      android:layout_weight="2"
-      android:text="@string/payment_example"
-      android:layout_alignParentRight="true"
-      android:textStyle="bold"/>
-  <TextView android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="@string/tip"
-      android:id="@+id/PaymentsRowTipColumnLabel"
-      android:layout_alignBaseline="@+id/PaymentsRowTipColumn"
-      android:textSize="@dimen/table_tertiary_text_size"
-      android:textColor="@color/secondary_table_text_color"
-      android:layout_toStartOf="@+id/PaymentsRowTotalColumn"
-      android:layout_toLeftOf="@+id/PaymentsRowTotalColumn"/>
-  <TextView android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:textSize="@dimen/table_tertiary_text_size"
-      android:id="@+id/PaymentRowExternalPaymentId"
-      android:layout_weight="2"
-      android:text="@string/external_id_placeholder"
-      android:textColor="@color/secondary_table_text_color"
-      android:layout_below="@+id/PaymentsRowStatusColumn"
-      android:layout_alignParentLeft="true"/>
-</RelativeLayout>
+      android:orientation="vertical"
+      android:layout_marginEnd="20dp"
+      android:gravity="right">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/PaymentsRowTotalColumn"
+        android:layout_alignParentRight="true"
+        android:textStyle="bold"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/PaymentsRowStatusColumn"/>
+  </LinearLayout>
+</LinearLayout>

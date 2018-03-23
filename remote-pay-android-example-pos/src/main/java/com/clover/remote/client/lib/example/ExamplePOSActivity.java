@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Clover Network, Inc.
+ * Copyright (C) 2018 Clover Network, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,32 +19,25 @@ package com.clover.remote.client.lib.example;
 import com.clover.remote.CardData;
 import com.clover.remote.Challenge;
 import com.clover.remote.InputOption;
-import com.clover.remote.client.CloverConnector;
+import com.clover.remote.client.CloverConnectorFactory;
 import com.clover.remote.client.CloverDeviceConfiguration;
 import com.clover.remote.client.ICloverConnector;
 import com.clover.remote.client.ICloverConnectorListener;
 import com.clover.remote.client.MerchantInfo;
 import com.clover.remote.client.USBCloverDeviceConfiguration;
 import com.clover.remote.client.WebSocketCloverDeviceConfiguration;
-import com.clover.remote.client.lib.example.messages.ConversationQuestionMessage;
-import com.clover.remote.client.lib.example.messages.ConversationResponseMessage;
-import com.clover.remote.client.lib.example.messages.CustomerInfo;
-import com.clover.remote.client.lib.example.messages.CustomerInfoMessage;
-import com.clover.remote.client.lib.example.messages.PayloadMessage;
-import com.clover.remote.client.lib.example.messages.PhoneNumberMessage;
-import com.clover.remote.client.lib.example.messages.Rating;
-import com.clover.remote.client.lib.example.messages.RatingsMessage;
 import com.clover.remote.client.lib.example.model.POSCard;
 import com.clover.remote.client.lib.example.model.POSDiscount;
-import com.clover.remote.client.lib.example.model.POSExchange;
 import com.clover.remote.client.lib.example.model.POSItem;
-import com.clover.remote.client.lib.example.model.POSNakedRefund;
 import com.clover.remote.client.lib.example.model.POSOrder;
 import com.clover.remote.client.lib.example.model.POSPayment;
 import com.clover.remote.client.lib.example.model.POSRefund;
 import com.clover.remote.client.lib.example.model.POSStore;
+import com.clover.remote.client.lib.example.model.POSTransaction;
 import com.clover.remote.client.lib.example.utils.CurrencyUtils;
 import com.clover.remote.client.lib.example.utils.IdUtils;
+import com.clover.remote.client.lib.example.utils.SecurityUtils;
+import com.clover.remote.client.lib.example.utils.ImageUtil;
 import com.clover.remote.client.messages.AuthResponse;
 import com.clover.remote.client.messages.CapturePreAuthResponse;
 import com.clover.remote.client.messages.CloseoutRequest;
@@ -78,7 +71,6 @@ import com.clover.remote.client.messages.ResetDeviceResponse;
 import com.clover.remote.client.messages.ResultCode;
 import com.clover.remote.client.messages.RetrieveDeviceStatusRequest;
 import com.clover.remote.client.messages.RetrieveDeviceStatusResponse;
-import com.clover.remote.client.messages.RetrievePaymentRequest;
 import com.clover.remote.client.messages.RetrievePaymentResponse;
 import com.clover.remote.client.messages.RetrievePendingPaymentsResponse;
 import com.clover.remote.client.messages.RetrievePrintersRequest;
@@ -89,11 +81,12 @@ import com.clover.remote.client.messages.VaultCardResponse;
 import com.clover.remote.client.messages.VerifySignatureRequest;
 import com.clover.remote.client.messages.VoidPaymentResponse;
 import com.clover.remote.message.TipAddedMessage;
+import com.clover.sdk.v3.payments.CardTransaction;
+import com.clover.sdk.v3.payments.CardType;
 import com.clover.sdk.v3.payments.Credit;
 import com.clover.sdk.v3.payments.Payment;
-import com.clover.sdk.v3.printer.PrintJobStatus;
+import com.clover.sdk.v3.payments.Result;
 import com.clover.sdk.v3.printer.Printer;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -118,9 +111,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -128,12 +122,11 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.gson.Gson;
-
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.security.KeyStore;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.prefs.Preferences;
@@ -141,8 +134,10 @@ import java.util.prefs.Preferences;
 public class ExamplePOSActivity extends Activity implements CurrentOrderFragment.OnFragmentInteractionListener,
     AvailableItem.OnFragmentInteractionListener, OrdersFragment.OnFragmentInteractionListener,
     RegisterFragment.OnFragmentInteractionListener, SignatureFragment.OnFragmentInteractionListener,
-    CardsFragment.OnFragmentInteractionListener, ManualRefundsFragment.OnFragmentInteractionListener, MiscellaneousFragment.OnFragmentInteractionListener,
-    ProcessingFragment.OnFragmentInteractionListener, PreAuthFragment.OnFragmentInteractionListener {
+    CardsFragment.OnFragmentInteractionListener, ManualRefundsFragment.OnFragmentInteractionListener,
+    ProcessingFragment.OnFragmentInteractionListener, HomeFragment.OnFragmentInteractionListener, ChooseSaleTypeFragment.ChooseSaleTypeListener ,
+    PreAuthDialogFragment.PreAuthDialogFragmentListener, EnterTipFragment.EnterTipDialogFragmentListener, AdjustTipFragment.AdjustTipFragmentListener, EnterCustomerNameFragment.EnterCustomerNameListener,
+    EnterPaymentIdFragment.EnterPaymentIdFragmentListener, RefundPaymentFragment.PaymentRefundListener{
 
   private static final String TAG = "ExamplePOSActivity";
   public static final String EXAMPLE_POS_SERVER_KEY = "clover_device_endpoint";
@@ -210,7 +205,7 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
     initStore();
 
     String posName = "Clover Example POS";
-    String applicationId = posName + ":1.4.0";
+    String applicationId = posName + ":1.4.1";
     CloverDeviceConfiguration config;
 
     String configType = getIntent().getStringExtra(EXTRA_CLOVER_CONNECTOR_CONFIG);
@@ -236,7 +231,7 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
               authToken = value;
             } else {
               Log.w(TAG, String.format("Found query parameter \"%s\" with value \"%s\"",
-                name, value));
+                  name, value));
             }
           }
           uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(),uri.getPort(), uri.getPath(), null,uri.getFragment());
@@ -247,7 +242,11 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
           return;
         }
       }
-      KeyStore trustStore = createTrustStore();
+
+      // NOTE:  At the moment, we are always loading our certs from resources.  Opened JIRA SEMI-2147 to
+      // add capability to load from the network endpoints dynamically.  Will need to refactor this code
+      // to pull network access off the main thread though...
+      KeyStore trustStore = SecurityUtils.createTrustStore(true);
 
       if(authToken == null) {
         boolean clearToken = getIntent().getBooleanExtra(EXTRA_CLEAR_TOKEN, false);
@@ -301,18 +300,14 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
       return;
     }
 
-    cloverConnector = new CloverConnector(config);
-
+    cloverConnector = CloverConnectorFactory.createICloverConnector(config);
     initialize();
-
-    FrameLayout frameLayout = (FrameLayout) findViewById(R.id.contentContainer);
 
     FragmentManager fragmentManager = getFragmentManager();
     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-    RegisterFragment register = RegisterFragment.newInstance(store, cloverConnector);
-
-    fragmentTransaction.add(R.id.contentContainer, register, "REGISTER");
+    HomeFragment home = HomeFragment.newInstance(cloverConnector);
+    fragmentTransaction.add(R.id.contentContainer, home, "HOME");
     fragmentTransaction.commit();
 
     ratingsDialog = new Dialog(ExamplePOSActivity.this);
@@ -326,26 +321,6 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
 
   public List<Printer> getPrinters(){
     return this.printers;
-  }
-
-
-  private KeyStore createTrustStore() {
-    try {
-
-      String STORETYPE = "PKCS12";
-      KeyStore trustStore = KeyStore.getInstance(STORETYPE);
-      InputStream trustStoreStream = getClass().getResourceAsStream("/certs/clover_cacerts.p12");
-      String TRUST_STORE_PASSWORD = "clover";
-
-      trustStore.load(trustStoreStream, TRUST_STORE_PASSWORD.toCharArray());
-
-      return trustStore;
-    } catch (Throwable t) {
-      Log.e(getClass().getSimpleName(), "Error loading trust store", t);
-      t.printStackTrace();
-      return null;
-    }
-
   }
 
   private void initStore() {
@@ -641,11 +616,17 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
             public void run() {
               Payment _payment = response.getPayment();
               if(_payment.getExternalPaymentId().equals(store.getCurrentOrder().getPendingPaymentId())) {
+                Log.d("AuthResponse External: ", _payment.getExternalPaymentId());
+                CardTransaction cardTransaction = _payment.getCardTransaction();
                 long cashback = _payment.getCashbackAmount() == null ? 0 : _payment.getCashbackAmount();
                 long tip = _payment.getTipAmount() == null ? 0 : _payment.getTipAmount();
-                POSPayment payment = new POSPayment(_payment.getId(), _payment.getExternalPaymentId(), _payment.getOrder().getId(), DEFAULT_EID, _payment.getAmount(), tip, cashback);
+                String cardDetails = cardTransaction.getCardType().toString() + " " + cardTransaction.getLast4();
+                POSPayment payment = new POSPayment(_payment.getAmount(), cardDetails, cardTransaction.getCardType(), new Date(_payment.getCreatedTime()), _payment.getId(), _payment.getTender().getLabel(),
+                    "Auth", cardTransaction.getType(), false, cardTransaction.getEntryType(), cardTransaction.getState(), cashback, _payment.getOrder().getId(), _payment.getExternalPaymentId(), _payment.getTaxAmount(), tip);
                 setPaymentStatus(payment, response);
+                payment.setResult(response.getResult() == ResultCode.SUCCESS ? Result.SUCCESS : Result.FAIL);
                 store.addPaymentToOrder(payment, store.getCurrentOrder());
+                store.addTransaction(payment);
                 showMessage("Auth successfully processed.", Toast.LENGTH_SHORT);
 
                 store.createOrder(false);
@@ -657,7 +638,7 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
                 cloverConnector.showWelcomeScreen();
               }
               else{
-               externalMismatch();
+                externalMismatch();
               }
             }
           });
@@ -676,16 +657,21 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
             if (response.isSuccess()) {
               Payment _payment = response.getPayment();
               if(_payment.getExternalPaymentId().equals(store.getCurrentOrder().getPendingPaymentId())) {
+                CardTransaction cardTransaction = _payment.getCardTransaction();
+                String cardDetails = cardTransaction.getCardType().toString() + " " + cardTransaction.getLast4();
                 long cashback = _payment.getCashbackAmount() == null ? 0 : _payment.getCashbackAmount();
                 long tip = _payment.getTipAmount() == null ? 0 : _payment.getTipAmount();
-                POSPayment payment = new POSPayment(_payment.getId(), _payment.getExternalPaymentId(), _payment.getOrder().getId(), DEFAULT_EID, _payment.getAmount(), tip, cashback);
+                POSPayment payment = new POSPayment(_payment.getAmount(), cardDetails, cardTransaction.getCardType(), new Date(_payment.getCreatedTime()), _payment.getId(), _payment.getTender().getLabel(),
+                    "Auth", cardTransaction.getType(), false, cardTransaction.getEntryType(), cardTransaction.getState(), cashback, _payment.getOrder().getId(), _payment.getExternalPaymentId(), _payment.getTaxAmount(), tip);
                 setPaymentStatus(payment, response);
-                store.addPreAuth(payment);
+                payment.setResult(response.getResult() == ResultCode.SUCCESS ? Result.SUCCESS : Result.FAIL);
+                store.getCurrentOrder().setPreAuth(payment);
+                store.addTransaction(payment);
                 showMessage("PreAuth successfully processed.", Toast.LENGTH_SHORT);
-                showPreAuths(null);
+                preAuthSuccess(_payment.getCardTransaction());
               }
               else{
-               externalMismatch();
+                externalMismatch();
               }
             } else {
               showMessage("PreAuth: " + response.getResult(), Toast.LENGTH_LONG);
@@ -700,7 +686,6 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
       public void onRetrievePendingPaymentsResponse(RetrievePendingPaymentsResponse response) {
         if (!response.isSuccess()) {
           store.setPendingPayments(null);
-          showMessage("Retrieve Pending Payments: " + response.getResult(), Toast.LENGTH_LONG);
         } else {
           store.setPendingPayments(response.getPendingPayments());
         }
@@ -709,14 +694,14 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
       @Override
       public void onTipAdjustAuthResponse(TipAdjustAuthResponse response) {
         if (response.isSuccess()) {
-
           boolean updatedTip = false;
           for (POSOrder order : store.getOrders()) {
-            for (POSExchange exchange : order.getPayments()) {
+            for (POSTransaction exchange : order.getPayments()) {
               if (exchange instanceof POSPayment) {
                 POSPayment posPayment = (POSPayment) exchange;
-                if (exchange.getPaymentID().equals(response.getPaymentId())) {
+                if (exchange.getId().equals(response.getPaymentId())) {
                   posPayment.setTipAmount(response.getTipAmount());
+                  updatePaymentDetailsTip(posPayment);
                   // TODO: should the stats be updated?
                   updatedTip = true;
                   break;
@@ -734,78 +719,63 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
       }
 
       @Override
-      public void onCapturePreAuthResponse(CapturePreAuthResponse response) {
-
+      public void onCapturePreAuthResponse(final CapturePreAuthResponse response) {
         if (response.isSuccess()) {
-          for (final POSPayment payment : store.getPreAuths()) {
-            if (payment.getPaymentID().equals(response.getPaymentID())) {
-              final long paymentAmount = response.getAmount();
-              runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                  store.removePreAuth(payment);
-                  store.addPaymentToOrder(payment, store.getCurrentOrder());
-                  payment.setPaymentStatus(POSPayment.Status.AUTHORIZED);
-                  payment.amount = paymentAmount;
-                  showMessage("Sale successfully processing using Pre Authorization", Toast.LENGTH_LONG);
-
-                  //TODO: if order isn't fully paid, don't create a new order...
-                  store.createOrder(false);
-                  CurrentOrderFragment currentOrderFragment = (CurrentOrderFragment) getFragmentManager().findFragmentById(R.id.PendingOrder);
-                  currentOrderFragment.setOrder(store.getCurrentOrder());
-                  showRegister(null);
-                }
-              });
-              break;
-            } else {
-              showMessage("PreAuth Capture: Payment received does not match any of the stored PreAuth records", Toast.LENGTH_LONG);
+          for(final POSOrder order: store.getOrders()) {
+            final POSPayment payment = order.getPreAuth();
+            if (payment != null) {
+              if (payment.getId().equals(response.getPaymentID())) {
+                final long paymentAmount = response.getAmount();
+                runOnUiThread(new Runnable() {
+                  @Override
+                  public void run() {
+                    order.setPreAuth(null);
+                    store.addPaymentToOrder(payment, store.getCurrentOrder());
+                    payment.setPaymentStatus(POSPayment.Status.AUTHORIZED);
+                    payment.setAmount(paymentAmount);
+                    payment.setTipAmount(response.getTipAmount());
+                    showMessage("Sale successfully processing using Pre Authorization", Toast.LENGTH_LONG);
+                    runOnUiThread(new Runnable() {
+                      @Override
+                      public void run() {
+                        store.createOrder(false);
+                        CurrentOrderFragment currentOrderFragment = (CurrentOrderFragment) getFragmentManager().findFragmentById(R.id.PendingOrder);
+                        currentOrderFragment.setOrder(store.getCurrentOrder());
+                        hidePreAuth();
+                        cloverConnector.showWelcomeScreen();
+                        showRegister(null);
+                      }
+                    });
+                  }
+                });
+                break;
+              } else {
+                showMessage("PreAuth Capture: Payment received does not match any of the stored PreAuth records", Toast.LENGTH_LONG);
+              }
             }
           }
-        } else {
+        }  else {
           showMessage("PreAuth Capture Error: Payment failed with response code = " + response.getResult() + " and reason: " + response.getReason(), Toast.LENGTH_LONG);
         }
       }
 
       @Override
-      public void onVerifySignatureRequest(VerifySignatureRequest request) {
-
-        FragmentManager fragmentManager = getFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-        hideFragments(fragmentManager, fragmentTransaction);
-
-        Fragment fragment = fragmentManager.findFragmentByTag("SIGNATURE");
-        if (fragment == null) {
-          fragment = SignatureFragment.newInstance(request, cloverConnector);
-          fragmentTransaction.add(R.id.contentContainer, fragment, "SIGNATURE");
-        } else {
-          ((SignatureFragment) fragment).setVerifySignatureRequest(request);
-          fragmentTransaction.show(fragment);
-        }
-
-        fragmentTransaction.commit();
+      public void onVerifySignatureRequest(final VerifySignatureRequest request) {
+        runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            FragmentManager fm = getFragmentManager();
+            SignatureFragment signatureFragment = SignatureFragment.newInstance(request, cloverConnector);
+            signatureFragment.show(fm, "fragment_signature");
+          }
+        });
       }
 
       @Override
       public void onMessageFromActivity(MessageFromActivity message) {
-        //showMessage("Custom Activity Message Received for actionId: " + message.actionId + " with payload: " + message.payload, Toast.LENGTH_LONG);
-        PayloadMessage payloadMessage = new Gson().fromJson(message.getPayload(), PayloadMessage.class);
-        switch (payloadMessage.messageType) {
-          case REQUEST_RATINGS:
-            handleRequestRatings();
-            break;
-          case RATINGS:
-            handleRatings(message.getPayload());
-            break;
-          case PHONE_NUMBER:
-            handleCustomerLookup(message.getPayload());
-            break;
-          case CONVERSATION_RESPONSE:
-            handleJokeResponse(message.getPayload());
-            break;
-          default:
-            Toast.makeText(getApplicationContext(), R.string.unknown_payload + payloadMessage.messageType.name(), Toast.LENGTH_LONG).show();
-        }
+        FragmentManager fragmentManager = getFragmentManager();
+        Fragment fragment = fragmentManager.findFragmentByTag("CUSTOM");
+        ((CustomActivitiesFragment)fragment).addMessage(message);
       }
 
       @Override
@@ -839,12 +809,18 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
           if (response.isSuccess()) { // Handle cancel response
             if (response.getPayment() != null) {
               Payment _payment = response.getPayment();
+              CardTransaction cardTransaction = _payment.getCardTransaction();
+              String cardDetails = cardTransaction.getCardType().toString() + " " + cardTransaction.getLast4();
+              long cashback = _payment.getCashbackAmount() == null ? 0 : _payment.getCashbackAmount();
+              long tip = _payment.getTipAmount() == null ? 0 : _payment.getTipAmount();
               Log.d(TAG, "payment external: "+_payment.getExternalPaymentId());
               if(_payment.getExternalPaymentId().equals(store.getCurrentOrder().getPendingPaymentId())) {
-                POSPayment payment = new POSPayment(_payment.getId(), _payment.getExternalPaymentId(), _payment.getOrder().getId(), "DFLTEMPLYEE", _payment.getAmount(), _payment.getTipAmount() != null ? _payment.getTipAmount() : 0, _payment.getCashbackAmount() != null ? _payment.getCashbackAmount() : 0);
+                POSPayment payment = new POSPayment(_payment.getAmount(), cardDetails, cardTransaction.getCardType(), new Date(_payment.getCreatedTime()), _payment.getId(), _payment.getTender().getLabel(),
+                    "Payment", cardTransaction.getType(), false, cardTransaction.getEntryType(), cardTransaction.getState(), cashback, _payment.getOrder().getId(), _payment.getExternalPaymentId(), _payment.getTaxAmount(), tip);
                 setPaymentStatus(payment, response);
-
+                payment.setResult(response.getResult() == ResultCode.SUCCESS ? Result.SUCCESS : Result.FAIL);
                 store.addPaymentToOrder(payment, store.getCurrentOrder());
+                store.addTransaction(payment);
                 showMessage("Sale successfully processed", Toast.LENGTH_SHORT);
                 runOnUiThread(new Runnable() {
                   @Override
@@ -857,7 +833,7 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
                 });
               }
               else{
-              externalMismatch();
+                externalMismatch();
               }
             } else { // Handle null payment
               showMessage("Error: Sale response was missing the payment", Toast.LENGTH_LONG);
@@ -876,7 +852,13 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
       public void onManualRefundResponse(final ManualRefundResponse response) {
         if (response.isSuccess()) {
           Credit credit = response.getCredit();
-          final POSNakedRefund nakedRefund = new POSNakedRefund(null, credit.getAmount());
+          CardTransaction cardTransaction = credit.getCardTransaction();
+          String cardDetails = cardTransaction.getCardType().toString()+ " "+ cardTransaction.getLast4();
+          final POSTransaction nakedRefund = new POSTransaction(credit.getAmount(), cardDetails, cardTransaction.getCardType(), new Date(credit.getCreatedTime()), credit.getId(),
+              credit.getTender().getLabel(), "Manual Refund", cardTransaction.getType(), true, cardTransaction.getEntryType(), cardTransaction.getState());
+          nakedRefund.setEmployee(credit.getEmployee().getId());
+          nakedRefund.setResult(response.getResult() == ResultCode.SUCCESS ? Result.SUCCESS : Result.FAIL);
+          store.addTransaction(nakedRefund);
           runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -894,14 +876,23 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
       @Override
       public void onRefundPaymentResponse(final RefundPaymentResponse response) {
         if (response.isSuccess()) {
-          POSRefund refund = new POSRefund(response.getRefund().getId(), response.getPaymentId(), response.getOrderId(), "DEFAULT", response.getRefund().getAmount());
+          POSRefund refund = new POSRefund(response.getRefund().getId(), response.getRefund().getPayment().getId(), response.getOrderId(), "DEFAULT", response.getRefund().getAmount());
+          refund.setDate(new Date(response.getRefund().getCreatedTime()));
           boolean done = false;
+
           for (POSOrder order : store.getOrders()) {
-            for (POSExchange payment : order.getPayments()) {
+            for (POSTransaction payment : order.getPayments()) {
               if (payment instanceof POSPayment) {
-                if (payment.getPaymentID().equals(response.getRefund().getPayment().getId())) {
-                  ((POSPayment) payment).setPaymentStatus(POSPayment.Status.REFUNDED);
+                if (payment.getId().equals(response.getRefund().getPayment().getId())) {
+                  refund.setCardDetails(payment.getCardDetails());
+                  refund.setCardType(payment.getCardType());
+                  refund.setTender(payment.getTender());
+                  refund.setResult(response.getResult() == ResultCode.SUCCESS ? Result.SUCCESS : Result.FAIL);
+                  refund.setTransactionTitle("Refund");
+                  store.addTransaction(refund);
                   store.addRefundToOrder(refund, order);
+                  ((POSPayment) payment).setRefundId(refund.getId());
+                  updatePaymentDetailsRefund(payment, refund.getAmount());
                   showMessage("Payment successfully refunded", Toast.LENGTH_SHORT);
                   done = true;
                   break;
@@ -938,11 +929,12 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
         if (response.isSuccess()) {
           boolean done = false;
           for (POSOrder order : store.getOrders()) {
-            for (POSExchange payment : order.getPayments()) {
+            for (POSTransaction payment : order.getPayments()) {
               if (payment instanceof POSPayment) {
-                if (payment.getPaymentID().equals(response.getPaymentId())) {
+                if (payment.getId().equals(response.getPaymentId())) {
                   ((POSPayment) payment).setPaymentStatus(POSPayment.Status.VOIDED);
                   showMessage("Payment was voided", Toast.LENGTH_SHORT);
+                  updatePaymentDetailsVoided(payment);
                   done = true;
                   break;
                 }
@@ -1024,37 +1016,48 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
 
       @Override
       public void onCustomActivityResponse(CustomActivityResponse response) {
-        boolean success = response.isSuccess();
-        if (success) {
-          showMessage("Success! Got: " + response.getPayload() + " from CustomActivity: " + response.getAction(), 5000);
-        } else {
+        String message = "";
+        if (response.isSuccess()) {
+          message = "Success! Got: " + response.getPayload() + " from CustomActivity" + response.getAction();
+         showMessage(message, Toast.LENGTH_LONG);
+        }
+        else {
           if (response.getResult().equals(ResultCode.CANCEL)) {
-            showMessage("Custom activity: " + response.getAction() + " was canceled.  Reason: " + response.getReason(), 5000);
+            message = "Failure! Custom activity: " + response.getAction() + " failed. Reason: " + response.getReason();
+           showMessage(message, Toast.LENGTH_LONG);
           } else {
-            showMessage("Failure! Custom activity: " + response.getAction() + " failed.  Reason: " + response.getReason(), 5000);
+            message = "Custom activity: " + response.getAction() + " was canceled. Reason: " + response.getReason();
+            showMessage(message, Toast.LENGTH_LONG);
           }
         }
+        FragmentManager fragmentManager = getFragmentManager();
+        Fragment fragment = fragmentManager.findFragmentByTag("CUSTOM");
+        ((CustomActivitiesFragment)fragment).onFinalMessage(response.getPayload());
       }
 
       @Override
       public void onRetrieveDeviceStatusResponse(RetrieveDeviceStatusResponse response) {
-        showMessage((response.isSuccess() ? "Success!" : "Failed!") + " State: " + response.getState()
-                    + " ExternalActivityId: " + response.getData().toString()
-                    + " reason: " + response.getReason(), Toast.LENGTH_LONG);
+        showPopupMessage("Device Status", new String[]{response.isSuccess() ? "Success!" : "Failed!",
+            "State: " + response.getState(), "ExternalActivityId: " + response.getData().toString(), "Reason: " + response.getReason() }, false);
       }
 
       @Override
       public void onResetDeviceResponse(ResetDeviceResponse response) {
-        showMessage((response.isSuccess() ? "Success!" : "Failed!") + " State: " + response.getState()
-                    + " reason: " + response.getReason(), Toast.LENGTH_LONG);
+//        showMessage((response.isSuccess() ? "Success!" : "Failed!") + " State: " + response.getState()
+//                    + " reason: " + response.getReason(), Toast.LENGTH_LONG);
+        showPopupMessage("Reset Device", new String[]{response.isSuccess() ? "Success!" : "Failed!", "State: " + response.getState(), "Reason: " + response.getReason()}, false);
       }
 
       @Override
       public void onRetrievePaymentResponse(RetrievePaymentResponse response) {
-        showMessage("RetrievePayment: " + (response.isSuccess() ? "Success!" : "Failed!")
-                    + " QueryStatus: " + response.getQueryStatus() + " for id " + response.getExternalPaymentId()
-                    + " Payment: " + response.getPayment()
-                    + " reason: " + response.getReason(), Toast.LENGTH_LONG);
+        if (response.isSuccess()) {
+          showPopupMessage("Retrieve Payment", new String[]{"Retrieve Payment successful for Payment ID: " + response.getExternalPaymentId(),
+              " QueryStatus: " + response.getQueryStatus(),
+              " Payment: " + response.getPayment(),
+              " reason: " + response.getReason()}, false);
+        } else {
+          showPopupMessage(null, new String[]{"Retrieve Payment error: " + response.getResult()}, false);
+        }
       }
 
     };
@@ -1062,22 +1065,6 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
     cloverConnector.addCloverConnectorListener(ccListener);
     cloverConnector.initializeConnection();
     updateComponentsWithNewCloverConnector();
-  }
-
-  private void showRatingsDialog(final Rating[] ratings) {
-    ExamplePOSActivity.this.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        final String[] ratingsStrings = new String[ratings.length];
-        for (int x = 0; x < ratings.length; x++) {
-          ratingsStrings[x] = ratings[x].id + ": " + ((Integer) ratings[x].value).toString() + " Stars";
-        }
-        ratingsAdapter = new ArrayAdapter<>(ExamplePOSActivity.this, android.R.layout.simple_list_item_1, ratingsStrings);
-        ratingsList.setAdapter(ratingsAdapter);
-        ratingsDialog.show();
-      }
-    });
-
   }
 
   private void setPaymentStatus(POSPayment payment, PaymentResponse response) {
@@ -1130,64 +1117,23 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
     confirmationDialog.show();
   }
 
-  private void handleRequestRatings() {
-    Rating rating1 = new Rating();
-    rating1.id = "Quality";
-    rating1.question = "How would you rate the overall quality of your entree?";
-    rating1.value = 0;
-    Rating rating2 = new Rating();
-    rating2.id = "Server";
-    rating2.question = "How would you rate the overall performance of your server?";
-    rating2.value = 0;
-    Rating rating3 = new Rating();
-    rating3.id = "Value";
-    rating3.question = "How would you rate the overall value of your dining experience?";
-    rating3.value = 0;
-    Rating rating4 = new Rating();
-    rating4.id = "RepeatBusiness";
-    rating4.question = "How likely are you to dine at this establishment again in the near future?";
-    rating4.value = 0;
-    Rating[] ratings = new Rating[]{rating1, rating2, rating3, rating4};
-    RatingsMessage ratingsMessage = new RatingsMessage(ratings);
-    String ratingsListJson = ratingsMessage.toJsonString();
-    sendMessageToActivity("com.clover.cfp.examples.RatingsExample", ratingsListJson);
-  }
-
-  private void handleRatings(String payload) {
-    //showMessage(payload, Toast.LENGTH_SHORT);
-    RatingsMessage ratingsMessage = (RatingsMessage) PayloadMessage.fromJsonString(payload);
-    Rating[] ratingsPayload = ratingsMessage.ratings;
-    showRatingsDialog(ratingsPayload);
-    //for (Rating rating:ratingsPayload
-    //     ) {
-    //  String ratingString = "Rating ID: " + rating.id + " - " + rating.question + " Rating value: " + Integer.toString(rating.value);
-    //  showMessage(ratingString, Toast.LENGTH_SHORT);
-    //}
-  }
-
-  private void handleCustomerLookup(String payload) {
-    PhoneNumberMessage phoneNumberMessage = new Gson().fromJson(payload, PhoneNumberMessage.class);
-    String phoneNumber = phoneNumberMessage.phoneNumber;
-    showMessage("Just received phone number " + phoneNumber + " from the Ratings remote application.", 3000);
-    showMessage("Sending customer name Ron Burgundy to the Ratings remote application for phone number " + phoneNumber, 3000);
-    CustomerInfo customerInfo = new CustomerInfo();
-    customerInfo.customerName = "Ron Burgundy";
-    customerInfo.phoneNumber = phoneNumber;
-    CustomerInfoMessage customerInfoMessage = new CustomerInfoMessage(customerInfo);
-    String customerInfoJson = customerInfoMessage.toJsonString();
-    sendMessageToActivity("com.clover.cfp.examples.RatingsExample", customerInfoJson);
-  }
-
-  private void handleJokeResponse(String payload) {
-    ConversationResponseMessage jokeResponseMessage = (ConversationResponseMessage) PayloadMessage.fromJsonString(payload);
-    showMessage("Received JokeResponse of: " + jokeResponseMessage.message, Toast.LENGTH_SHORT);
-  }
 
   private void showMessage(final String msg, final int duration) {
     runOnUiThread(new Runnable() {
       @Override
       public void run() {
         Toast.makeText(ExamplePOSActivity.this, msg, duration).show();
+      }
+    });
+  }
+
+  protected void showPopupMessage (final String title, final String[] content, final boolean monospace) {
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        FragmentManager fm = getFragmentManager();
+        PopupMessageFragment popupMessageFragment = PopupMessageFragment.newInstance(title, content, monospace);
+        popupMessageFragment.show(fm, "fragment_popup_message");
       }
     });
   }
@@ -1218,33 +1164,47 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
     if (cardsFragment != null) {
       cardsFragment.setCloverConnector(cloverConnector);
     }
-    MiscellaneousFragment miscFragment = (MiscellaneousFragment) fragmentManager.findFragmentByTag("MISC");
-    if (miscFragment != null) {
-      miscFragment.setCloverConnector(cloverConnector);
+    HomeFragment homeFragment = (HomeFragment) fragmentManager.findFragmentByTag("HOME");
+    if (homeFragment != null) {
+      homeFragment.setCloverConnector(cloverConnector);
     }
-    PendingPaymentsFragment ppFragment = (PendingPaymentsFragment) fragmentManager.findFragmentByTag("PENDING");
-    if (ppFragment != null) {
-      ppFragment.setCloverConnector(cloverConnector);
+    RecoveryOptionsFragment recoveryFragment = (RecoveryOptionsFragment) fragmentManager.findFragmentByTag("RECOVERY");
+    if (recoveryFragment != null) {
+      recoveryFragment.setCloverConnector(cloverConnector);
+    }
+    DeviceFragment deviceFragment = (DeviceFragment) fragmentManager.findFragmentByTag("DEVICE");
+    if (deviceFragment != null) {
+      deviceFragment.setCloverConnector(cloverConnector);
+    }
+    CustomActivitiesFragment customFragment = (CustomActivitiesFragment) fragmentManager.findFragmentByTag("CUSTOM");
+    if (customFragment != null) {
+      customFragment.setCloverConnector(cloverConnector);
+    }
+    TransactionsFragment transactionsFragment = (TransactionsFragment) fragmentManager.findFragmentByTag("TRANSACTIONS");
+    if (transactionsFragment != null) {
+      transactionsFragment.setCloverConnector(cloverConnector);
+    }
+    PaymentDetailsFragment paymentDetailsFragment = (PaymentDetailsFragment) fragmentManager.findFragmentByTag("PAYMENT_DETAILS");
+    if (paymentDetailsFragment != null) {
+      paymentDetailsFragment.setCloverConnector(cloverConnector);
+    }
+    CurrentOrderFragment currentOrderFragment = (CurrentOrderFragment) fragmentManager.findFragmentByTag("CURRENT_ORDER");
+    if (currentOrderFragment != null) {
+      currentOrderFragment.setCloverConnector(cloverConnector);
     }
   }
 
-  public void showPending(View view) {
-    FragmentManager fragmentManager = getFragmentManager();
-    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+  public void preAuthSuccess(CardTransaction cardTransaction){
+    CardType cardType = cardTransaction.getCardType();
+    LinearLayout preAuthInfo = (LinearLayout) findViewById(R.id.PreAuthInfo);
+    preAuthInfo.setVisibility(View.VISIBLE);
+    LinearLayout current = (LinearLayout) findViewById(R.id.CurrentOrder);
+    current.setVisibility(View.GONE);
+    ImageView preAuthTender = (ImageView) findViewById(R.id.PreAuthTender);
+    preAuthTender.setImageResource(ImageUtil.getCardTypeImage(cardType));
+    TextView preAuthCardType = (TextView) findViewById(R.id.PreAuthCardType);
+    preAuthCardType.setText("Card: "+cardType.toString()+" "+cardTransaction.getLast4());
 
-    hideFragments(fragmentManager, fragmentTransaction);
-
-    Fragment fragment = fragmentManager.findFragmentByTag("PENDING");
-
-    if (fragment == null) {
-      fragment = PendingPaymentsFragment.newInstance(store, cloverConnector);
-      fragmentTransaction.add(R.id.contentContainer, fragment, "PENDING");
-    } else {
-      ((PendingPaymentsFragment) fragment).setCloverConnector(cloverConnector);
-      fragmentTransaction.show(fragment);
-    }
-
-    fragmentTransaction.commit();
   }
 
   public void showOrders(View view) {
@@ -1262,7 +1222,7 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
       ((OrdersFragment) fragment).setCloverConnector(cloverConnector);
       fragmentTransaction.show(fragment);
     }
-
+    fragmentTransaction.addToBackStack("ORDERS");
     fragmentTransaction.commit();
   }
 
@@ -1274,13 +1234,88 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
 
     Fragment fragment = fragmentManager.findFragmentByTag("REGISTER");
     if (fragment == null) {
-      fragment = RegisterFragment.newInstance(store, cloverConnector);
+      fragment = RegisterFragment.newInstance(store, cloverConnector, false);
       fragmentTransaction.add(R.id.contentContainer, fragment, "REGISTER");
-    } else {
+    }
+    else {
       ((RegisterFragment) fragment).setCloverConnector(cloverConnector);
+      ((RegisterFragment)fragment).setPreAuth(false);
+      ((RegisterFragment) fragment).setVaulted(false);
+      ((RegisterFragment) fragment).setVaultedCard(null);
       fragmentTransaction.show(fragment);
     }
+    fragmentTransaction.addToBackStack("REGISTER");
+    fragmentTransaction.commitAllowingStateLoss();
+  }
 
+  public void showHome(View view){
+    FragmentManager fragmentManager = getFragmentManager();
+    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+    hideFragments(fragmentManager, fragmentTransaction);
+
+    Fragment fragment = fragmentManager.findFragmentByTag("HOME");
+    if (fragment == null) {
+      fragment = HomeFragment.newInstance(cloverConnector);
+      fragmentTransaction.add(R.id.contentContainer, fragment, "HOME");
+    } else {
+      ((HomeFragment) fragment).setCloverConnector(cloverConnector);
+      fragmentTransaction.show(fragment);
+    }
+    fragmentTransaction.commit();
+  }
+
+  public void showRecoveryOptions (View view){
+    FragmentManager fragmentManager = getFragmentManager();
+    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+    hideFragments(fragmentManager, fragmentTransaction);
+
+    Fragment fragment = fragmentManager.findFragmentByTag("RECOVERY");
+    if (fragment == null) {
+      fragment = RecoveryOptionsFragment.newInstance(store, cloverConnector);
+      fragmentTransaction.add(R.id.contentContainer, fragment, "RECOVERY");
+    } else {
+      ((RecoveryOptionsFragment) fragment).setCloverConnector(cloverConnector);
+      fragmentTransaction.show(fragment);
+    }
+    fragmentTransaction.addToBackStack("RECOVERY");
+    fragmentTransaction.commit();
+  }
+
+  public void showDevice (View view){
+    FragmentManager fragmentManager = getFragmentManager();
+    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+    hideFragments(fragmentManager, fragmentTransaction);
+
+    Fragment fragment = fragmentManager.findFragmentByTag("DEVICE");
+    if (fragment == null) {
+      fragment = DeviceFragment.newInstance(cloverConnector);
+      fragmentTransaction.add(R.id.contentContainer, fragment, "DEVICE");
+    } else {
+      ((DeviceFragment) fragment).setCloverConnector(cloverConnector);
+      fragmentTransaction.show(fragment);
+    }
+    fragmentTransaction.addToBackStack("DEVICE");
+    fragmentTransaction.commit();
+  }
+
+  public void showCustomActivities (View view){
+    FragmentManager fragmentManager = getFragmentManager();
+    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+    hideFragments(fragmentManager, fragmentTransaction);
+
+    Fragment fragment = fragmentManager.findFragmentByTag("CUSTOM");
+    if (fragment == null) {
+      fragment = CustomActivitiesFragment.newInstance(cloverConnector);
+      fragmentTransaction.add(R.id.contentContainer, fragment, "CUSTOM");
+    } else {
+      ((CustomActivitiesFragment) fragment).setCloverConnector(cloverConnector);
+      fragmentTransaction.show(fragment);
+    }
+    fragmentTransaction.addToBackStack("CUSTOM");
     fragmentTransaction.commit();
   }
 
@@ -1298,7 +1333,7 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
       ((ManualRefundsFragment) fragment).setCloverConnector(cloverConnector);
       fragmentTransaction.show(fragment);
     }
-
+    fragmentTransaction.addToBackStack("REFUNDS");
     fragmentTransaction.commit();
   }
 
@@ -1317,46 +1352,93 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
       ((CardsFragment) fragment).setCloverConnector(cloverConnector);
       fragmentTransaction.show(fragment);
     }
+    fragmentTransaction.addToBackStack("CARDS");
     fragmentTransaction.commit();
   }
 
-  public void showMisc(View view) {
+  public void showTransactions (View view){
     FragmentManager fragmentManager = getFragmentManager();
     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
     hideFragments(fragmentManager, fragmentTransaction);
 
-    Fragment fragment = fragmentManager.findFragmentByTag("MISC");
-
+    Fragment fragment = fragmentManager.findFragmentByTag("TRANSACTIONS");
     if (fragment == null) {
-      fragment = MiscellaneousFragment.newInstance(store, cloverConnector);
-      fragmentTransaction.add(R.id.contentContainer, fragment, "MISC");
+      fragment = TransactionsFragment.newInstance(cloverConnector, store);
+      fragmentTransaction.add(R.id.contentContainer, fragment, "TRANSACTIONS");
     } else {
-      ((MiscellaneousFragment) fragment).setCloverConnector(cloverConnector);
+      ((TransactionsFragment) fragment).setCloverConnector(cloverConnector);
       fragmentTransaction.show(fragment);
     }
-
+    fragmentTransaction.addToBackStack("TRANSACTIONS");
     fragmentTransaction.commit();
   }
 
-  public void showPreAuths(View view) {
+
+  public void showPaymentDetails (POSTransaction transaction){
     FragmentManager fragmentManager = getFragmentManager();
     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
     hideFragments(fragmentManager, fragmentTransaction);
 
-    Fragment fragment = fragmentManager.findFragmentByTag("PRE_AUTHS");
-
+    Fragment fragment = fragmentManager.findFragmentByTag("PAYMENT_DETAILS");
     if (fragment == null) {
-      fragment = PreAuthFragment.newInstance(store, cloverConnector);
-      ((PreAuthFragment) fragment).setStore(store);
-      fragmentTransaction.add(R.id.contentContainer, fragment, "PRE_AUTHS");
+      fragment = PaymentDetailsFragment.newInstance(transaction, cloverConnector, store);
+      fragmentTransaction.add(R.id.contentContainer, fragment, "PAYMENT_DETAILS");
     } else {
-      ((PreAuthFragment) fragment).setCloverConnector(cloverConnector);
+      ((PaymentDetailsFragment) fragment).setCloverConnector(cloverConnector);
+      ((PaymentDetailsFragment)fragment).setTransaction(transaction);
       fragmentTransaction.show(fragment);
     }
-
+    fragmentTransaction.addToBackStack("PAYMENT_DETAILS");
     fragmentTransaction.commit();
+  }
+
+  public void hidePreAuth(){
+    FragmentManager fragmentManager = getFragmentManager();
+    Fragment fragment = fragmentManager.findFragmentByTag("REGISTER");
+    ((RegisterFragment)fragment).clearPreAuth();
+  }
+
+
+  public void startPreAuth (View view){
+    FragmentManager fragmentManager = getFragmentManager();
+    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+    hideFragments(fragmentManager, fragmentTransaction);
+
+    Fragment fragment = fragmentManager.findFragmentByTag("REGISTER");
+    if (fragment == null) {
+      fragment = RegisterFragment.newInstance(store, cloverConnector, true);
+      fragmentTransaction.add(R.id.contentContainer, fragment, "REGISTER");
+    } else {
+      ((RegisterFragment)fragment).setCloverConnector(cloverConnector);
+      ((RegisterFragment)fragment).setPreAuth(true);
+
+      fragmentTransaction.show(fragment);
+    }
+    fragmentTransaction.addToBackStack("REGISTER");
+    fragmentTransaction.commitAllowingStateLoss();
+  }
+
+  public void startVaulted (POSCard vaultedCard){
+    FragmentManager fragmentManager = getFragmentManager();
+    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+    hideFragments(fragmentManager, fragmentTransaction);
+
+    Fragment fragment = fragmentManager.findFragmentByTag("REGISTER");
+    if (fragment == null) {
+      fragment = RegisterFragment.newInstance(store, cloverConnector, true, vaultedCard);
+      fragmentTransaction.add(R.id.contentContainer, fragment, "REGISTER");
+    } else {
+      ((RegisterFragment)fragment).setCloverConnector(cloverConnector);
+      ((RegisterFragment)fragment).setVaulted(true);
+      ((RegisterFragment)fragment).setVaultedCard(vaultedCard);
+      fragmentTransaction.show(fragment);
+    }
+    fragmentTransaction.addToBackStack("REGISTER");
+    fragmentTransaction.commitAllowingStateLoss();
   }
 
   private void hideFragments(FragmentManager fragmentManager, FragmentTransaction fragmentTransaction) {
@@ -1376,19 +1458,35 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
     if (fragment != null) {
       fragmentTransaction.hide(fragment);
     }
-    fragment = fragmentManager.findFragmentByTag("MISC");
-    if (fragment != null) {
-      fragmentTransaction.hide(fragment);
-    }
     fragment = fragmentManager.findFragmentByTag("REFUNDS");
     if (fragment != null) {
       fragmentTransaction.hide(fragment);
     }
-    fragment = fragmentManager.findFragmentByTag("PRE_AUTHS");
+    fragment = fragmentManager.findFragmentByTag("HOME");
     if (fragment != null) {
       fragmentTransaction.hide(fragment);
     }
-    fragment = fragmentManager.findFragmentByTag("PENDING");
+    fragment = fragmentManager.findFragmentByTag("RECOVERY");
+    if (fragment != null) {
+      fragmentTransaction.hide(fragment);
+    }
+    fragment = fragmentManager.findFragmentByTag("DEVICE");
+    if (fragment != null) {
+      fragmentTransaction.hide(fragment);
+    }
+    fragment = fragmentManager.findFragmentByTag("CUSTOM");
+    if (fragment != null) {
+      fragmentTransaction.hide(fragment);
+    }
+    fragment = fragmentManager.findFragmentByTag("TRANSACTIONS");
+    if (fragment != null) {
+      fragmentTransaction.hide(fragment);
+    }
+    fragment = fragmentManager.findFragmentByTag("PAYMENT_DETAILS");
+    if (fragment != null) {
+      fragmentTransaction.hide(fragment);
+    }
+    fragment = fragmentManager.findFragmentByTag("CURRENT_ORDER");
     if (fragment != null) {
       fragmentTransaction.hide(fragment);
     }
@@ -1398,16 +1496,12 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
     return ++printRequestId;
   }
 
-  public void captureCardClick(View view) {
-    cloverConnector.vaultCard(store.getCardEntryMethods());
-  }
-
   public void onManualRefundClick(View view) {
     CharSequence val = ((TextView) findViewById(R.id.ManualRefundTextView)).getText();
     try {
-      long refundAmount = Long.parseLong(val.toString());
-      ManualRefundRequest request = new ManualRefundRequest(refundAmount, IdUtils.getNextId());
-      request.setAmount(refundAmount);
+      long refundAmount = CurrencyUtils.convertToLong(val.toString());
+      String externalId = IdUtils.getNextId();
+      ManualRefundRequest request = new ManualRefundRequest(refundAmount, externalId);
       request.setCardEntryMethods(store.getCardEntryMethods());
       request.setDisablePrinting(store.getDisablePrinting());
       request.setDisableReceiptSelection(store.getDisableReceiptOptions());
@@ -1415,12 +1509,6 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
     } catch (NumberFormatException nfe) {
       showMessage("Invalid value. Must be an integer.", Toast.LENGTH_LONG);
     }
-  }
-
-
-  public void queryPaymentClick(View view) {
-    String externalPaymentId = ((TextView) findViewById(R.id.QueryPaymentText)).getText().toString();
-    cloverConnector.retrievePayment(new RetrievePaymentRequest(externalPaymentId));
   }
 
   public void printTextClick(View view) {
@@ -1437,8 +1525,6 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
     else {
       cloverConnector.printText(lines);
     }
-
-    updatePrintStatusText();
   }
 
   public void printImageURLClick(View view) {
@@ -1454,7 +1540,6 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
     else{
       cloverConnector.printImageFromURL(URL);
     }
-    updatePrintStatusText();
   }
 
   public void queryPrintStatusClick(View view){
@@ -1462,9 +1547,22 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
     cloverConnector.retrievePrintJobStatus(pjsr);
   }
 
-  private void updatePrintStatusText(){
-    EditText printStatusId = ((EditText) findViewById(R.id.QueryPrintStatusText));
-    printStatusId.setText(lastPrintRequestId);
+  private void updatePaymentDetailsTip(POSTransaction payment){
+    FragmentManager fragmentManager = getFragmentManager();
+    Fragment fragment = fragmentManager.findFragmentByTag("PAYMENT_DETAILS");
+    ((PaymentDetailsFragment)fragment).setTip(((POSPayment)payment).getTipAmount());
+  }
+
+  private void updatePaymentDetailsRefund(POSTransaction payment, long amount){
+    FragmentManager fragmentManager = getFragmentManager();
+    Fragment fragment = fragmentManager.findFragmentByTag("PAYMENT_DETAILS");
+    ((PaymentDetailsFragment)fragment).addRefund(payment, amount);
+  }
+
+  private void updatePaymentDetailsVoided (POSTransaction payment){
+    FragmentManager fragmentManager = getFragmentManager();
+    Fragment fragment = fragmentManager.findFragmentByTag("PAYMENT_DETAILS");
+    ((PaymentDetailsFragment)fragment).paymentVoided(payment);
   }
 
   public void showMessageClick(View view) {
@@ -1531,11 +1629,7 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
     else{
       cloverConnector.printImage(bitmap);
     }
-
-    updatePrintStatusText();
   }
-
-
 
   public void onResetDeviceClick(View view) {
     runOnUiThread(new Runnable() {
@@ -1572,49 +1666,6 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
     cloverConnector.retrievePendingPayments();
   }
 
-  public void startActivity(View view) {
-    String selectedItem = (String) ((Spinner) findViewById(R.id.activity_id)).getSelectedItem();
-    String activityId = CUSTOM_ACTIVITY_PACKAGE + selectedItem;
-    String payload = ((EditText) findViewById(R.id.activity_payload)).getText().toString();
-
-    CustomActivityRequest car = new CustomActivityRequest(activityId);
-    car.setPayload(payload);
-    boolean nonBlocking = ((Switch) findViewById(R.id.customActivityBlocking)).isChecked();
-    car.setNonBlocking(nonBlocking);
-
-    //If the custom activity is conversational, pass in the messageTo and messageFrom action string arrays
-    if (activityId.equals("com.clover.cfp.examples.BasicConversationalExample")) {
-      Button messageButton = (Button) findViewById(R.id.sendMessageToActivityButton);
-      if (messageButton != null) {
-        messageButton.setVisibility(View.VISIBLE);
-      }
-    } else {
-      Button messageButton = (Button) findViewById(R.id.sendMessageToActivityButton);
-      if (messageButton != null) {
-        messageButton.setVisibility(View.INVISIBLE);
-      }
-    }
-
-    cloverConnector.startCustomActivity(car);
-  }
-
-  public void sendMessageToActivity(View view) {
-    String activityId = CUSTOM_ACTIVITY_PACKAGE + ((Spinner) findViewById(R.id.activity_id)).getSelectedItem().toString();
-    ConversationQuestionMessage message = new ConversationQuestionMessage("Why did the Storm Trooper buy an iPhone?");
-    String payload = message.toJsonString();
-    MessageToActivity messageRequest = new MessageToActivity(activityId, payload);
-    cloverConnector.sendMessageToActivity(messageRequest);
-    Button messageButton = (Button) findViewById(R.id.sendMessageToActivityButton);
-    if (messageButton != null) {
-      messageButton.setVisibility(View.INVISIBLE);
-    }
-  }
-
-  public void sendMessageToActivity(String activityId, String payload) {
-    MessageToActivity messageRequest = new MessageToActivity(activityId, payload);
-    cloverConnector.sendMessageToActivity(messageRequest);
-  }
-
   public void externalMismatch(){
     runOnUiThread(new Runnable() {
       @Override
@@ -1627,5 +1678,45 @@ public class ExamplePOSActivity extends Activity implements CurrentOrderFragment
         externalIDMismatch.show();
       }
     });
+  }
+
+  @Override
+  public void onSaleTypeChoice(String choice) {
+
+  }
+
+  @Override
+  public void onContinue(String name, String amount) {
+
+  }
+
+  @Override
+  public void onContinue(long amount) {
+
+  }
+
+  @Override
+  public void onSave(long tipAmount) {
+
+  }
+
+  @Override
+  public void onContinue(String name) {
+
+  }
+
+  @Override
+  public void onLookup(String paymentId) {
+
+  }
+
+  @Override
+  public void makePartialRefund(long amount) {
+
+  }
+
+  @Override
+  public void makeFullRefund() {
+
   }
 }

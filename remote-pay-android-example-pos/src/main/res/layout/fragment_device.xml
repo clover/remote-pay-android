@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2018 Clover Network, Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~
+  ~ You may obtain a copy of the License at
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="20dp"
+    android:layout_marginBottom="20dp"
+    android:gravity="center_horizontal">
+  <TextView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="@string/device_options"
+      android:textSize="30sp"
+      android:textStyle="normal|bold"
+      android:gravity="center_horizontal"/>
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:gravity="center_horizontal"
+      android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+      <EditText
+          android:id="@+id/ShowMessageText"
+          android:layout_width="250dp"
+          android:layout_height="wrap_content"
+          android:layout_marginEnd="10dp"
+          android:text="@string/hello_message"/>
+      <Button
+          android:id="@+id/ShowMessageButton"
+          android:onClick="showMessageClick"
+          android:layout_width="250dp"
+          android:layout_height="wrap_content"
+          android:background="@drawable/button_border_padding"
+          android:text="@string/show_message"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+      <EditText
+          android:id="@+id/PrintTextText"
+          android:text="@string/print_this"
+          android:layout_width="250dp"
+          android:layout_height="wrap_content"
+          android:layout_marginEnd="10dp"/>
+      <Button
+          android:text="@string/print_text"
+          android:id="@+id/PrintTextButton"
+          android:onClick="printTextClick"
+          android:layout_width="250dp"
+          android:layout_height="wrap_content"
+          android:background="@drawable/button_border_padding"/>
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+      <EditText
+          android:id="@+id/PrintImageURLText"
+          android:text="@string/print_image_url"
+          android:ellipsize="middle"
+          android:scrollHorizontally="true"
+          android:ems="10"
+          android:layout_width="250dp"
+          android:layout_height="wrap_content"
+          android:layout_marginEnd="10dp"/>
+      <Button
+          android:text="@string/print_image_from_url"
+          android:id="@+id/PrintImageURLButton"
+          android:onClick="printImageURLClick"
+          android:layout_width="250dp"
+          android:layout_height="wrap_content"
+          android:background="@drawable/button_border_padding"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+      <Button
+          android:text="@string/print_image"
+          android:onClick="printImageClick"
+          android:id="@+id/PrintImageButton"
+          android:layout_width="250dp"
+          android:layout_height="wrap_content"
+          android:layout_marginEnd="10dp"
+          android:background="@drawable/button_border_padding"/>
+      <Button
+          android:text="@string/read_card_data"
+          android:onClick="onReadCardDataClick"
+          android:id="@+id/ReadCardDataButton"
+          android:layout_width="250dp"
+          android:layout_height="wrap_content"
+          android:background="@drawable/button_border_padding"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+      <Button
+          android:id="@+id/button3"
+          android:onClick="showWelcomeMessageClick"
+          android:text="@string/show_welcome_message"
+          android:layout_width="250dp"
+          android:layout_height="wrap_content"
+          android:layout_marginEnd="10dp"
+          android:background="@drawable/button_border_padding"/>
+      <Button
+          android:text="@string/show_thank_you"
+          android:id="@+id/button4"
+          android:onClick="showThankYouClick"
+          android:layout_width="250dp"
+          android:layout_height="wrap_content"
+          android:background="@drawable/button_border_padding"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+      <Button
+          android:id="@+id/CloseoutButton"
+          android:onClick="onClickCloseout"
+          android:text="@string/closeout_orders"
+          android:layout_width="250dp"
+          android:layout_height="wrap_content"
+          android:layout_marginEnd="10dp"
+          android:background="@drawable/button_border_padding"/>
+      <Button
+          android:text="@string/open_cash_drawer"
+          android:onClick="onOpenCashDrawerClick"
+          android:id="@+id/CashDrawerButton"
+          android:layout_width="250dp"
+          android:layout_height="wrap_content"
+          android:background="@drawable/button_border_padding"/>
+    </LinearLayout>
+  </LinearLayout>
+</LinearLayout>

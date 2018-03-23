@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Clover Network, Inc.
+ * Copyright (C) 2018 Clover Network, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,14 +56,12 @@ public class CardsListViewAdapter extends ArrayAdapter<POSCard>{
             TextView first6Column = (TextView) v.findViewById(R.id.CardsFirst6Column);
             TextView last4Column = (TextView) v.findViewById(R.id.CardsLast4Column);
             TextView expColumn = (TextView) v.findViewById(R.id.CardsExpColumn);
-            TextView tokenColumn = (TextView) v.findViewById(R.id.CardsTokenColumn);
 
 
-            nameColumn.setText(posCard.getName());
+            nameColumn.setText(posCard.getVaultedName());
             first6Column.setText(posCard.getFirst6());
             last4Column.setText(posCard.getLast4());
             expColumn.setText(posCard.getMonth() + "/" + posCard.getYear());
-            tokenColumn.setText(posCard.getToken());
         }
 
         return v;

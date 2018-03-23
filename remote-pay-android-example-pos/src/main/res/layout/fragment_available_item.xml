@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (C) 2016 Clover Network, Inc.
+  ~ Copyright (C) 2018 Clover Network, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -24,15 +24,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.clover.remote.client.lib.example.AvailableItem">
-  <!--<TextView
-          android:layout_alignParentTop="true"
-          android:layout_alignParentRight="true"
-          android:layout_alignParentLeft="true"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:background="@color/clover_orange"
-          android:id="@+id/background"
-          android:layout_alignParentBottom="true"/>-->
   <RelativeLayout android:layout_width="wrap_content"
       android:layout_height="100dp"
       android:layout_marginTop="10dp"
@@ -42,9 +33,7 @@
       android:layout_alignParentLeft="true"
       android:layout_alignParentRight="true"
       android:orientation="vertical"
-      android:clipChildren="false"
-      >
-
+      android:clipChildren="false">
     <!-- background color panel -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -55,7 +44,7 @@
       <TextView
           android:layout_width="fill_parent"
           android:layout_height="0dp"
-          android:text="New Text"
+          android:text="@string/new_text"
           android:layout_gravity="center_horizontal|center_vertical"
           android:id="@+id/ItemNameLabel"
           android:layout_alignParentStart="true"
@@ -68,7 +57,7 @@
       <TextView
           android:layout_width="fill_parent"
           android:layout_height="wrap_content"
-          android:text="$0.00"
+          android:text="@string/_0_dollars"
           android:paddingRight="5dp"
           android:layout_weight="0"
           android:id="@+id/ItemNamePrice"
@@ -80,7 +69,6 @@
           android:gravity="center_vertical|end" android:textStyle="bold"/>
     </LinearLayout>
   </RelativeLayout>
-
   <TextView
       android:id="@+id/ItemBadge"
       android:layout_alignParentTop="true"
@@ -95,6 +83,5 @@
       android:paddingStart="10dp"
       android:layout_marginRight="5dp"
       android:paddingEnd="10dp"
-      android:visibility="visible"
-      />
+      android:visibility="visible"/>
 </RelativeLayout>

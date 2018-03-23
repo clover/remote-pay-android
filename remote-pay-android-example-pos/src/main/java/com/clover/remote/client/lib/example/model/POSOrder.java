@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Clover Network, Inc.
+ * Copyright (C) 2018 Clover Network, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,8 @@ public class POSOrder {
   }
 
   private List<POSLineItem> items;
-  private List<POSExchange> payments;
+  private List<POSTransaction> payments;
+  private POSPayment preAuth;
   private POSDiscount discount;
   private transient String pendingPaymentId;
   public String id;
@@ -45,7 +46,7 @@ public class POSOrder {
 
   public POSOrder() {
     items = new ObservableList<POSLineItem>();
-    payments = new ObservableList<POSExchange>();
+    payments = new ObservableList<POSTransaction>();
     discount = new POSDiscount("None", 0);
     date = new Date();
   }
@@ -114,7 +115,7 @@ public class POSOrder {
 
   public long getTips() {
     long tips = 0;
-    for (POSExchange posPayment : payments) {
+    for (POSTransaction posPayment : payments) {
       if (posPayment instanceof POSPayment) {
         tips += ((POSPayment) posPayment).getTipAmount();
       }
@@ -187,9 +188,9 @@ public class POSOrder {
 
 
   void addRefund(POSRefund refund) {
-    for (POSExchange pay : payments) {
+    for (POSTransaction pay : payments) {
       if (pay instanceof POSPayment) {
-        if (pay.paymentID.equals(refund.getPaymentID())) {
+        if (pay.getId().equals(refund.getId())) {
           ((POSPayment) pay).setPaymentStatus(POSPayment.Status.REFUNDED);
           notifyObserverPaymentChanged(pay);
         }
@@ -205,7 +206,7 @@ public class POSOrder {
       return OrderStatus.INITIAL;
     } else {
       long totalPaid = 0;
-      for(POSExchange payment : payments) {
+      for(POSTransaction payment : payments) {
         if(payment instanceof POSPayment) {
           totalPaid += payment.getAmount();
         } else if(payment instanceof POSRefund) {
@@ -233,13 +234,28 @@ public class POSOrder {
     return items;
   }
 
-  public List<POSExchange> getPayments() {
+  public List<POSTransaction> getPayments() {
     return Collections.unmodifiableList(payments);
   }
 
+  public POSPayment getPreAuth() {
+    return preAuth;
+  }
+
+  public void setPreAuth(POSPayment preAuth) {
+    this.preAuth = preAuth;
+  }
+
   public void setDiscount(POSDiscount discount) {
-    this.discount = discount;
-    notifyObserverDiscountChanged(discount);
+    if(this.discount == discount){
+      this.discount = null;
+      Log.d(TAG, "discount is the same, removing");
+      notifyObserverDiscountChanged(null);
+    }
+    else {
+      this.discount = discount;
+      notifyObserverDiscountChanged(discount);
+    }
   }
 
 
@@ -271,7 +287,7 @@ public class POSOrder {
     }
   }
 
-  public void notifyObserverPaymentChanged(POSExchange pay) {
+  public void notifyObserverPaymentChanged(POSTransaction pay) {
     for (OrderObserver observer : observers) {
       observer.paymentChanged(this, pay);
     }

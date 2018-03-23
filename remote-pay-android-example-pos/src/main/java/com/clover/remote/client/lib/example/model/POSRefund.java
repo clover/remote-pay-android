@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Clover Network, Inc.
+ * Copyright (C) 2018 Clover Network, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,30 @@
 
 package com.clover.remote.client.lib.example.model;
 
-public class POSRefund extends POSExchange {
-  public String refundID;
+import java.io.Serializable;
+
+public class POSRefund extends POSTransaction implements Serializable {
+  public String paymentId;
+  public String cloverOrderId;
   public POSRefund(String refundID, String paymentID, String orderID, String employeeID, long amount) {
-    super(paymentID, orderID, employeeID, amount);
-    this.refundID = refundID;
+    super(refundID, employeeID, amount);
+    this.paymentId = paymentID;
+    this.cloverOrderId = orderID;
   }
-  public String getRefundID() {
-    return refundID;
+
+  public String getPaymentId() {
+    return paymentId;
+  }
+
+  public void setPaymentId(String paymentId) {
+    this.paymentId = paymentId;
+  }
+
+  public String getCloverOrderId() {
+    return cloverOrderId;
+  }
+
+  public void setCloverOrderId(String cloverOrderId) {
+    this.cloverOrderId = cloverOrderId;
   }
 }

@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (C) 2016 Clover Network, Inc.
+  ~ Copyright (C) 2018 Clover Network, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -13,25 +13,40 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginBottom="20sp"
+    android:minHeight="550dp"
+    android:minWidth="800dp"
+    android:background="@color/white"
     tools:context=".SignatureFragment">
-  <Button android:layout_width="wrap_content"
+  <com.clover.remote.client.lib.example.SignatureView
+      android:layout_width="match_parent"
+      android:layout_height="525dp"
+      android:id="@+id/SignatureView"
+      android:background="@color/white"/>
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      android:layout_marginTop="20dp"
+      android:layout_marginBottom="20dp"
+      android:gravity="end">
+  <Button
+      android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:id="@+id/RejectButton"
       android:text="@string/reject"
-      android:background="@drawable/button_red"
+      android:background="@drawable/button_dark_red"
       android:textColor="@color/white"
-      android:layout_alignTop="@+id/AcceptButton"
-      android:layout_toStartOf="@+id/AcceptButton"
       android:layout_marginRight="10sp"
       android:paddingLeft="20sp"
-      android:paddingRight="20sp"
-      android:layout_toLeftOf="@+id/AcceptButton"/>
-  <Button android:layout_width="wrap_content"
+      android:paddingRight="20sp"/>
+  <Button
+      android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:id="@+id/AcceptButton"
       android:text="@string/accept"
@@ -39,14 +54,6 @@
       android:textColor="@color/white"
       android:paddingLeft="20sp"
       android:paddingRight="20sp"
-      android:layout_marginRight="10sp"
-      android:layout_alignParentBottom="true"
-      android:layout_alignParentRight="true"/>
-  <com.clover.remote.client.lib.example.SignatureView
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:id="@+id/SignatureView"
-      android:background="@color/white"
-      android:layout_above="@+id/AcceptButton"
-      android:layout_alignParentStart="true"/>
-</RelativeLayout>
+      android:layout_marginRight="10sp"/>
+  </LinearLayout>
+</LinearLayout>

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Clover Network, Inc.
+ * Copyright (C) 2018 Clover Network, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,29 +18,36 @@ package com.clover.remote.client.lib.example;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 import com.clover.remote.PendingPaymentEntry;
 import com.clover.remote.client.ICloverConnector;
 import com.clover.remote.client.lib.example.adapter.RefundsListViewAdapter;
 import com.clover.remote.client.lib.example.model.POSCard;
-import com.clover.remote.client.lib.example.model.POSNakedRefund;
 import com.clover.remote.client.lib.example.model.POSOrder;
 import com.clover.remote.client.lib.example.model.POSPayment;
 import com.clover.remote.client.lib.example.model.POSStore;
+import com.clover.remote.client.lib.example.model.POSTransaction;
 import com.clover.remote.client.lib.example.model.StoreObserver;
 
 import java.lang.ref.WeakReference;
+import java.text.NumberFormat;
 import java.util.List;
 
 public class ManualRefundsFragment extends Fragment {
     private static final String ARG_STORE = "store";
 
     private POSStore store;
+    private EditText refundEntry;
 
     private OnFragmentInteractionListener mListener;
 
@@ -50,6 +57,7 @@ public class ManualRefundsFragment extends Fragment {
     public static ManualRefundsFragment newInstance(POSStore store, ICloverConnector cloverConnector) {
         ManualRefundsFragment fragment = new ManualRefundsFragment();
         fragment.setStore(store);
+        fragment.setCloverConnector(cloverConnector);
         Bundle args = new Bundle();
         fragment.setArguments(args);
 
@@ -71,13 +79,23 @@ public class ManualRefundsFragment extends Fragment {
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_refunds, container, false);
 
-
-
         final ListView refundsListView = (ListView)view.findViewById(R.id.RefundsListView);
         final RefundsListViewAdapter itemsListViewAdapter = new RefundsListViewAdapter(view.getContext(), R.id.RefundsListView, store.getRefunds());
         refundsListView.setAdapter(itemsListViewAdapter);
+        refundsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                POSTransaction transaction = (POSTransaction) refundsListView.getItemAtPosition(position); FragmentManager fragmentManager = getFragmentManager();
+                ((ExamplePOSActivity)getActivity()).showPaymentDetails(transaction);
+            }
+        });
 
         store.addStoreObserver(new StoreObserver() {
+            @Override
+            public void onCurrentOrderChanged(POSOrder currentOrder) {
+
+            }
+
             @Override public void newOrderCreated(POSOrder order, boolean userInitiated) {
 
             }
@@ -86,7 +104,7 @@ public class ManualRefundsFragment extends Fragment {
 
             }
 
-            @Override public void refundAdded(POSNakedRefund refund) {
+            @Override public void refundAdded(POSTransaction refund) {
                 final RefundsListViewAdapter itemsListViewAdapter = new RefundsListViewAdapter(view.getContext(), R.id.RefundsListView, store.getRefunds());
                 refundsListView.setAdapter(itemsListViewAdapter);
             }
@@ -103,8 +121,37 @@ public class ManualRefundsFragment extends Fragment {
             @Override public void pendingPaymentsRetrieved(List<PendingPaymentEntry> pendingPayments) {
 
             }
+
+            @Override
+            public void transactionsChanged(List<POSTransaction> transactions) {
+
+            }
         });
 
+        refundEntry = (EditText) view.findViewById(R.id.ManualRefundTextView);
+        refundEntry.setSelection(refundEntry.getText().length());
+        refundEntry.addTextChangedListener(new TextWatcher(){
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String current = "";
+                if(!s.toString().equals(current)){
+                    refundEntry.removeTextChangedListener(this);
+
+                    String cleanString = s.toString().replaceAll("[$,.]", "");
+
+                    double parsed = Double.parseDouble(cleanString);
+                    String formatted = NumberFormat.getCurrencyInstance().format((parsed / 100));
+
+                    refundEntry.setText(formatted);
+                    refundEntry.setSelection(formatted.length());
+
+                    refundEntry.addTextChangedListener(this);
+                }
+            }
+            @Override
+            public void afterTextChanged(Editable arg0) { }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        });
 
         return view;
     }

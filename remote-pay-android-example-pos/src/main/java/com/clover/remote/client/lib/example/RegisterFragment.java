@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Clover Network, Inc.
+ * Copyright (C) 2018 Clover Network, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,26 +18,31 @@ package com.clover.remote.client.lib.example;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.GridView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
 import com.clover.remote.PendingPaymentEntry;
+import com.clover.remote.client.lib.example.model.POSTransaction;
+import com.clover.remote.client.lib.example.utils.AvailableDiscountListener;
 import com.clover.remote.client.lib.example.utils.IdUtils;
-import com.clover.sdk.v3.payments.TransactionSettings;
 import com.clover.remote.client.ICloverConnector;
 import com.clover.remote.client.lib.example.adapter.AvailableItemsAdapter;
 import com.clover.remote.client.lib.example.model.OrderObserver;
 import com.clover.remote.client.lib.example.model.POSCard;
 import com.clover.remote.client.lib.example.model.POSDiscount;
-import com.clover.remote.client.lib.example.model.POSExchange;
 import com.clover.remote.client.lib.example.model.POSItem;
 import com.clover.remote.client.lib.example.model.POSLineItem;
-import com.clover.remote.client.lib.example.model.POSNakedRefund;
 import com.clover.remote.client.lib.example.model.POSOrder;
 import com.clover.remote.client.lib.example.model.POSPayment;
 import com.clover.remote.client.lib.example.model.POSRefund;
@@ -45,11 +50,14 @@ import com.clover.remote.client.lib.example.model.POSStore;
 import com.clover.remote.client.lib.example.model.StoreObserver;
 import com.clover.remote.client.lib.example.utils.CurrencyUtils;
 import com.clover.remote.client.messages.AuthRequest;
+import com.clover.remote.client.messages.CapturePreAuthRequest;
+import com.clover.remote.client.messages.PreAuthRequest;
 import com.clover.remote.client.messages.SaleRequest;
 import com.clover.remote.order.DisplayDiscount;
 import com.clover.remote.order.DisplayLineItem;
 import com.clover.remote.order.DisplayOrder;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -58,25 +66,53 @@ import java.util.Locale;
 import java.util.Map;
 
 
-public class RegisterFragment extends Fragment implements CurrentOrderFragmentListener, AvailableItemListener {
+public class RegisterFragment extends Fragment implements CurrentOrderFragmentListener, AvailableItemListener, AvailableDiscountListener, PreAuthDialogFragment.PreAuthDialogFragmentListener {
   private OnFragmentInteractionListener mListener;
   private static final String TAG = RegisterFragment.class.getSimpleName();
-
+  private View view;
   POSStore store;
-  ICloverConnector cloverConnector;
+  private WeakReference<ICloverConnector> cloverConnectorWeakReference;
+  boolean preAuth = false;
+  boolean vaulted = false;
+  POSCard vaultedCard;
   Map<POSItem, AvailableItem> itemToAvailableItem = new HashMap<POSItem, AvailableItem>();
+  GridView availableItems;
+  DisplayOrder currentDisplayOrder;
 
   public static RegisterFragment newInstance(POSStore store, ICloverConnector cloverConnector) {
-
     RegisterFragment fragment = new RegisterFragment();
     fragment.setStore(store);
     fragment.setCloverConnector(cloverConnector);
-
+    fragment.setPreAuth(false);
+    fragment.setVaulted(false);
+    fragment.setVaultedCard(null);
     Bundle args = new Bundle();
     fragment.setArguments(args);
     return fragment;
   }
 
+  public static RegisterFragment newInstance(POSStore store, ICloverConnector cloverConnector, boolean preauth) {
+    RegisterFragment fragment = new RegisterFragment();
+    fragment.setStore(store);
+    fragment.setCloverConnector(cloverConnector);
+    fragment.setPreAuth(preauth);
+    fragment.setVaulted(false);
+    fragment.setVaultedCard(null);
+    Bundle args = new Bundle();
+    fragment.setArguments(args);
+    return fragment;
+  }
+
+  public static RegisterFragment newInstance(POSStore store, ICloverConnector cloverConnector, boolean vaulted, POSCard vaultedCard) {
+    RegisterFragment fragment = new RegisterFragment();
+    fragment.setStore(store);
+    fragment.setCloverConnector(cloverConnector);
+    fragment.setVaulted(vaulted);
+    fragment.setVaultedCard(vaultedCard);
+    Bundle args = new Bundle();
+    fragment.setArguments(args);
+    return fragment;
+  }
 
   public RegisterFragment() {
     // Required empty public constructor
@@ -91,25 +127,46 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
     // Inflate the layout for this fragment
-    View view = inflater.inflate(R.layout.fragment_register, container, false);
+    view = inflater.inflate(R.layout.fragment_register, container, false);
 
-    GridView gv = (GridView)view.findViewById(R.id.AvailableItems);
+    availableItems = (GridView)view.findViewById(R.id.AvailableItems);
 
-    gv.setId(R.id.AvailableItems);
 
     final AvailableItemsAdapter availableItemsAdapter = new AvailableItemsAdapter(view.getContext(), R.id.AvailableItems, new ArrayList<POSItem>(store.getAvailableItems()), store);
-    gv.setAdapter(availableItemsAdapter);
+    availableItems.setAdapter(availableItemsAdapter);
 
-    gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+    availableItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
       @Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         POSItem item = availableItemsAdapter.getItem(position);
         onItemSelected(item);
       }
     });
 
-    CurrentOrderFragment currentOrderFragment = ((CurrentOrderFragment) getFragmentManager().findFragmentById(R.id.PendingOrder));
+    availableItems.setOnScrollListener(new AbsListView.OnScrollListener() {
+      @Override public void onScrollStateChanged(AbsListView view, int scrollState) {}
+
+      int lastFirstVisibleItem = -1;
+      @Override public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+        if (firstVisibleItem != lastFirstVisibleItem) {
+          availableItemsAdapter.notifyDataSetChanged();
+          lastFirstVisibleItem = firstVisibleItem;
+        }
+      }
+    });
+
+    final CurrentOrderFragment currentOrderFragment = ((CurrentOrderFragment) getFragmentManager().findFragmentById(R.id.PendingOrder));
     currentOrderFragment.setOrder(store.getCurrentOrder());
+    currentOrderFragment.setStore(store);
     currentOrderFragment.addListener(this);
+    currentOrderFragment.setCloverConnector(getCloverConnector());
+    if(preAuth) {
+      showPreAuthDialog();
+      currentOrderFragment.setPreAuth(true);
+    }
+    if(vaulted){
+      currentOrderFragment.setVaulted(true);
+      currentOrderFragment.setVaultedCard(vaultedCard);
+    }
     return view;
   }
 
@@ -132,6 +189,64 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
     mListener = null;
   }
 
+  @Override
+  public void onDestroyView() {
+    super.onDestroyView();
+    CurrentOrderFragment f = (CurrentOrderFragment) getFragmentManager()
+        .findFragmentById(R.id.PendingOrder);
+    if (f != null)
+      getFragmentManager().beginTransaction().remove(f).commit();
+  }
+
+
+  @Override
+  public void onContinue(String name, String amount) {
+    Log.d("RegisterFragment", name + amount);
+    TextView preAuthName = (TextView) getActivity().findViewById(R.id.PreAuthName);
+    TextView preAuthAmount = (TextView) getActivity().findViewById(R.id.PreAuthAmount);
+    preAuthName.setText("Name: "+name);
+    preAuthAmount.setText("Amount: "+amount);
+    makePreAuth(amount);
+  }
+
+  public void makePreAuth(String amount){
+    Long preauthAmount = CurrencyUtils.convertToLong(amount);
+    String externalId = IdUtils.getNextId();
+    store.getCurrentOrder().setPendingPaymentId(externalId);
+    PreAuthRequest request = new PreAuthRequest(preauthAmount, externalId);
+    request.setCardEntryMethods(store.getCardEntryMethods());
+    request.setDisablePrinting(store.getDisablePrinting());
+    request.setSignatureEntryLocation(store.getSignatureEntryLocation());
+    request.setSignatureThreshold(store.getSignatureThreshold());
+    request.setDisableReceiptSelection(store.getDisableReceiptOptions());
+    request.setDisableDuplicateChecking(store.getDisableDuplicateChecking());
+    Log.d("setPaymentStatus: ", request.toString());
+    getCloverConnector().preAuth(request);
+  }
+
+  public void clearPreAuth(){
+    setPreAuth(false);
+    LinearLayout layout = (LinearLayout) getActivity().findViewById(R.id.PreAuthInfo);
+    layout.setVisibility(View.GONE);
+    TextView preAuthName = (TextView) getActivity().findViewById(R.id.PreAuthName);
+    TextView preAuthAmount = (TextView) getActivity().findViewById(R.id.PreAuthAmount);
+    preAuthName.setText("Name: ");
+    preAuthAmount.setText("Amount: ");
+  }
+
+
+  public void clearVaultedCard(){
+    setVaulted(false);
+    LinearLayout layout = (LinearLayout) getActivity().findViewById(R.id.VaultedCardInfo);
+    layout.setVisibility(View.GONE);
+    TextView vaultName = (TextView) getActivity().findViewById(R.id.VaultedName);
+    TextView vaultCardNumber = (TextView) getActivity().findViewById(R.id.VaultedCardNumber );
+    vaultName.setText("");
+    vaultCardNumber.setText("");
+  }
+
+
+
   public interface OnFragmentInteractionListener {
     public void onFragmentInteraction(Uri uri);
   }
@@ -148,20 +263,59 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
     store.addCurrentOrderObserver(observer);
   }
 
-
-  public ICloverConnector getCloverConnector() {
-    return cloverConnector;
+  public ICloverConnector getCloverConnector(){
+    return cloverConnectorWeakReference.get();
   }
 
   public void setCloverConnector(ICloverConnector cloverConnector) {
-    this.cloverConnector = cloverConnector;
+    cloverConnectorWeakReference = new WeakReference<>(cloverConnector);
   }
 
+  public void setVaulted(boolean value){
+    vaulted = value;
+    if(!vaulted){
+      setVaultedCard(null);
+    }
+
+  }
+
+  public void setVaultedCard(POSCard vaultedCard) {
+    this.vaultedCard = vaultedCard;
+    if (view != null) {
+      CurrentOrderFragment currentOrderFragment = ((CurrentOrderFragment) getFragmentManager().findFragmentById(R.id.PendingOrder));
+      currentOrderFragment.setOrder(store.getCurrentOrder());
+      currentOrderFragment.setStore(store);
+      currentOrderFragment.setVaulted(vaulted);
+      currentOrderFragment.setVaultedCard(vaultedCard);
+      currentOrderFragment.setCloverConnector(getCloverConnector());
+    }
+  }
+
+  public void setPreAuth (boolean value){
+    preAuth = value;
+    if (view != null) {
+      if(preAuth) {
+        showPreAuthDialog();
+      }
+      CurrentOrderFragment currentOrderFragment = ((CurrentOrderFragment) getFragmentManager().findFragmentById(R.id.PendingOrder));
+      currentOrderFragment.setOrder(store.getCurrentOrder());
+      currentOrderFragment.setStore(store);
+      currentOrderFragment.setCloverConnector(getCloverConnector());
+      currentOrderFragment.setPreAuth(preAuth);
+    }
+  }
+
+  private void showPreAuthDialog () {
+    FragmentManager fm = getFragmentManager();
+    PreAuthDialogFragment preAuthDialogFragment = PreAuthDialogFragment.newInstance();
+    preAuthDialogFragment.addListener(this);
+    preAuthDialogFragment.show(fm, "fragment_preauth_dialog");
+  }
 
   @Override
   public void onSaleClicked() {
     String externalPaymentID = IdUtils.getNextId();
-    Log.d(TAG, "ExternalPaymentID:" + externalPaymentID);
+    Log.d(TAG, "Sale ExternalPaymentID:" + externalPaymentID);
     store.getCurrentOrder().setPendingPaymentId(externalPaymentID);
     SaleRequest request = new SaleRequest(store.getCurrentOrder().getTotal(), externalPaymentID);
     request.setCardEntryMethods(store.getCardEntryMethods());
@@ -179,11 +333,13 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
     request.setTipAmount(store.getTipAmount());
     request.setAutoAcceptPaymentConfirmations(store.getAutomaticPaymentConfirmation());
     request.setAutoAcceptSignature(store.getAutomaticSignatureConfirmation());
-    cloverConnector.sale(request);
+    getCloverConnector().sale(request);
   }
 
   @Override
   public void onNewOrderClicked() {
+    clearPreAuth();
+    clearVaultedCard();
     store.createOrder(true);
     CurrentOrderFragment currentOrderFragment = (CurrentOrderFragment) getFragmentManager().findFragmentById(R.id.PendingOrder);
     currentOrderFragment.setOrder(store.getCurrentOrder());
@@ -192,7 +348,7 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
   @Override
   public void onAuthClicked() {
     String externalPaymentID = IdUtils.getNextId();
-    Log.d(TAG, "ExternalPaymentID:" + externalPaymentID);
+    Log.d(TAG, "Auth ExternalPaymentID:" + externalPaymentID);
     store.getCurrentOrder().setPendingPaymentId(externalPaymentID);
     AuthRequest request = new AuthRequest(store.getCurrentOrder().getTotal(), externalPaymentID);
     request.setCardEntryMethods(store.getCardEntryMethods());
@@ -208,7 +364,7 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
     request.setDisableDuplicateChecking(store.getDisableDuplicateChecking());
     request.setAutoAcceptPaymentConfirmations(store.getAutomaticPaymentConfirmation());
     request.setAutoAcceptSignature(store.getAutomaticSignatureConfirmation());
-    cloverConnector.auth(request);
+    getCloverConnector().auth(request);
   }
 
   @Override
@@ -217,8 +373,22 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
   }
 
   @Override
+  public void payWithPreAuth(long tipAmount) {
+    CapturePreAuthRequest car = new CapturePreAuthRequest();
+    car.setPaymentID(store.getCurrentOrder().getPreAuth().getId());
+    car.setAmount(store.getCurrentOrder().getTotal());
+    car.setTipAmount(tipAmount);
+    getCloverConnector().capturePreAuth(car);
+  }
+
+  @Override
   public void onItemSelected(POSItem item) {
     store.getCurrentOrder().addItem(item, 1);
+  }
+
+  @Override
+  public void onDiscountSelected(POSDiscount discount) {
+    store.getCurrentOrder().setDiscount(discount);
   }
 
   class RegisterObserver implements StoreObserver, OrderObserver {
@@ -230,9 +400,14 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
     }
 
     @Override
+    public void onCurrentOrderChanged(POSOrder currentOrder) {
+
+    }
+
+    @Override
     public void newOrderCreated(POSOrder order, boolean userInitiated) {
-      if (cloverConnector != null && userInitiated) {
-        cloverConnector.showWelcomeScreen();
+      if (getCloverConnector() != null && userInitiated) {
+        getCloverConnector().showWelcomeScreen();
       }
       liToDli.clear();
       displayOrder = new DisplayOrder();
@@ -246,7 +421,7 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
 
     }
 
-    @Override public void refundAdded(POSNakedRefund refund) {
+    @Override public void refundAdded(POSTransaction refund) {
 
     }
 
@@ -260,6 +435,11 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
     }
 
     @Override public void pendingPaymentsRetrieved(List<PendingPaymentEntry> pendingPayments) {
+
+    }
+
+    @Override
+    public void transactionsChanged(List<POSTransaction> transactions) {
 
     }
 
@@ -281,7 +461,7 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
       items.add(dli);
       displayOrder.setLineItems(items);
       updateTotals(posOrder, displayOrder);
-      cloverConnector.showDisplayOrder(displayOrder);
+      getCloverConnector().showDisplayOrder(displayOrder);
 
     }
 
@@ -305,7 +485,7 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
 
       displayOrder.setLineItems(items);
       updateTotals(posOrder, displayOrder);
-      cloverConnector.showDisplayOrder(displayOrder);
+      getCloverConnector().showDisplayOrder(displayOrder);
     }
 
     @Override
@@ -315,7 +495,6 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
       dli.setQuantity("" + lineItem.getQuantity());
       dli.setPrice(CurrencyUtils.format(lineItem.getPrice(), Locale.getDefault()));
       List<DisplayDiscount> dDiscounts = new ArrayList<DisplayDiscount>();
-      //dli.getDiscounts().clear();
       if (lineItem.getDiscount() != null && lineItem.getDiscount().getValue(lineItem.getPrice()) != lineItem.getPrice()) {
         DisplayDiscount dd = new DisplayDiscount();
         dd.setName(lineItem.getDiscount().name);
@@ -323,7 +502,7 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
       }
       dli.setDiscounts(dDiscounts);
       updateTotals(posOrder, displayOrder);
-      cloverConnector.showDisplayOrder(displayOrder);
+      getCloverConnector() .showDisplayOrder(displayOrder);
 
     }
 
@@ -356,7 +535,7 @@ public class RegisterFragment extends Fragment implements CurrentOrderFragmentLi
     }
 
     @Override
-    public void paymentChanged(POSOrder posOrder, POSExchange pay) {
+    public void paymentChanged(POSOrder posOrder, POSTransaction pay) {
 
     }
 

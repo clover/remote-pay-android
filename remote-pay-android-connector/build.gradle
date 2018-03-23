@@ -1,17 +1,15 @@
 group = 'com.clover.sdk'
-version = '1.4.0'
+version = '1.4.1'
 
 apply plugin: 'com.android.library'
-apply plugin: 'android-maven'
+//apply plugin: 'android-maven'
+//apply plugin: 'com.github.dcendents.android-maven'
 
-repositories {
-  mavenLocal()
-  maven { url "http://artifactory.corp.clover.com:8081/artifactory/repo" }
-  maven { url "http://artifactory.corp.clover.com:8081/artifactory/libs-release" }
-  mavenCentral()
-}
 
 android {
+  lintOptions {
+    abortOnError false
+  }
   compileSdkVersion 21
   buildToolsVersion "25.0.2"
 
@@ -28,15 +26,14 @@ android {
 defaultTasks 'install'
 
 dependencies {
-  compile 'com.clover:clover-remote-interface:210'
-  compile 'com.clover.sdk:clover-android-sdk:183'
+  compile 'com.clover:clover-remote-interface:217.10'
+  compile 'com.clover.sdk:clover-android-sdk:191.3'
   compile 'com.google.code.gson:gson:2.3.1'
   compile 'com.neovisionaries:nv-websocket-client:1.31'
   testCompile 'junit:junit:4.12'
 }
 
 apply plugin: 'signing'
-apply plugin: 'io.codearte.nexus-staging'
 
 uploadArchives {
     repositories {
@@ -94,6 +91,4 @@ signing {
     sign configurations.archives
 }
 
-nexusStaging {
-  packageGroup = "com.clover" //optional if packageGroup == project.getGroup() ------>  NOTE: project.getGroup() returns com.clover.sdk
-}
+

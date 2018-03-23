@@ -20,11 +20,103 @@
   <style name="AppBaseTheme" parent="android:Theme.Holo.Light">
   </style>
 
+  <style name="CustomDialog" parent="@android:style/Theme.Holo.Light" >
+    <item name="android:windowBackground">@null</item>
+    <item name="android:windowIsFloating">true</item>
+  </style>
+
   <style name="LanTitle">
     <item name="android:layout_width">fill_parent</item>
     <item name="android:layout_height">wrap_content</item>
     <item name="android:capitalize">characters</item>
     <item name="android:textSize">12pt</item>
   </style>
+
+  <style name="Popup.TransactionSettings">
+    <item name="android:minWidth">880dp</item>
+    <item name="android:minHeight">525dp</item>
+    <item name="android:paddingStart">20dp</item>
+    <item name="android:paddingBottom">10dp</item>
+    <item name="android:paddingTop">20dp</item>
+    <item name="android:gravity">center</item>
+  </style>
+
+  <style name="TransactionsSection">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:layout_marginStart">10dp</item>
+    <item name="android:layout_marginEnd">5dp</item>
+    <item name="android:orientation">vertical</item>
+  </style>
+
+  <style name="TransactionsSection.Title">
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:textSize">16sp</item>
+    <item name="android:textStyle">normal|bold</item>
+  </style>
+
+  <style name="TransactionsSection.Content">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:orientation">vertical</item>
+    <item name="android:layout_marginStart">20dp</item>
+  </style>
+
+  <style name="TransactionsSection.Right">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:layout_marginStart">5dp</item>
+    <item name="android:layout_marginEnd">10dp</item>
+    <item name="android:orientation">vertical</item>
+  </style>
+
+  <style name="SaleTypeButton">
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:layout_width">300dp</item>
+    <item name="android:paddingTop">20dp</item>
+    <item name="android:paddingBottom">20dp</item>
+    <item name="android:background">@drawable/button_border_padding</item>
+  </style>
+
+  <style name="Popup">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">match_parent</item>
+    <item name="android:background">@color/white</item>
+    <item name="android:orientation">vertical</item>
+  </style>
+
+  <style name="Popup.Message">
+    <item name="android:minWidth">450dp</item>
+    <item name="android:paddingTop">10dp</item>
+    <item name="android:paddingStart">10dp</item>
+    <item name="android:paddingEnd">10dp</item>
+  </style>
+
+  <style name="Popup.EnterPaymentId">
+    <item name="android:minHeight">150dp</item>
+    <item name="android:minWidth">400dp</item>
+    <item name="android:gravity">center</item>
+  </style>
+
+  <style name="PaymentDetailsLabel">
+    <item name="android:layout_width">150dp</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:textSize">16dp</item>
+  </style>
+
+  <style name="PaymentDetailsItem">
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:textSize">16dp</item>
+  </style>
+
+  <style name="PaymentDetailsButton">
+    <item name="android:layout_width">195dp</item>
+    <item name="android:layout_height">75dp</item>
+    <item name="android:layout_marginBottom">10dp</item>
+  </style>
+
+
 
 </resources>

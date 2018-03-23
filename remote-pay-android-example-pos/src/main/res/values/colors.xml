@@ -27,6 +27,7 @@
   <color name="lightgray">#C0C0C0</color>
   <color name="clover_green">#547554</color>
   <color name="warning_red">#A53434</color>
+  <color name="light_purple">#A175DB</color>
 
   <color name="transparentblack">#80000000</color>
   <color name="transparentwhite">#80FFFFFF</color>
@@ -57,4 +58,15 @@
   <color name="clover_badge_color">#3849C0</color>
   <color name="gray">#DEDEDE</color>
   <color name="secondary_table_text_color">#808285</color>
+
+  <color name="green_text">#2FCB71</color>
+  <color name="yellow_text">#EECF0E</color>
+  <color name="red_text">#D00000</color>
+  <color name="red_button_background">#FFB3B3</color>
+
+  <color name="gray_10">#F4F5F5</color>
+  <color name="gray_20">#DEE0E1</color>
+  <color name="gray_30">#B1B6B8</color>
+  <color name="gray_50">#858D90</color>
+  <color name="gray_60">#515D61</color>
 </resources>

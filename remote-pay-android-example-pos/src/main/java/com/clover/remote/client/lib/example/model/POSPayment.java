@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Clover Network, Inc.
+ * Copyright (C) 2018 Clover Network, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,34 +16,51 @@
 
 package com.clover.remote.client.lib.example.model;
 
-public class POSPayment extends POSExchange {
+import com.clover.sdk.v3.payments.CardEntryType;
+import com.clover.sdk.v3.payments.CardTransactionState;
+import com.clover.sdk.v3.payments.CardTransactionType;
+import com.clover.sdk.v3.payments.CardType;
 
-  private long tipAmount;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+
+public class POSPayment extends POSTransaction implements Serializable {
+
+  private long tipAmount, taxAmount;
   private long cashBackAmount;
-  private String orderId;
+  private String cloverOrderId, status;
   private transient POSOrder order;
-  private String externalPaymentId;
+  private String externalPaymentId, refundId;
+  private List<POSRefund> refunds;
 
   public enum Status {
     PAID, VOIDED, REFUNDED, AUTHORIZED, PREAUTHORIZED
   }
 
-  public POSPayment(String paymentID, String orderID, String employeeID, long amount) {
-    this(paymentID, orderID, employeeID, amount, 0, 0);
+  public POSPayment(String paymentID, String orderID, String employeeID, long amount, Date date) {
+    this(paymentID, orderID, employeeID, amount, 0, 0, date);
   }
 
-  public POSPayment(String paymentID, String orderID, String employeeID, long amount, long tip, long cashBack) {
-    this(paymentID, null, orderID, employeeID, amount, tip, cashBack);
-
-
+  public POSPayment(String paymentID, String orderID, String employeeID, long amount, long tip, long cashBack, Date date) {
+    this(paymentID, null, orderID, employeeID, amount, tip, cashBack, date);
   }
 
-  public POSPayment(String paymentID, String externalPaymentId, String orderID, String employeeID, long amount, long tip, long cashBack) {
-    super(paymentID, orderID, employeeID, amount);
-
+  public POSPayment(String paymentID, String externalPaymentId, String orderID, String employeeID, long amount, long tip, long cashBack, Date date) {
     this.tipAmount = tip;
     this.cashBackAmount = cashBack;
     this.externalPaymentId = externalPaymentId;
+  }
+
+  public POSPayment(long amount, String cardDetails, CardType cardType, Date date, String id, String tender, String transactionTitle, CardTransactionType transactionType, boolean refund,
+                    CardEntryType entryMethod, CardTransactionState transactionState, long cashBackAmount, String cloverOrderId, String externalPaymentId, long taxAmount, long tipAmount){
+    super (amount, cardDetails, cardType, date, id, tender, transactionTitle, transactionType, refund, entryMethod,  transactionState);
+
+    this.cashBackAmount = cashBackAmount;
+    this.cloverOrderId = cloverOrderId;
+    this.externalPaymentId = externalPaymentId;
+    this.taxAmount = taxAmount;
+    this.tipAmount = tipAmount;
   }
 
   private Status _status;
@@ -88,7 +105,7 @@ public class POSPayment extends POSExchange {
   }
 
   public long getAmount() {
-    return super.getAmount() + getTipAmount();
+    return super.getAmount();
   }
 
   public void setExternalPaymentId(String externalPaymentId) {
@@ -99,4 +116,57 @@ public class POSPayment extends POSExchange {
     return externalPaymentId;
   }
 
+  public long getTaxAmount() {
+    return taxAmount;
+  }
+
+  public void setTaxAmount(long taxAmount) {
+    this.taxAmount = taxAmount;
+  }
+
+  public void setCashBackAmount(long cashBackAmount) {
+    this.cashBackAmount = cashBackAmount;
+  }
+
+  public String getCloverOrderId() {
+    return cloverOrderId;
+  }
+
+  public void setCloverOrderId(String cloverOrderId) {
+    this.cloverOrderId = cloverOrderId;
+  }
+
+
+  public String getStatus() {
+    return status;
+  }
+
+  public void setStatus(String status) {
+    this.status = status;
+  }
+
+
+  public List<POSRefund> getRefunds() {
+    return refunds;
+  }
+
+  public void setRefunds(List<POSRefund> refunds) {
+    this.refunds = refunds;
+  }
+
+  public Status get_status() {
+    return _status;
+  }
+
+  public void set_status(Status _status) {
+    this._status = _status;
+  }
+
+  public String getRefundId() {
+    return refundId;
+  }
+
+  public void setRefundId(String refundId) {
+    this.refundId = refundId;
+  }
 }

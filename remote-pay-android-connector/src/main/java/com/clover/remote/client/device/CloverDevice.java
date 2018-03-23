@@ -88,7 +88,7 @@ public abstract class CloverDevice {
 
   public abstract void doKeyPress(KeyPress keyPress);
 
-  public abstract void doVoidPayment(Payment payment, VoidReason reason);
+  public abstract void doVoidPayment(Payment payment, VoidReason reason, boolean disablePrinting, boolean disableReceiptSelection);
 
   public abstract void doCaptureAuth(String paymentID, long amount, long tipAmount);
 
@@ -98,7 +98,9 @@ public abstract class CloverDevice {
 
   public abstract void doTerminalMessage(String text);
 
-  public abstract void doPaymentRefund(String orderId, String paymentId, long amount, boolean fullRefund);
+  public abstract void doSendDebugLog(String message);
+
+  public abstract void doPaymentRefund(String orderId, String paymentId, long amount, boolean fullRefund, boolean disablePrinting, boolean disableReceiptSelection);
 
   public abstract void doTipAdjustAuth(String orderId, String paymentId, long amount);
 
@@ -106,7 +108,7 @@ public abstract class CloverDevice {
 
   public abstract void doShowWelcomeScreen();
 
-  public abstract void doShowPaymentReceiptScreen(String orderId, String paymentId);
+  public abstract void doShowPaymentReceiptScreen(String orderId, String paymentId, boolean disablePrinting);
 
   public abstract void doShowThankYouScreen();
 

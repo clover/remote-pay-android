@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Clover Network, Inc.
+ * Copyright (C) 2018 Clover Network, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package com.clover.remote.client.lib.example.model;
 import com.clover.remote.PendingPaymentEntry;
 import com.clover.remote.client.CloverConnector;
 import com.clover.remote.client.messages.SaleRequest;
+import com.clover.sdk.v3.payments.CardTransactionType;
 import com.clover.sdk.v3.payments.DataEntryLocation;
 
 import java.util.ArrayList;
@@ -36,7 +37,9 @@ public class POSStore {
   private List<POSDiscount> availableDiscounts;
   private List<POSOrder> orders;
   private List<POSCard> cards;
-  private List<POSNakedRefund> refunds;
+  private POSCard lastVaultedCard;
+  private List<POSTransaction> transactions;
+  private List<POSTransaction> refunds;
   private List<POSPayment> preAuths;
   private POSOrder currentOrder;
 
@@ -46,6 +49,11 @@ public class POSStore {
   private transient List<OrderObserver> orderObservers = new ArrayList<OrderObserver>();
   private transient List<StoreObserver> storeObservers = new ArrayList<StoreObserver>();
 
+  private static final int KIOSK_CARD_ENTRY_METHODS = 1 << 15;
+  public static final int CARD_ENTRY_METHOD_MAG_STRIPE = 0b0001 | 0b0001_00000000 | KIOSK_CARD_ENTRY_METHODS; // 33026
+  public static final int CARD_ENTRY_METHOD_ICC_CONTACT = 0b0010 | 0b0010_00000000 | KIOSK_CARD_ENTRY_METHODS; // 33282
+  public static final int CARD_ENTRY_METHOD_NFC_CONTACTLESS = 0b0100 | 0b0100_00000000 | KIOSK_CARD_ENTRY_METHODS; // 33796
+  public static final int CARD_ENTRY_METHOD_MANUAL = 0b1000 | 0b1000_00000000 | KIOSK_CARD_ENTRY_METHODS; // 34824
 
   private int cardEntryMethods = CloverConnector.CARD_ENTRY_METHOD_MAG_STRIPE | CloverConnector.CARD_ENTRY_METHOD_NFC_CONTACTLESS | CloverConnector.CARD_ENTRY_METHOD_ICC_CONTACT;
   private Boolean approveOfflinePaymentWithoutPrompt;
@@ -53,22 +61,22 @@ public class POSStore {
   private Boolean forceOfflinePayment;
   private Boolean disablePrinting;
   private Long tipAmount;
+  private SaleRequest.TipMode tipMode;
   private Long signatureThreshold;
   private DataEntryLocation signatureEntryLocation;
-  private SaleRequest.TipMode tipMode;
   private Boolean disableReceiptOptions;
   private Boolean disableDuplicateChecking;
   private Boolean automaticSignatureConfirmation;
   private Boolean automaticPaymentConfirmation;
-  private List<PendingPaymentEntry> pendingPayments;
 
   public POSStore() {
     availableItems = new LinkedHashMap<String, POSItem>();
     availableDiscounts = new ArrayList<POSDiscount>();
     orders = new ArrayList<POSOrder>();
     cards = new ArrayList<POSCard>();
-    refunds = new ArrayList<POSNakedRefund>();
+    refunds = new ArrayList<POSTransaction>();
     preAuths = new ArrayList<POSPayment>();
+    transactions = new ArrayList<POSTransaction>();
   }
 
   public void createOrder(boolean userInitiated) {
@@ -97,7 +105,7 @@ public class POSStore {
 
   public void addPaymentToOrder(POSPayment payment, POSOrder order) {
     order.addPayment(payment);
-    paymentIdToPOSPayment.put(payment.paymentID, payment);
+    paymentIdToPOSPayment.put(payment.getId(), payment);
   }
 
   public void addRefundToOrder(POSRefund refund, POSOrder order) {
@@ -115,9 +123,69 @@ public class POSStore {
     this.storeObservers.add(storeObserver);
   }
 
+  public List<POSTransaction> getTransactions(){
+    return this.transactions;
+  }
+
+  public void addTransaction(POSTransaction transaction){
+    this.transactions.add(transaction);
+    for(StoreObserver observer : storeObservers){
+      observer.transactionsChanged(this.transactions);
+    }
+  }
+
   public POSItem addAvailableItem(POSItem item) {
     availableItems.put(item.getId(), item);
     return item;
+  }
+
+  public void updateTransactionToRefund(String transactionId){
+    for(POSTransaction transaction : this.transactions){
+      if(transaction.getId() == transactionId){
+        transaction.setRefund(true);
+      }
+    }
+    for(StoreObserver so : storeObservers){
+      so.transactionsChanged(this.transactions);
+    }
+  }
+
+  public void updateTransactionToVoided(String transactionId){
+    for(POSTransaction transaction : this.transactions){
+      if(transaction.getId() == transactionId){
+        transaction.setTransactionType(CardTransactionType.VOID);
+      }
+    }
+    POSPayment payment = (POSPayment) this.getPaymentByCloverId(transactionId);
+    payment.setTransactionType(CardTransactionType.VOID);
+    payment.setPaymentStatus(POSPayment.Status.VOIDED);
+    for(StoreObserver so : storeObservers){
+      so.transactionsChanged(this.transactions);
+    }
+  }
+
+  public POSTransaction getPaymentByCloverId(String paymentId){
+    POSTransaction payment = null;
+    for(POSOrder order : this.orders){
+      for(POSTransaction orderPayment : order.getPayments()){
+        if(orderPayment.getId().equals(paymentId)){
+          payment = orderPayment;
+        }
+      }
+    }
+    return payment;
+  }
+
+  public POSOrder getOrderByCloverPaymentId(String paymentId){
+    POSOrder selectedOrder = null;
+    for(POSOrder order : this.orders){
+      for(POSTransaction payment : order.getPayments()){
+        if(payment.getId() == paymentId){
+          selectedOrder = order;
+        }
+      }
+    }
+    return selectedOrder;
   }
 
   public void addAvailableDiscount(POSDiscount discount) {
@@ -128,15 +196,37 @@ public class POSStore {
     return currentOrder;
   }
 
+  public void setCurrentOrder(POSOrder order){
+    currentOrder = order;
+    for(StoreObserver so : storeObservers) {
+      so.onCurrentOrderChanged(currentOrder );
+    }
+  }
+
+
   public Collection<POSItem> getAvailableItems() {
     return Collections.unmodifiableCollection(availableItems.values());
   }
 
+  public Collection<POSDiscount> getAvailableDiscounts() {
+    return Collections.unmodifiableCollection(availableDiscounts);
+  }
+
+
   public void addCard(POSCard card) {
+    lastVaultedCard = card;
     cards.add(card);
     for(StoreObserver so : storeObservers) {
       so.cardAdded(card);
     }
+  }
+
+  public POSCard getLastVaultedCard() {
+    return lastVaultedCard;
+  }
+
+  public void setLastVaultedCard(POSCard lastVaultedCard) {
+    this.lastVaultedCard = lastVaultedCard;
   }
 
   public List<POSCard> getCards() {
@@ -147,13 +237,14 @@ public class POSStore {
     return orders;
   }
 
-  public void addRefund(POSNakedRefund nakedRefund) {
+  public void addRefund(POSTransaction nakedRefund) {
     refunds.add(nakedRefund);
     for(StoreObserver so : storeObservers) {
       so.refundAdded(nakedRefund);
+      so.transactionsChanged(getTransactions());
     }
   }
-  public List<POSNakedRefund> getRefunds() {
+  public List<POSTransaction> getRefunds() {
     return refunds;
   }
 
@@ -225,16 +316,19 @@ public class POSStore {
 
   public void setDisableReceiptOptions(Boolean disableReceiptOptions) {this.disableReceiptOptions = disableReceiptOptions;}
 
-  public SaleRequest.TipMode getTipMode() {return tipMode;}
+  public SaleRequest.TipMode getTipMode() {
+    return tipMode;
+  }
 
-  public void setTipMode(SaleRequest.TipMode tipMode) {this.tipMode = tipMode;}
+  public void setTipMode(SaleRequest.TipMode tipMode) {
+    this.tipMode = tipMode;
+  }
 
   public Long getTipAmount() {return tipAmount;}
 
   public void setTipAmount(Long tipAmount) {this.tipAmount = tipAmount;}
 
   public void setPendingPayments(List<PendingPaymentEntry> pendingPayments) {
-    this.pendingPayments = pendingPayments;
     for(StoreObserver so : storeObservers) {
       so.pendingPaymentsRetrieved(pendingPayments);
     }
