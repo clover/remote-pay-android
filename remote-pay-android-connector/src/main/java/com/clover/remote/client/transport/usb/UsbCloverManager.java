@@ -199,11 +199,20 @@ public abstract class UsbCloverManager<T> {
     if (device != null) {
       for (int i = 0; i < vendorProductIds.length; i++) {
         if (device.getVendorId() == vendorProductIds[i].first && device.getProductId() == vendorProductIds[i].second) {
+          // Determine if this clover device is being configured for use as an RNDIS interface
+          for (int j = 0; j < device.getInterfaceCount(); j++) {
+            UsbInterface intf = device.getInterface(j);
+            if (intf.getInterfaceClass() == UsbConstants.USB_CLASS_CDC_DATA) {
+              // Interface class is RNDIS Ethernet Data, don't set accessory mode
+              Log.d("USBCloverManager", "Skipping accessory mode due to InterfaceClass: " + intf.getInterfaceClass());
+              return false;
+            }
+          }
+          Log.d("USBCloverManager", "Setting accessory mode");
           return true;
         }
       }
     }
-
     return false;
   }
 
@@ -474,7 +483,9 @@ public abstract class UsbCloverManager<T> {
     return outputData;
   }
 
-  protected enum InputResult {CONTINUE, COMPLETE, ERROR}
+  protected enum InputResult {
+    CONTINUE, COMPLETE, ERROR
+  }
 
   /**
    * Optionally override this method to perform data processing on the input data bytes before they are returned. The
@@ -521,6 +532,7 @@ public abstract class UsbCloverManager<T> {
     T getResult() {
       return result;
     }
+
   }
 
   private static <T> T poll(Pollee<T> pollee, int timeoutMs, int waitMs) {
