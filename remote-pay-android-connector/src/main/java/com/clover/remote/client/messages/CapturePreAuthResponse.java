@@ -21,7 +21,7 @@ package com.clover.remote.client.messages;
  */
 @SuppressWarnings(value="unused")
 public class CapturePreAuthResponse extends BaseResponse {
-  private String paymentID;
+  private String paymentId;
   private Long amount;
   private Long tipAmount;
 
@@ -40,17 +40,17 @@ public class CapturePreAuthResponse extends BaseResponse {
    *
    * @return ID of the pre-auth payment being captured
    */
-  public String getPaymentID() {
-    return paymentID;
+  public String getPaymentId() {
+    return paymentId;
   }
 
   /**
    * Set the field value
    *
-   * @param paymentID ID of the pre-auth payment being captured
+   * @param paymentId Id of the pre-auth payment being captured
    */
-  public void setPaymentID(String paymentID) {
-    this.paymentID = paymentID;
+  public void setPaymentId(String paymentId) {
+    this.paymentId = paymentId;
   }
 
   /**

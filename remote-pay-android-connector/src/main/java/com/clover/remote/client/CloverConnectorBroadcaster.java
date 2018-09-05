@@ -22,6 +22,7 @@ import com.clover.remote.client.messages.CloseoutResponse;
 import com.clover.remote.client.messages.CloverDeviceErrorEvent;
 import com.clover.remote.client.messages.CloverDeviceEvent;
 import com.clover.remote.client.messages.CustomActivityResponse;
+import com.clover.remote.client.messages.DisplayReceiptOptionsResponse;
 import com.clover.remote.client.messages.PrintJobStatusResponse;
 import com.clover.remote.client.messages.RetrievePaymentResponse;
 import com.clover.remote.client.messages.MessageFromActivity;
@@ -44,6 +45,7 @@ import com.clover.remote.client.messages.SaleResponse;
 import com.clover.remote.client.messages.TipAdjustAuthResponse;
 import com.clover.remote.client.messages.VaultCardResponse;
 import com.clover.remote.client.messages.VerifySignatureRequest;
+import com.clover.remote.client.messages.VoidPaymentRefundResponse;
 import com.clover.remote.client.messages.VoidPaymentResponse;
 import com.clover.remote.message.TipAddedMessage;
 
@@ -147,6 +149,16 @@ class CloverConnectorBroadcaster extends CopyOnWriteArrayList<ICloverConnectorLi
     for (ICloverConnectorListener listener : this) {
       try {
         listener.onVoidPaymentResponse(response);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
+    }
+  }
+
+  void notifyOnVoidPaymentRefundResponse(VoidPaymentRefundResponse response) {
+    for (ICloverConnectorListener listener : this) {
+      try {
+        listener.onVoidPaymentRefundResponse(response);
       } catch (Exception ex) {
         Log.w("Notification error", ex);
       }
@@ -389,6 +401,15 @@ class CloverConnectorBroadcaster extends CopyOnWriteArrayList<ICloverConnectorLi
         listener.onRetrievePaymentResponse(gpr);
       } catch (Exception ex) {
         Log.w("Notification error", ex);
+      }
+    }
+  }
+  void notifyOnDisplayReceiptOptionsResponse(DisplayReceiptOptionsResponse response) {
+    for(ICloverConnectorListener listener : this) {
+      try {
+        listener.onDisplayReceiptOptionsResponse(response);
+      } catch (Exception e) {
+        Log.w("Notification error", e);
       }
     }
   }

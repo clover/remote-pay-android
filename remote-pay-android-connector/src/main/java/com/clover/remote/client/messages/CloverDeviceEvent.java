@@ -81,7 +81,13 @@ public class CloverDeviceEvent {
     HANDLE_TENDER,
 
     // starting custom activity, called from RTKA
-    STARTING_CUSTOM_ACTIVITY
+    STARTING_CUSTOM_ACTIVITY,
+    CUSTOM_ACTIVITY,
+
+    //Canada-specific
+    SELECT_WITHDRAW_FROM_ACCOUNT,
+    VERIFY_SURCHARGES,
+    VOID_CONFIRM
   }
 
   private DeviceEventState eventState;
