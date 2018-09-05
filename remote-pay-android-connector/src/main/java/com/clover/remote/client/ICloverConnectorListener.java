@@ -22,6 +22,7 @@ import com.clover.remote.client.messages.CloseoutResponse;
 import com.clover.remote.client.messages.CloverDeviceErrorEvent;
 import com.clover.remote.client.messages.CloverDeviceEvent;
 import com.clover.remote.client.messages.CustomActivityResponse;
+import com.clover.remote.client.messages.DisplayReceiptOptionsResponse;
 import com.clover.remote.client.messages.PrintJobStatusResponse;
 import com.clover.remote.client.messages.RetrievePaymentResponse;
 import com.clover.remote.client.messages.MessageFromActivity;
@@ -44,6 +45,7 @@ import com.clover.remote.client.messages.SaleResponse;
 import com.clover.remote.client.messages.TipAdjustAuthResponse;
 import com.clover.remote.client.messages.VaultCardResponse;
 import com.clover.remote.client.messages.VerifySignatureRequest;
+import com.clover.remote.client.messages.VoidPaymentRefundResponse;
 import com.clover.remote.client.messages.VoidPaymentResponse;
 import com.clover.remote.message.TipAddedMessage;
 
@@ -158,6 +160,13 @@ public interface ICloverConnectorListener {
    * @param response The response
    */
   void onVoidPaymentResponse(VoidPaymentResponse response);
+
+  /**
+   * Called in response to a void payment refund request
+   *
+   * @param response The response
+   */
+  void onVoidPaymentRefundResponse(VoidPaymentRefundResponse response);
 
   /**
    * Called when the Clover device is disconnected
@@ -292,5 +301,11 @@ public interface ICloverConnectorListener {
    * @param response The response
    */
   void onRetrievePaymentResponse(RetrievePaymentResponse response);
+
+  /**
+   * Called in response to a DisplayReceiptOptionsRequest
+   * @param response
+   */
+  void onDisplayReceiptOptionsResponse(DisplayReceiptOptionsResponse response);
 
 }

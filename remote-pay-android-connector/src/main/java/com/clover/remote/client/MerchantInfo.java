@@ -28,11 +28,11 @@ public class MerchantInfo {
     deviceInfo.model = drm.model;
     deviceInfo.serial = drm.serial;
     deviceInfo.supportsAcks = drm.supportsAcknowledgement;
-    supportsPreAuths = drm.supportsTipAdjust;
+    supportsPreAuths = drm.supportsPreAuth;
     supportsManualRefunds = drm.supportsManualRefund;
     supportsTipAdjust = drm.supportsTipAdjust;
-    supportsAuths = drm.supportsTipAdjust;
-    supportsVaultCards = drm.supportsManualRefund;
+    supportsAuths = drm.supportsAuth;
+    supportsVaultCards = drm.supportsVaultCard;
   }
   DeviceInfo deviceInfo = new DeviceInfo();
 

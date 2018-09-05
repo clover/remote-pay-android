@@ -27,7 +27,6 @@ public class SaleRequest extends TransactionRequest {
   private Long tippableAmount = null;
   private Long tipAmount = null;
   private Boolean disableCashback = null;
-  private Boolean disableTipOnScreen = null;
   private Long taxAmount = null;
   private Boolean allowOfflinePayment = null;
   private Boolean forceOfflinePayment = null;
@@ -96,24 +95,6 @@ public class SaleRequest extends TransactionRequest {
    */
   public Boolean getDisableCashback() {
     return this.disableCashback;
-  }
-
-  /**
-   * Set the field value
-   *
-   * @param disableTipOnScreen If true, the tip screen will not be displayed on the device, even if the merchant is configured for tips on screen
-   */
-  public void setDisableTipOnScreen(Boolean disableTipOnScreen) {
-    this.disableTipOnScreen = disableTipOnScreen;
-  }
-
-  /**
-   * Get the field value
-   *
-   * @return If true, the tip screen will not be displayed on the device, even if the merchant is configured for tips on screen
-   */
-  public Boolean getDisableTipOnScreen() {
-    return this.disableTipOnScreen;
   }
 
   /**
@@ -214,5 +195,4 @@ public class SaleRequest extends TransactionRequest {
   /**
    * Enumeration for indicating the mode of acquiring a tip
    */
-  public enum TipMode {TIP_PROVIDED, ON_SCREEN_BEFORE_PAYMENT, NO_TIP}
 }

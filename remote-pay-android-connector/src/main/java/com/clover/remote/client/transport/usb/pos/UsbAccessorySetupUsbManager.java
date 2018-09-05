@@ -65,16 +65,19 @@ public class UsbAccessorySetupUsbManager extends UsbCloverManager<Void> {
       Pair.create(0x28f3, 0x2000), // leafcutter adb device
       Pair.create(0x28f3, 0x3000), // maplecutter adb device
       Pair.create(0x28f3, 0x4000), // bayleaf adb device
+      Pair.create(0x28f3, 0x3020), // knotty pine adb device
 
       // Development devices (probably never used)
       Pair.create(0x28f3, 0x2001), // leafcutter rndis,adb device
       Pair.create(0x28f3, 0x3001), // maplecutter rndis,adb device
       Pair.create(0x28f3, 0x4001), // bayleaf rndis,adb device
+      Pair.create(0x28f3, 0x3021), // knotty pine rndis,adb device
 
       // Production devices
       Pair.create(0x28f3, 0x2003), // leafcutter cloverusb device
       Pair.create(0x28f3, 0x3003), // maplecutter cloverusb device
       Pair.create(0x28f3, 0x4003), // bayleaf cloverusb device
+      Pair.create(0x28f3, 0x3023), // knottypine cloverusb device
   };
 
   @Override

@@ -49,13 +49,13 @@ public interface CloverDeviceObserver {
 
   void onTxState(TxState txState);
 
-  void onTxStartResponse(TxStartResponseResult result, String externalId, String messageInfo);
+  void onTxStartResponse(TxStartResponseResult result, String externalId, String messageInfo, String message);
 
   void onUiState(UiState uiState, String uiText, UiState.UiDirection uiDirection, InputOption[] inputOptions);
 
   void onTipAdded(long tipAmount);
 
-  void onAuthTipAdjusted(String paymentId, long amount, boolean success);
+  void onAuthTipAdjusted(String paymentId, long amount, boolean success, String message);
 
   void onCashbackSelected(long cashbackAmount);
 
@@ -79,9 +79,11 @@ public interface CloverDeviceObserver {
 
   void onPaymentRefundResponse(String orderId, String paymentId, Refund refund, TxState code, ErrorCode reason, String message);
 
+  void onPaymentRefundVoidResponse(String refundId, ResultStatus status, String reason, String message);
+
   void onVaultCardResponse(VaultedCard vaultedCard, String code, String reason);
 
-  void onCapturePreAuth(ResultStatus status, String reason, String paymentId, long amount, long tipAmount);
+  void onCapturePreAuth(ResultStatus status, String reason, String paymentId, long amount, long tipAmount, String message);
 
   void onCloseoutResponse(ResultStatus status, String reason, Batch batch);
 
@@ -119,10 +121,12 @@ public interface CloverDeviceObserver {
 
   void onResetDeviceResponse(ResultCode result, String reason, ExternalDeviceState state);
 
-  void onRetrievePaymentResponse(ResultCode result, String reason, String externalPaymentId, QueryStatus queryStatus, Payment payment);
+  void onRetrievePaymentResponse(ResultCode result, String reason, String externalPaymentId, QueryStatus queryStatus, Payment payment, String message);
 
   void onRetrievePrinterResponse(List<Printer> printers);
 
   void onRetrievePrintJobStatus(String printRequestId, PrintJobStatus status);
+
+  void onDisplayReceiptOptionsResponse(ResultStatus resultStatus, String reason);
 
 }

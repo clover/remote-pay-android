@@ -25,7 +25,25 @@ import com.clover.remote.client.messages.BaseRequest;
 public class DisplayReceiptOptionsRequest extends BaseRequest {
   private String orderId;
   private String paymentId;
+  private String refundId;
+  private String creditId;
   private boolean disablePrinting; // optional
+
+  public String getCreditId() {
+    return creditId;
+  }
+
+  public void setCreditId(String creditId) {
+    this.creditId = creditId;
+  }
+
+  public String getRefundId() {
+    return refundId;
+  }
+
+  public void setRefundId(String refundId) {
+    this.refundId = refundId;
+  }
 
   /**
    * Get the field value

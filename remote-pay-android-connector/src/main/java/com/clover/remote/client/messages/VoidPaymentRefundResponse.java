@@ -16,26 +16,38 @@
 
 package com.clover.remote.client.messages;
 
-import com.clover.common2.payments.PayIntent;
-
 /**
- * Request object for requesting a pre-auth transaction.
+ * Response object for a void payment request
  */
 @SuppressWarnings(value="unused")
-public class PreAuthRequest extends BaseTransactionRequest {
+public class VoidPaymentRefundResponse extends RefundPaymentResponse {
+  private String refundId;
 
   /**
    * Constructor
    *
-   * @param amount The amount of the transaction. This includes amount, tax, service charges, etc. except the tip
-   * @param externalId An id assigned by the POS that can be used to track a payment through the Clover system
+   * @param success If true then the requested operation succeeded
+   * @param result The result of the requested operation
    */
-  public PreAuthRequest(long amount, String externalId){
-    super(amount, externalId);
+  public VoidPaymentRefundResponse(boolean success, ResultCode result) {
+    super(success, result);
   }
 
-  @Override
-  public PayIntent.TransactionType getType() {
-    return PayIntent.TransactionType.AUTH;
+  /**
+   * Get the field value
+   *
+   * @return The ID of the voided refund
+   */
+  public String getRefundId() {
+    return refundId;
+  }
+
+  /**
+   * Set the field value
+   *
+   * @param refundId The ID of the voided payment refund
+   */
+  public void setRefundId(String refundId) {
+    this.refundId = refundId;
   }
 }

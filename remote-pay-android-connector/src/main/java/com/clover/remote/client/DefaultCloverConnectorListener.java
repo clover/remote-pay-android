@@ -22,6 +22,7 @@ import com.clover.remote.client.messages.CloseoutResponse;
 import com.clover.remote.client.messages.CloverDeviceErrorEvent;
 import com.clover.remote.client.messages.CloverDeviceEvent;
 import com.clover.remote.client.messages.CustomActivityResponse;
+import com.clover.remote.client.messages.DisplayReceiptOptionsResponse;
 import com.clover.remote.client.messages.MessageFromActivity;
 import com.clover.remote.client.messages.ConfirmPaymentRequest;
 import com.clover.remote.client.messages.ManualRefundResponse;
@@ -44,6 +45,7 @@ import com.clover.remote.client.messages.SaleResponse;
 import com.clover.remote.client.messages.TipAdjustAuthResponse;
 import com.clover.remote.client.messages.VaultCardResponse;
 import com.clover.remote.client.messages.VerifySignatureRequest;
+import com.clover.remote.client.messages.VoidPaymentRefundResponse;
 import com.clover.remote.client.messages.VoidPaymentResponse;
 import com.clover.remote.message.TipAddedMessage;
 
@@ -131,6 +133,10 @@ public abstract class DefaultCloverConnectorListener implements ICloverConnector
 
   }
 
+  @Override public void onVoidPaymentRefundResponse(VoidPaymentRefundResponse response) {
+
+  }
+
   @Override public void onVaultCardResponse(VaultCardResponse response) {
 
   }
@@ -192,6 +198,10 @@ public abstract class DefaultCloverConnectorListener implements ICloverConnector
   }
 
   @Override public void onPrintJobStatusResponse(PrintJobStatusResponse response){
+
+  }
+
+  @Override public void onDisplayReceiptOptionsResponse(DisplayReceiptOptionsResponse response) {
 
   }
 }

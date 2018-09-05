@@ -22,7 +22,7 @@ import com.clover.common2.payments.PayIntent;
  * Request object used when requesting a Manual Refund (Naked Credit)
  */
 @SuppressWarnings(value="unused")
-public class ManualRefundRequest extends TransactionRequest {
+public class ManualRefundRequest extends BaseTransactionRequest {
 
   /**
    * Constructor

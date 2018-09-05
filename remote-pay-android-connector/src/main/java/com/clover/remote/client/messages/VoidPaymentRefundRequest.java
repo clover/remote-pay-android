@@ -1,0 +1,121 @@
+/*
+ * Copyright (C) 2016 Clover Network, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.clover.remote.client.messages;
+
+/**
+ * Request object for requesting to void a payment
+ */
+@SuppressWarnings(value="unused")
+public class VoidPaymentRefundRequest extends BaseRequest {
+  private String refundId;
+  private String employeeId;//optional TODO: Revisit
+  private String orderId; //optional TODO: Revisit
+  private boolean disablePrinting; //optional
+  private boolean disableReceiptSelection; //optional
+
+  /**
+   * Get the field value
+   *
+   * @return The unique identifier of the associated payment refund
+   */
+  public String getRefundId() {
+    return refundId;
+  }
+
+  /**
+   * Set the field value
+   *
+   * @param refundId The unique identifier of the associated payment
+   */
+  public void setRefundId(String refundId) {
+    this.refundId = refundId;
+  }
+
+  /**
+   * Get the field value
+   *
+   * @return The id of the employee requesting the void
+   */
+  public String getEmployeeId() {
+    return employeeId;
+  }
+
+  /**
+   * Set the field value
+   *
+   * @param employeeId The id of the employee requesting the void
+   */
+  public void setEmployeeId(String employeeId) {
+    this.employeeId = employeeId;
+  }
+
+  /**
+   * Get the field value
+   *
+   * @return The unique identifier of the associated order
+   */
+  public String getOrderId() {
+    return orderId;
+  }
+
+  /**
+   * Set the field value
+   *
+   * @param orderId The unique identifier of the associated order
+   */
+  public void setOrderId(String orderId) {
+    this.orderId = orderId;
+  }
+
+  /**
+   * Get the field value
+   *
+   * @return The disablePrinting transaction override value
+   */
+  public boolean getDisablePrinting() {
+    return disablePrinting;
+  }
+
+  /**
+   * Set the field value
+   *
+   * @param disablePrinting The transaction override to turn off Clover device printing
+   */
+  public void setDisablePrinting(boolean disablePrinting) {
+    this.disablePrinting = disablePrinting;
+  }
+
+  /**
+   * Get the field value
+   *
+   * @return The disableReceiptSelection transaction override value
+   */
+  public boolean getDisableReceiptSelection() {
+    return disableReceiptSelection;
+  }
+
+  /**
+   * Set the field value
+   *
+   * @param disableReceiptSelection The transaction override to turn off the Clover customer print screen
+   */
+  public void setDisableReceiptSelection(boolean disableReceiptSelection) {
+    this.disableReceiptSelection = disableReceiptSelection;
+  }
+}
+
+

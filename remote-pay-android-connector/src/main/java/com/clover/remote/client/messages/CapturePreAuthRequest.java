@@ -16,32 +16,36 @@
 
 package com.clover.remote.client.messages;
 
+import com.clover.common2.payments.PayIntent;
+import com.clover.sdk.v3.payments.DataEntryLocation;
+
 /**
  * Request to capture a payment that had been previously
  * obtained from a preAuth(PreAuthRequest request) call
  */
 @SuppressWarnings("unused")
-public class CapturePreAuthRequest extends BaseRequest {
-  private String paymentID;
+public class CapturePreAuthRequest extends BaseRequest{
+  private String paymentId;
   private long amount;
   private long tipAmount;
+
 
   /**
    * Get the field value
    *
    * @return unique identifier for the payment
    */
-  public String getPaymentID() {
-    return paymentID;
+  public String getPaymentId() {
+    return paymentId;
   }
 
   /**
    * Set the field value
    *
-   * @param paymentID unique identifier for the payment
+   * @param paymentId unique identifier for the payment
    */
-  public void setPaymentID(String paymentID) {
-    this.paymentID = paymentID;
+  public void setPaymentId(String paymentId) {
+    this.paymentId = paymentId;
   }
 
   /**
@@ -67,7 +71,7 @@ public class CapturePreAuthRequest extends BaseRequest {
    *
    * @return amount paid in tips
    */
-  public long getTipAmount() {
+  public Long getTipAmount() {
     return tipAmount;
   }
 
@@ -76,7 +80,7 @@ public class CapturePreAuthRequest extends BaseRequest {
    *
    * @param tipAmount amount paid in tips
    */
-  public void setTipAmount(long tipAmount) {
+  public void setTipAmount(Long tipAmount) {
     this.tipAmount = tipAmount;
   }
 }
