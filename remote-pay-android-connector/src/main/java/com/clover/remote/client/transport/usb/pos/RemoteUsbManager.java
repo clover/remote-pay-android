@@ -79,11 +79,14 @@ public class RemoteUsbManager extends UsbCloverManager<Void> {
       Pair.create(0x28f3, 0x2002), // leafcutter accessory usb device
       Pair.create(0x28f3, 0x3002), // maplecutter accessory usb device
       Pair.create(0x28f3, 0x4002), // bayleaf accessory usb device
+      Pair.create(0x28f3, 0x3022), // knottypine cloverusb device
 
       // Development devices
       Pair.create(0x28f3, 0x2004), // leafcutter adb,accessory usb device
       Pair.create(0x28f3, 0x3004), // maplecutter adb,accessory usb device
+      Pair.create(0x28f3, 0x3024), // knottypine adb,accessory usb device
       Pair.create(0x28f3, 0x4004), // bayleaf adb,accessory usb device
+
   };
 
   @Override

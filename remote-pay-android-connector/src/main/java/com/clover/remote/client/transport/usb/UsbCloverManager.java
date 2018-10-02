@@ -50,7 +50,7 @@ public abstract class UsbCloverManager<T> {
   protected static final int SETUP_RETRY_WAIT_MS = 200;
 
   protected static final int READ_TIMEOUT_MS = 500;
-  protected static final int WRITE_TIMEOUT_MS = 1000;
+  protected static final int WRITE_TIMEOUT_MS = 5000;
 
   enum DeviceStatus {
     STATUS_DEVICE_FOUND,

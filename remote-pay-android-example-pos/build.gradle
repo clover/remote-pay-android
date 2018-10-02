@@ -1,5 +1,5 @@
 group = 'com.clover.sdk'
-version = '1.4.2'
+version = '1.4.3'
 
 apply plugin: 'com.android.application'
 
@@ -22,7 +22,7 @@ dependencies {
   // Use local project dependency in dev
   compile project(':remote-pay-android-connector')
   // Use published artifact when releasing
-  //compile 'com.clover.sdk:remote-pay-android-connector:1.4.1'
+  //compile 'com.clover.sdk:remote-pay-android-connector:1.4.3'
   compile 'org.java-websocket:Java-WebSocket:1.3.0'
   compile 'com.android.support:support-v4:21.0.0'
   compile 'com.google.code.gson:gson:2.8.0'
