@@ -12,8 +12,8 @@ buildscript {
     repositories {
         mavenLocal()
         mavenCentral()
-        jcenter()
         google()
+        jcenter()
     }
 
   def mavenPlugin = "com.github.dcendents:android-maven-gradle-plugin:2.0"
