@@ -21,6 +21,8 @@ import com.clover.remote.Challenge;
 import com.clover.remote.KeyPress;
 import com.clover.remote.client.transport.ICloverTransport;
 import com.clover.remote.order.DisplayOrder;
+import com.clover.sdk.v3.customers.CustomerInfo;
+import com.clover.sdk.v3.loyalty.LoyaltyDataConfig;
 import com.clover.sdk.v3.order.Order;
 import com.clover.sdk.v3.order.VoidReason;
 import com.clover.sdk.v3.payments.Payment;
@@ -29,6 +31,7 @@ import com.clover.sdk.v3.printer.PrintCategory;
 import android.graphics.Bitmap;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -158,4 +161,8 @@ public abstract class CloverDevice {
   public abstract void doRetrieveDeviceStatus(boolean sendLastResponse);
 
   public abstract void doRetrievePayment(String externalPaymentId);
+
+  public abstract void doRegisterForCustomerProvidedData(ArrayList<LoyaltyDataConfig> configurations);
+
+  public abstract void doSetCustomerInfo(CustomerInfo customerInfo);
 }

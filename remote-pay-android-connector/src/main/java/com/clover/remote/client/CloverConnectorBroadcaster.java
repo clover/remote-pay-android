@@ -22,7 +22,9 @@ import com.clover.remote.client.messages.CloseoutResponse;
 import com.clover.remote.client.messages.CloverDeviceErrorEvent;
 import com.clover.remote.client.messages.CloverDeviceEvent;
 import com.clover.remote.client.messages.CustomActivityResponse;
+import com.clover.remote.client.messages.CustomerProvidedDataEvent;
 import com.clover.remote.client.messages.DisplayReceiptOptionsResponse;
+import com.clover.remote.client.messages.InvalidStateTransitionResponse;
 import com.clover.remote.client.messages.PrintJobStatusResponse;
 import com.clover.remote.client.messages.RetrievePaymentResponse;
 import com.clover.remote.client.messages.MessageFromActivity;
@@ -365,6 +367,16 @@ class CloverConnectorBroadcaster extends CopyOnWriteArrayList<ICloverConnectorLi
     }
   }
 
+  void notifyOnInvalidStateTransitionResponse(InvalidStateTransitionResponse response) {
+    for (ICloverConnectorListener listener : this) {
+      try {
+        listener.onInvalidStateTransitionResponse(response);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
+    }
+  }
+
   void notifyOnResetDeviceResponse(ResetDeviceResponse rdr) {
     for (ICloverConnectorListener listener : this) {
       try {
@@ -389,6 +401,16 @@ class CloverConnectorBroadcaster extends CopyOnWriteArrayList<ICloverConnectorLi
     for(ICloverConnectorListener listener : this){
       try {
         listener.onPrintJobStatusResponse(response);
+      } catch (Exception ex) {
+        Log.w("Notification error", ex);
+      }
+    }
+  }
+
+  void notifyOnCustomerProvidedDataEvent(CustomerProvidedDataEvent event){
+    for(ICloverConnectorListener listener : this){
+      try {
+        listener.onCustomerProvidedData(event);
       } catch (Exception ex) {
         Log.w("Notification error", ex);
       }

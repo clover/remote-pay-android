@@ -22,19 +22,21 @@ import com.clover.remote.client.messages.AuthRequest;
 import com.clover.remote.client.messages.CapturePreAuthRequest;
 import com.clover.remote.client.messages.CloseoutRequest;
 import com.clover.remote.client.messages.CustomActivityRequest;
-import com.clover.remote.client.messages.OpenCashDrawerRequest;
-import com.clover.remote.client.messages.PrintJobStatusRequest;
-import com.clover.remote.client.messages.PrintRequest;
 import com.clover.remote.client.messages.DisplayReceiptOptionsRequest;
-import com.clover.remote.client.messages.RetrievePaymentRequest;
 import com.clover.remote.client.messages.ManualRefundRequest;
 import com.clover.remote.client.messages.MessageToActivity;
+import com.clover.remote.client.messages.OpenCashDrawerRequest;
 import com.clover.remote.client.messages.PreAuthRequest;
+import com.clover.remote.client.messages.PrintJobStatusRequest;
+import com.clover.remote.client.messages.PrintRequest;
 import com.clover.remote.client.messages.ReadCardDataRequest;
 import com.clover.remote.client.messages.RefundPaymentRequest;
+import com.clover.remote.client.messages.RegisterForCustomerProvidedDataRequest;
 import com.clover.remote.client.messages.RetrieveDeviceStatusRequest;
+import com.clover.remote.client.messages.RetrievePaymentRequest;
 import com.clover.remote.client.messages.RetrievePrintersRequest;
 import com.clover.remote.client.messages.SaleRequest;
+import com.clover.remote.client.messages.SetCustomerInfoRequest;
 import com.clover.remote.client.messages.TipAdjustAuthRequest;
 import com.clover.remote.client.messages.VerifySignatureRequest;
 import com.clover.remote.client.messages.VoidPaymentRefundRequest;
@@ -42,10 +44,7 @@ import com.clover.remote.client.messages.VoidPaymentRequest;
 import com.clover.remote.order.DisplayOrder;
 import com.clover.sdk.v3.payments.Payment;
 
-import android.graphics.Bitmap;
-
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * Interface to define the available methods to send requests to a connected Clover device.
@@ -328,4 +327,14 @@ public interface ICloverConnector extends Serializable {
   void displayReceiptOptions(DisplayReceiptOptionsRequest request);
 
 
+  /**
+   * Register an interest in receiving customer provided data.
+   */
+  void registerForCustomerProvidedData(RegisterForCustomerProvidedDataRequest request);
+
+  /**
+   *
+   * @param request
+   */
+  void setCustomerInfo(SetCustomerInfoRequest request);
 }

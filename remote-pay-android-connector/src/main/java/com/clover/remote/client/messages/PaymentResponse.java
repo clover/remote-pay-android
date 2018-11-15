@@ -23,7 +23,7 @@ import com.clover.sdk.v3.payments.Result;
 
 /**
  * Base reponse use for callbacks that contain
- * payments. Sale, Auth and PreAuth
+ * payments. Sale, Auth &amp; PreAuth
  */
 @SuppressWarnings(value="unused")
 public class PaymentResponse extends BaseResponse {

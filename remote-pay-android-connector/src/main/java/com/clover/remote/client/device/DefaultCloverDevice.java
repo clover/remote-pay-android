@@ -22,6 +22,7 @@ import com.clover.remote.KeyPress;
 import com.clover.remote.ResultStatus;
 import com.clover.remote.client.CloverConnector;
 import com.clover.remote.client.CloverDeviceConfiguration;
+import com.clover.remote.client.messages.InvalidStateTransitionResponse;
 import com.clover.remote.client.messages.ResultCode;
 import com.clover.remote.client.transport.ICloverTransport;
 import com.clover.remote.client.transport.ICloverTransportObserver;
@@ -41,6 +42,8 @@ import com.clover.remote.message.CloseoutResponseMessage;
 import com.clover.remote.message.CloverDeviceLogMessage;
 import com.clover.remote.message.ConfirmPaymentMessage;
 import com.clover.remote.message.CreditPrintMessage;
+import com.clover.remote.message.CustomerInfoMessage;
+import com.clover.remote.message.CustomerProvidedDataMessage;
 import com.clover.remote.message.DeclineCreditPrintMessage;
 import com.clover.remote.message.DeclinePaymentPrintMessage;
 import com.clover.remote.message.DiscoveryRequestMessage;
@@ -49,6 +52,7 @@ import com.clover.remote.message.FinishCancelMessage;
 import com.clover.remote.message.FinishOkMessage;
 import com.clover.remote.message.GetPrintersResponseMessage;
 import com.clover.remote.message.ImagePrintMessage;
+import com.clover.remote.message.InvalidStateTransitionMessage;
 import com.clover.remote.message.KeyPressMessage;
 import com.clover.remote.message.Message;
 import com.clover.remote.message.Method;
@@ -64,6 +68,7 @@ import com.clover.remote.message.PrintJobStatusResponseMessage;
 import com.clover.remote.message.RefundPaymentPrintMessage;
 import com.clover.remote.message.RefundRequestMessage;
 import com.clover.remote.message.RefundResponseMessage;
+import com.clover.remote.message.RegisterForCustomerProvidedDataMessage;
 import com.clover.remote.message.RemoteMessage;
 import com.clover.remote.message.ResetDeviceResponseMessage;
 import com.clover.remote.message.RetrieveDeviceStatusRequestMessage;
@@ -101,6 +106,8 @@ import com.clover.remote.order.operation.DiscountsDeletedOperation;
 import com.clover.remote.order.operation.LineItemsAddedOperation;
 import com.clover.remote.order.operation.LineItemsDeletedOperation;
 import com.clover.remote.order.operation.OrderDeletedOperation;
+import com.clover.sdk.v3.customers.CustomerInfo;
+import com.clover.sdk.v3.loyalty.LoyaltyDataConfig;
 import com.clover.sdk.v3.order.Order;
 import com.clover.sdk.v3.order.VoidReason;
 import com.clover.sdk.v3.payments.Payment;
@@ -118,6 +125,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -125,7 +134,7 @@ import java.util.Map;
 
 public class DefaultCloverDevice extends CloverDevice implements ICloverTransportObserver {
   private static final String TAG = DefaultCloverDevice.class.getName();
-  private static final String REMOTE_SDK = "com.clover.cloverconnector.android:2.0.1-Public";
+  private static final String REMOTE_SDK = "com.clover.cloverconnector.android:3.0.0-Public";
 
   private Gson gson = new Gson();
   private static int id = 0;
@@ -439,6 +448,10 @@ public class DefaultCloverDevice extends CloverDevice implements ICloverTranspor
           RetrieveDeviceStatusResponseMessage rdsr = (RetrieveDeviceStatusResponseMessage) Message.fromJsonString(rMessage.payload);
           notifyObserversRetrieveDeviceStatusResponse(rdsr, rMessage.payload);
           break;
+        case INVALID_STATE_TRANSITION:
+          InvalidStateTransitionMessage response = (InvalidStateTransitionMessage) Message.fromJsonString(rMessage.payload);
+          notifyObserversInvalidStateTransitionResponse(response, rMessage.payload);
+          break;
         case RETRIEVE_PAYMENT_RESPONSE:
           RetrievePaymentResponseMessage rprm = (RetrievePaymentResponseMessage) Message.fromJsonString(rMessage.payload);
           notifyObserversRetrievePaymentResponse(rprm, rMessage.payload);
@@ -446,6 +459,10 @@ public class DefaultCloverDevice extends CloverDevice implements ICloverTranspor
         case RESET_DEVICE_RESPONSE:
           ResetDeviceResponseMessage rdr = (ResetDeviceResponseMessage) Message.fromJsonString(rMessage.payload);
           notifyObserversResetDeviceResponse(rdr, rMessage.payload);
+          break;
+        case CUSTOMER_PROVIDED_DATA_MESSAGE:
+          CustomerProvidedDataMessage cpdm = (CustomerProvidedDataMessage) Message.fromJsonString(rMessage.payload);
+          notifyObserversCustomerProvidedDataMessage(cpdm, rMessage.payload);
           break;
         case SHOW_RECEIPT_OPTIONS_RESPONSE:
           ShowReceiptOptionsResponseMessage showReceiptOptionsResponseMessage = (ShowReceiptOptionsResponseMessage) Message.fromJsonString(rMessage.payload);
@@ -647,13 +664,31 @@ public class DefaultCloverDevice extends CloverDevice implements ICloverTranspor
     }.execute();
   }
 
+  private void notifyObserversInvalidStateTransitionResponse(final InvalidStateTransitionMessage response, final String message) {
+    new AsyncTask<Object, Object, Object>() {
+      @Override
+      protected Object doInBackground(Object[] params) {
+        for (CloverDeviceObserver observer : deviceObservers) {
+          try {
+            observer.onInvalidStateTransitionResponse(ResultCode.CANCEL, response.reason, response.requestedTransition, response.state, response.data);
+          } catch (Exception ex) {
+            Log.w(getClass().getSimpleName(), "Error processing InvalidStateTransitionMessage for observer: " + message, ex);
+          }
+        }
+        return null;
+      }
+    }.execute();
+  }
+
   private void notifyObserversRetrievePaymentResponse(final RetrievePaymentResponseMessage gprm, final String message) {
     new AsyncTask<Object, Object, Object>() {
       @Override
       protected Object doInBackground(Object[] params) {
         for (CloverDeviceObserver observer : deviceObservers) {
           try {
-            observer.onRetrievePaymentResponse(ResultCode.SUCCESS, gprm.reason, gprm.externalPaymentId, gprm.queryStatus, gprm.payment, gprm.message);
+            boolean success = gprm.status == ResultStatus.SUCCESS;
+            ResultCode code = success ? ResultCode.SUCCESS : (gprm.status == ResultStatus.CANCEL ? ResultCode.CANCEL : ResultCode.FAIL);
+            observer.onRetrievePaymentResponse(code, gprm.reason, gprm.externalPaymentId, gprm.queryStatus, gprm.payment, gprm.message);
           } catch (Exception ex) {
             Log.w(getClass().getSimpleName(), "Error processing RetrievePaymentResponseMessage for observer: " + message, ex);
           }
@@ -695,6 +730,21 @@ public class DefaultCloverDevice extends CloverDevice implements ICloverTranspor
     }.execute();
   }
 
+  private void notifyObserversCustomerProvidedDataMessage(final CustomerProvidedDataMessage cpdm, final String message) {
+    new AsyncTask<Object, Object, Object>() {
+      @Override
+      protected Object doInBackground(Object[] params) {
+        for (CloverDeviceObserver observer : deviceObservers) {
+          try {
+            observer.onCustomerProvidedDataMessage(ResultCode.SUCCESS, cpdm.eventId, cpdm.config, cpdm.data);
+          } catch (Exception ex) {
+            Log.w(getClass().getSimpleName(), "Error processing ResetDeviceResponseMessage for observer: " + message, ex);
+          }
+        }
+        return null;
+      }
+    }.execute();
+  }
 
   private void notifyObserversPrintCredit(final CreditPrintMessage cpm, final String message) {
     new AsyncTask<Object, Object, Object>() {
@@ -815,7 +865,7 @@ public class DefaultCloverDevice extends CloverDevice implements ICloverTranspor
       protected Object doInBackground(Object[] params) {
         for (CloverDeviceObserver observer : deviceObservers) {
           try {
-            observer.onPaymentRefundVoidResponse(vprrm.refund.getId(), vprrm.status, vprrm.reason, vprrm.message);
+            observer.onPaymentRefundVoidResponse(vprrm.refund != null ? vprrm.refund.getId() : null, vprrm.status, vprrm.reason, vprrm.message);
           } catch (Exception ex) {
             Log.w(getClass().getSimpleName(), "Error processing VoidPaymentResponseMessage for observer: " + message, ex);
           }
@@ -1400,6 +1450,16 @@ public class DefaultCloverDevice extends CloverDevice implements ICloverTranspor
   }
 
   @Override
+  public void doRegisterForCustomerProvidedData(ArrayList<LoyaltyDataConfig> configurations) {
+    sendObjectMessage(new RegisterForCustomerProvidedDataMessage(configurations));
+  }
+
+  @Override
+  public void doSetCustomerInfo(CustomerInfo customerInfo) {
+    sendObjectMessage(new CustomerInfoMessage(customerInfo));
+  }
+
+  @Override
   public void dispose() {
     super.dispose();
     refRespMsg = null;
@@ -1475,7 +1535,8 @@ public class DefaultCloverDevice extends CloverDevice implements ICloverTranspor
   private void sendRemoteMessage(RemoteMessage remoteMessage, int version, byte[] attachmentData) {
     if(version > 1){ // we can send fragments
       if(attachmentData != null || remoteMessage.payload.length() > CloverConnector.MAX_PAYLOAD_SIZE) {
-        if (attachmentData.length > CloverConnector.MAX_PAYLOAD_SIZE) {
+        boolean lengthToLong = isTooLong(attachmentData);
+        if (lengthToLong) {
           Log.d(getClass().getName(), "Error sending message - payload size is greater than the maximum allowed");
         }
         else {
@@ -1493,7 +1554,7 @@ public class DefaultCloverDevice extends CloverDevice implements ICloverTranspor
 
           //fragment and send attachment
           int start = 0;
-          int count = attachmentData.length;
+          int count = (attachmentData==null) ? 0 : attachmentData.length;
           while (start < count) {
             byte[] chunkData = Arrays.copyOfRange(attachmentData, start, start+Math.min(maxMessageSizeInChars, count - start));
             start += maxMessageSizeInChars;
@@ -1509,14 +1570,14 @@ public class DefaultCloverDevice extends CloverDevice implements ICloverTranspor
     else{ //don't need to fragment
       sendRemoteMessage(gson.toJson(remoteMessage));
     }
-
-
   }
 
   private void sendRemoteMessage(RemoteMessage remoteMessage, int version, String attachmentUrl) {
     if(version > 1){ // we can send fragments
       if(attachmentUrl != null || remoteMessage.payload.length() > CloverConnector.MAX_PAYLOAD_SIZE) {
-        if (attachmentUrl.length() > CloverConnector.MAX_PAYLOAD_SIZE) {
+        // Have to do some magic to try to check url length
+        boolean lengthToLong = isTooLong(attachmentUrl);
+        if (lengthToLong) {
           Log.d(getClass().getName(), "Error sending message - payload size is greater than the maximum allowed");
         }
         else {
@@ -1542,7 +1603,34 @@ public class DefaultCloverDevice extends CloverDevice implements ICloverTranspor
     else{ //don't need to fragment
       sendRemoteMessage(gson.toJson(remoteMessage));
     }
+  }
+  private boolean isTooLong(byte[] attachmentData) {
+    return (attachmentData != null) && (attachmentData.length > CloverConnector.MAX_PAYLOAD_SIZE);
+  }
 
+  private boolean isTooLong(String attachmentUrl) {
+    boolean lengthToLong = false;
+    try {
+      if (attachmentUrl != null) {
+        URL url;
+        URLConnection conn = null;
+        try {
+          url = new URL(attachmentUrl);
+          conn = url.openConnection();
+          int length = conn.getContentLength();
+          lengthToLong = (length > CloverConnector.MAX_PAYLOAD_SIZE);
+        } catch (MalformedURLException e) {
+          Log.w(TAG, "Cannot get url, will not be able to check length.", e);
+        } finally {
+          if (conn != null) {
+            conn.getInputStream().close();
+          }
+        }
+      }
+    } catch(IOException ioe) {
+      Log.w(TAG, "Unable to check length.", ioe);
+    }
+    return lengthToLong;
   }
 
   class RetrieveUrlTask extends AsyncTask<Object, Void, Void> {
@@ -1562,10 +1650,10 @@ public class DefaultCloverDevice extends CloverDevice implements ICloverTranspor
         }
       }
       catch (MalformedURLException e) {
-        e.printStackTrace();
+        Log.e(TAG, "URL invalid", e);
       }
       catch (IOException io){
-        io.printStackTrace();
+        Log.e(TAG, "IO Error", io);
       }
       finally {
         try{

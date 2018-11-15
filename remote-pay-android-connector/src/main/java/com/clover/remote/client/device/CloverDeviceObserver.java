@@ -17,6 +17,7 @@
 package com.clover.remote.client.device;
 
 import com.clover.common2.Signature2;
+import com.clover.sdk.v3.loyalty.LoyaltyDataConfig;
 import com.clover.remote.CardData;
 import com.clover.remote.Challenge;
 import com.clover.remote.ErrorCode;
@@ -119,6 +120,8 @@ public interface CloverDeviceObserver {
 
   void onDeviceStatusResponse(ResultCode result, String reason, ExternalDeviceState state, ExternalDeviceStateData data);
 
+  void onInvalidStateTransitionResponse(ResultCode result, String reason, String requestedTransition, ExternalDeviceState state, ExternalDeviceStateData data);
+
   void onResetDeviceResponse(ResultCode result, String reason, ExternalDeviceState state);
 
   void onRetrievePaymentResponse(ResultCode result, String reason, String externalPaymentId, QueryStatus queryStatus, Payment payment, String message);
@@ -126,6 +129,8 @@ public interface CloverDeviceObserver {
   void onRetrievePrinterResponse(List<Printer> printers);
 
   void onRetrievePrintJobStatus(String printRequestId, PrintJobStatus status);
+
+  void onCustomerProvidedDataMessage(ResultCode result, String eventId, LoyaltyDataConfig config, String data);
 
   void onDisplayReceiptOptionsResponse(ResultStatus resultStatus, String reason);
 
