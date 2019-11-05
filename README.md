@@ -21,7 +21,7 @@ The Android project includes a connector and an example POS. To work with the pr
 2. Open the USB Pay Display app.
 3. Run the Clover Connector Android Example POS app on your Android POS device or emulator.
 4. The Example POS screen and device connection status should appear. If the connection was successful, the device status should be "connected." If the device remains disconnected, verify that:
-	1) You are connecting the correct cable to the correct connection point on the Clover device. (On the Clover Mini, this is the USB port with the Clover logo.) You will need to use the USB cable that came with the device. 
+	1) You are connecting the correct cable to the correct connection point on the Clover device. On the Clover Mini, this is the USB port with the Clover logo. You will need to use a USB A-to-USB B cable (see [ADB over USB](https://docs.clover.com/clover-platform/docs/setting-up-your-devkit#section--adb-over-usb-) for more information).
 	2) Your Android device supports “host” mode, which is also referred to as OTG mode. This functionality is required to communicate with the Clover Mini, which will operate in “accessory” mode.
   
 ## Additional resources
