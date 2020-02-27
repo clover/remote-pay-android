@@ -14,9 +14,10 @@
     <usb-device vendor-id="10483" product-id="12289" />
     <!-- Clover Mini Wi-Fi only -->
     <usb-device vendor-id="10483" product-id="12291" />
+    <!-- Clover KnottyPine 3G + Wi-Fi -->
+    <usb-device vendor-id="10483" product-id="12323" />
     <!-- Clover KnottyPine Wi-Fi only -->
     <usb-device vendor-id="10483" product-id="12324" />
-
 
 
     <!-- Customer Mode IDs -->
