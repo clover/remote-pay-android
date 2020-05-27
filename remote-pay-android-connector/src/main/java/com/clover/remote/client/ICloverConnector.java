@@ -20,32 +20,35 @@ import com.clover.remote.Challenge;
 import com.clover.remote.InputOption;
 import com.clover.remote.client.messages.AuthRequest;
 import com.clover.remote.client.messages.CapturePreAuthRequest;
+import com.clover.remote.client.messages.CheckBalanceRequest;
 import com.clover.remote.client.messages.CloseoutRequest;
+import com.clover.remote.client.messages.IncrementPreauthRequest;
+import com.clover.remote.client.messages.SignatureRequest;
 import com.clover.remote.client.messages.CustomActivityRequest;
-import com.clover.remote.client.messages.OpenCashDrawerRequest;
-import com.clover.remote.client.messages.PrintJobStatusRequest;
-import com.clover.remote.client.messages.PrintRequest;
 import com.clover.remote.client.messages.DisplayReceiptOptionsRequest;
-import com.clover.remote.client.messages.RetrievePaymentRequest;
 import com.clover.remote.client.messages.ManualRefundRequest;
 import com.clover.remote.client.messages.MessageToActivity;
+import com.clover.remote.client.messages.OpenCashDrawerRequest;
 import com.clover.remote.client.messages.PreAuthRequest;
+import com.clover.remote.client.messages.PrintJobStatusRequest;
+import com.clover.remote.client.messages.PrintRequest;
 import com.clover.remote.client.messages.ReadCardDataRequest;
 import com.clover.remote.client.messages.RefundPaymentRequest;
+import com.clover.remote.client.messages.RegisterForCustomerProvidedDataRequest;
 import com.clover.remote.client.messages.RetrieveDeviceStatusRequest;
+import com.clover.remote.client.messages.RetrievePaymentRequest;
 import com.clover.remote.client.messages.RetrievePrintersRequest;
 import com.clover.remote.client.messages.SaleRequest;
+import com.clover.remote.client.messages.SetCustomerInfoRequest;
 import com.clover.remote.client.messages.TipAdjustAuthRequest;
+import com.clover.remote.client.messages.TipRequest;
 import com.clover.remote.client.messages.VerifySignatureRequest;
 import com.clover.remote.client.messages.VoidPaymentRefundRequest;
 import com.clover.remote.client.messages.VoidPaymentRequest;
 import com.clover.remote.order.DisplayOrder;
 import com.clover.sdk.v3.payments.Payment;
 
-import android.graphics.Bitmap;
-
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * Interface to define the available methods to send requests to a connected Clover device.
@@ -130,6 +133,12 @@ public interface ICloverConnector extends Serializable {
    * @param request The request details
    */
   void capturePreAuth(CapturePreAuthRequest request);
+
+  /**
+   * Request to increase the amount of an existing pre-auth
+   * @param request The request details
+   */
+  void incrementPreAuth(IncrementPreauthRequest request);
 
   /**
    * Adjust the tip for a previous Auth. Note: Should only be called if request's PaymentID is from an AuthResponse
@@ -328,4 +337,32 @@ public interface ICloverConnector extends Serializable {
   void displayReceiptOptions(DisplayReceiptOptionsRequest request);
 
 
+  /**
+   * Register an interest in receiving customer provided data.
+   */
+  void registerForCustomerProvidedData(RegisterForCustomerProvidedDataRequest request);
+
+  /**
+   *
+   * @param request
+   */
+  void setCustomerInfo(SetCustomerInfoRequest request);
+
+  /**
+   * Check the balance on a card, if card supports balance inquiry
+   * @param request
+   */
+  void checkBalance(CheckBalanceRequest request);
+
+  /**
+   * Launch customer facing signature screen to collect a signature
+   * @param request
+   */
+  void requestSignature(SignatureRequest request);
+
+  /**
+   * Launch customer facing tip screen to request a tip amount
+   * @param request
+   */
+  void requestTip(TipRequest request);
 }

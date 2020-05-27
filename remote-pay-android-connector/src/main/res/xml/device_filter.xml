@@ -14,8 +14,13 @@
     <usb-device vendor-id="10483" product-id="12289" />
     <!-- Clover Mini Wi-Fi only -->
     <usb-device vendor-id="10483" product-id="12291" />
-    <!-- Clover KnottyPine Wi-Fi only -->
-    <usb-device vendor-id="10483" product-id="12324" />
+
+    <!-- Clover KnottyPine dev adb -->
+    <usb-device vendor-id="10483" product-id="12320" />
+    <!-- Clover KnottyPine dev rndis -->
+    <usb-device vendor-id="10483" product-id="12321" />
+    <!-- Clover KnottyPine prod -->
+    <usb-device vendor-id="10483" product-id="12323" />
 
 
 
@@ -26,9 +31,10 @@
     <!-- mobile dev -->
     <usb-device vendor-id="10483" product-id="8192" />
     <usb-device vendor-id="6353" product-id="11521"/>
-    <!-- knotty pine dev -->
-    <usb-device vendor-id="10483" product-id="12320" />
+    <!-- knotty pine prod -->
     <usb-device vendor-id="10483" product-id="12322" />
+    <!-- knotty pine dev adb -->
+    <usb-device vendor-id="10483" product-id="12324" />
 
     <!-- minis -->
     <usb-device vendor-id="10483" product-id="12292" />

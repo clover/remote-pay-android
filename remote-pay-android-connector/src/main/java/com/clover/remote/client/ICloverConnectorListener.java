@@ -18,17 +18,24 @@ package com.clover.remote.client;
 
 import com.clover.remote.client.messages.AuthResponse;
 import com.clover.remote.client.messages.CapturePreAuthResponse;
+import com.clover.remote.client.messages.CheckBalanceResponse;
 import com.clover.remote.client.messages.CloseoutResponse;
 import com.clover.remote.client.messages.CloverDeviceErrorEvent;
 import com.clover.remote.client.messages.CloverDeviceEvent;
+import com.clover.remote.client.messages.ConfirmPaymentRequest;
 import com.clover.remote.client.messages.CustomActivityResponse;
+import com.clover.remote.client.messages.CustomerProvidedDataEvent;
 import com.clover.remote.client.messages.DisplayReceiptOptionsResponse;
+import com.clover.remote.client.messages.IncrementPreauthResponse;
+import com.clover.remote.client.messages.InvalidStateTransitionResponse;
 import com.clover.remote.client.messages.PrintJobStatusResponse;
 import com.clover.remote.client.messages.RetrievePaymentResponse;
 import com.clover.remote.client.messages.MessageFromActivity;
 import com.clover.remote.client.messages.ConfirmPaymentRequest;
 import com.clover.remote.client.messages.ManualRefundResponse;
+import com.clover.remote.client.messages.MessageFromActivity;
 import com.clover.remote.client.messages.PreAuthResponse;
+import com.clover.remote.client.messages.PrintJobStatusResponse;
 import com.clover.remote.client.messages.PrintManualRefundDeclineReceiptMessage;
 import com.clover.remote.client.messages.PrintManualRefundReceiptMessage;
 import com.clover.remote.client.messages.PrintPaymentDeclineReceiptMessage;
@@ -39,10 +46,13 @@ import com.clover.remote.client.messages.ReadCardDataResponse;
 import com.clover.remote.client.messages.RefundPaymentResponse;
 import com.clover.remote.client.messages.ResetDeviceResponse;
 import com.clover.remote.client.messages.RetrieveDeviceStatusResponse;
+import com.clover.remote.client.messages.RetrievePaymentResponse;
 import com.clover.remote.client.messages.RetrievePendingPaymentsResponse;
 import com.clover.remote.client.messages.RetrievePrintersResponse;
 import com.clover.remote.client.messages.SaleResponse;
+import com.clover.remote.client.messages.SignatureResponse;
 import com.clover.remote.client.messages.TipAdjustAuthResponse;
+import com.clover.remote.client.messages.TipResponse;
 import com.clover.remote.client.messages.VaultCardResponse;
 import com.clover.remote.client.messages.VerifySignatureRequest;
 import com.clover.remote.client.messages.VoidPaymentRefundResponse;
@@ -103,6 +113,12 @@ public interface ICloverConnectorListener {
    * @param response The response
    */
   void onCapturePreAuthResponse(CapturePreAuthResponse response);
+
+  /**
+   * Called in response to an `incrementPreAuth()` call on the CloverConnector. Returns the incremented pre-auth, if successful.
+   * @param response
+   */
+  void onIncrementPreAuthResponse(IncrementPreauthResponse response);
 
   /**
    * Called when the Clover device requires a signature to be verified
@@ -197,7 +213,7 @@ public interface ICloverConnectorListener {
    *
    * @param response The response contains the print job identifier and that job's status
    */
-    void onPrintJobStatusResponse(PrintJobStatusResponse response);
+  void onPrintJobStatusResponse(PrintJobStatusResponse response);
 
   /**
    * Called in response to a retrievePrinters() request
@@ -289,6 +305,13 @@ public interface ICloverConnectorListener {
   void onRetrieveDeviceStatusResponse(RetrieveDeviceStatusResponse response);
 
   /**
+   * Called in response to a request that results in an invalid kiosk flow transition
+   *
+   * @param response The response
+   */
+  void onInvalidStateTransitionResponse(InvalidStateTransitionResponse response);
+
+  /**
    * Called in response to a ResetDevice request
    *
    * @param response The response
@@ -303,9 +326,32 @@ public interface ICloverConnectorListener {
   void onRetrievePaymentResponse(RetrievePaymentResponse response);
 
   /**
+   * Called when customer information is provided from a loyalty service.
+   *
+   * @param event The event
+   */
+  void onCustomerProvidedData(CustomerProvidedDataEvent event);
+  /**
    * Called in response to a DisplayReceiptOptionsRequest
    * @param response
    */
   void onDisplayReceiptOptionsResponse(DisplayReceiptOptionsResponse response);
 
+  /**
+   * Called in response to a RequestSignatureRequest
+   * @param response
+   */
+  void onRequestSignatureResponse(SignatureResponse response);
+
+  /**
+   * Called in response to a CheckBalanceRequest
+   * @param response
+   */
+  void onCheckBalanceResponse(CheckBalanceResponse response);
+
+  /**
+   * Called in response to a TipRequest
+   * @param response
+   */
+  void onRequestTipResponse(TipResponse response);
 }

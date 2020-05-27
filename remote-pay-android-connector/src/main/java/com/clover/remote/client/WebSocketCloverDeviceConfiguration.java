@@ -20,7 +20,7 @@ import com.clover.remote.client.device.DefaultCloverDevice;
 import com.clover.remote.client.transport.CloverTransport;
 import com.clover.remote.client.transport.PairingDeviceConfiguration;
 import com.clover.remote.client.transport.websocket.WebSocketCloverTransport;
-
+import com.clover.remote.client.utils.WebSocketUtils;
 import java.io.Serializable;
 import java.net.URI;
 import java.security.KeyStore;
@@ -35,6 +35,7 @@ public abstract class WebSocketCloverDeviceConfiguration implements PairingDevic
   private static final long PONG_TIMEOUT = 6000;
   private static final long REPORT_CONNECTION_PROBLEM_AFTER = 6000;
   private static final int MAX_CHAR_IN_MESSAGE = 50000;
+  private static final String DEFAULT_CLOVER_VALUE = "Default SNPD configuration";
 
   private final String posName;
   private final String serialNumber;
@@ -56,10 +57,33 @@ public abstract class WebSocketCloverDeviceConfiguration implements PairingDevic
    * @param posName point of sale name
    * @param serialNumber serial number of the POS terminal/device attaching to the clover device
    * @param authToken cached authentication token provided from a previous {@link PairingDeviceConfiguration#onPairingSuccess(String)} call
+   *
+   * Please see {@link WebSocketUtils} for help with {@param trustStore}.
+   *
+   * Please see {@link WebSocketUtils#createSecureURI(String, String)}
+   * or {@link WebSocketUtils#createNonsecureURI(String, String)} for help with {@param endpoint}.
    */
   public WebSocketCloverDeviceConfiguration(URI endpoint, String applicationId, KeyStore trustStore, String posName, String serialNumber, String authToken) {
     this(endpoint, applicationId, trustStore, posName, serialNumber, authToken,
       PONG_TIMEOUT, PING_FREQUENCY, RECONNECT_DELAY, REPORT_CONNECTION_PROBLEM_AFTER);
+  }
+
+  /**
+   * Constructor
+   *
+   * @param endpoint The endpoint for the Clover Device.
+   * @param applicationId Your application's Remote Application ID
+   * @param trustStore A KeyStore containing the device certificates.
+   *
+   *
+   *  Please see {@link WebSocketUtils} for help with {@param trustStore}.
+   *
+   *  Please see {@link WebSocketUtils#createSecureURI(String, String)}
+   *  or {@link WebSocketUtils#createNonsecureURI(String, String)} for help with {@param endpoint}.
+   */
+  public WebSocketCloverDeviceConfiguration(URI endpoint, String applicationId, KeyStore trustStore) {
+    this(endpoint, applicationId, trustStore, DEFAULT_CLOVER_VALUE, DEFAULT_CLOVER_VALUE, null,
+        PONG_TIMEOUT, PING_FREQUENCY, RECONNECT_DELAY, REPORT_CONNECTION_PROBLEM_AFTER);
   }
 
   /**
@@ -76,6 +100,13 @@ public abstract class WebSocketCloverDeviceConfiguration implements PairingDevic
    * @param reconnectDelay amount of time, in milliseconds, to wait before attempting to reconnect
    * @param reportConnectionProblemAfter amount of time, in milliseconds, in which a disconnected client is reported if a pong hasn't come back,
    *                                     before it is actually disconnected
+   *
+   *
+   * Please see {@link WebSocketUtils} for help with {@param trustStore}.
+   *
+   * Please see {@link WebSocketUtils#createSecureURI(String, String)}
+   * or {@link WebSocketUtils#createNonsecureURI(String, String)} for help with {@param endpoint}.
+   *
    */
   public WebSocketCloverDeviceConfiguration(URI endpoint, String applicationId, KeyStore trustStore, String posName, String serialNumber, String authToken,
                                             long pongTimeout, long pingFrequency, long reconnectDelay, long reportConnectionProblemAfter) {
@@ -119,7 +150,7 @@ public abstract class WebSocketCloverDeviceConfiguration implements PairingDevic
 
   @Override
   public CloverTransport getCloverTransport() {
-    return new WebSocketCloverTransport(uri, this, trustStore, posName, serialNumber, authToken,
+    return new WebSocketCloverTransport(uri, this, this, trustStore, posName, serialNumber, authToken,
         pongTimeout, pingFrequency, reconnectDelay, reportConnectionProblemAfter);
   }
 }

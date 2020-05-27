@@ -16,6 +16,8 @@
 
 package com.clover.remote.client.messages;
 
+import java.util.Map;
+
 /**
  * Request object for requesting to void a payment
  */
@@ -28,6 +30,7 @@ public class VoidPaymentRequest extends BaseRequest {
   private String orderId; //optional TODO: Revisit
   private boolean disablePrinting; //optional
   private boolean disableReceiptSelection; //optional
+  private Map<String, String> extras = null;
 
   /**
    * Get the field value
@@ -135,6 +138,22 @@ public class VoidPaymentRequest extends BaseRequest {
    */
   public void setDisableReceiptSelection(boolean disableReceiptSelection) {
     this.disableReceiptSelection = disableReceiptSelection;
+  }
+
+  /**
+   * Get the field value
+   * @return Extra pass-through data used by external systems.
+   */
+  public Map<String, String> getExtras() {
+    return extras;
+  }
+
+  /**
+   * Set the field value
+   * @param extras Extra pass-through data used by external systems.
+   */
+  public void setExtras(Map<String, String> extras) {
+    this.extras = extras;
   }
 }
 

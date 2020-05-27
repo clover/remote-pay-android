@@ -17,8 +17,10 @@
 package com.clover.remote.client.messages;
 
 import com.clover.common2.payments.PayIntent;
+import com.clover.sdk.v3.merchant.TipSuggestion;
 import com.clover.sdk.v3.payments.DataEntryLocation;
 import com.clover.sdk.v3.payments.VaultedCard;
+
 
 /**
  * Base class used by all transaction request objects like {@link SaleRequest}, {@link AuthRequest}, etc.
@@ -29,6 +31,14 @@ public abstract class TransactionRequest extends BaseTransactionRequest {
   private Long signatureThreshold = null;
   private DataEntryLocation signatureEntryLocation = null;
   private Boolean autoAcceptSignature = null;
+  private Boolean allowOfflinePayment = null;
+  private Boolean forceOfflinePayment = null;
+  private Boolean approveOfflinePaymentWithoutPrompt = null;
+  private Boolean disableCashback = null;
+  private Long taxAmount = null;
+  private Long tippableAmount = null;
+  private TipSuggestion[] tipSuggestions = null;
+
 
   /**
    * Constructor
@@ -40,6 +50,11 @@ public abstract class TransactionRequest extends BaseTransactionRequest {
     super(amount, externalId);
   }
 
+
+  @Override
+  public PayIntent.TransactionType getType() {
+    return PayIntent.TransactionType.PAYMENT;
+  }
 
   /**
    * Set the field value
@@ -94,4 +109,133 @@ public abstract class TransactionRequest extends BaseTransactionRequest {
   public Boolean getAutoAcceptSignature() {
     return this.autoAcceptSignature;
   }
+
+  /**
+   * Set the field value
+   *
+   * @param disableCashback If true, do not allow cash back
+   */
+  public void setDisableCashback(Boolean disableCashback) {
+    this.disableCashback = disableCashback;
+  }
+
+  /**
+   * Get the field value
+   *
+   * @return If true, do not allow cash back
+   */
+  public Boolean getDisableCashback() {
+    return this.disableCashback;
+  }
+
+  /**
+   * Set the field value
+   *
+   * @param taxAmount Amount paid in taxes
+   */
+  public void setTaxAmount(Long taxAmount) {
+    this.taxAmount = taxAmount;
+  }
+
+  /**
+   * Get the field value
+   *
+   * @return Amount paid in tips
+   */
+  public Long getTaxAmount() {
+    return this.taxAmount;
+  }
+
+  /**
+   * Set the field value
+   *
+   * @param allowOfflinePayment If true then offline payments can be accepted
+   */
+  public void setAllowOfflinePayment(Boolean allowOfflinePayment) {
+    this.allowOfflinePayment = allowOfflinePayment;
+  }
+
+  /**
+   * Get the field value
+   *
+   * @return If true then offline payments can be accepted
+   */
+  public Boolean getAllowOfflinePayment() {
+    return this.allowOfflinePayment;
+  }
+
+  /**
+   * Set the field value
+   *
+   * @param forceOfflinePayment If true then the payment will be taken offline
+   */
+  public void setForceOfflinePayment(Boolean forceOfflinePayment) {
+    this.forceOfflinePayment = forceOfflinePayment;
+  }
+
+  /**
+   * Get the field value
+   *
+   * @return If true then the payment will be taken offline
+   */
+  public Boolean getForceOfflinePayment() {
+    return this.forceOfflinePayment;
+  }
+
+  /**
+   * Set the field value
+   *
+   * @param approveOfflinePaymentWithoutPrompt If true then offline payments will be approved without a prompt
+   */
+  public void setApproveOfflinePaymentWithoutPrompt(Boolean approveOfflinePaymentWithoutPrompt) {
+    this.approveOfflinePaymentWithoutPrompt = approveOfflinePaymentWithoutPrompt;
+  }
+
+  /**
+   * Get the field value
+   *
+   * @return If true then offline payments will be approved without a prompt
+   */
+  public Boolean getApproveOfflinePaymentWithoutPrompt() {
+    return this.approveOfflinePaymentWithoutPrompt;
+  }
+
+  /**
+   * Set the field value
+   *
+   * @param tippableAmount The total amount used when calculating tips
+   */
+  public void setTippableAmount(Long tippableAmount) {
+    this.tippableAmount = tippableAmount;
+  }
+
+  /**
+   * Get the field value
+   *
+   * @return The total amount used when calculating tips
+   */
+  public Long getTippableAmount() {
+    return this.tippableAmount;
+  }
+
+
+  /**
+   * Get the field value
+   *
+   * @return The list of tip suggestions
+   */
+  public TipSuggestion[] getTipSuggestions() {
+    return tipSuggestions;
+  }
+
+  /**
+   * Set the field value
+   *
+   * @param tipSuggestions The list of tip suggestions
+   */
+  public void setTipSuggestions(TipSuggestion[] tipSuggestions) {
+    this.tipSuggestions = tipSuggestions;
+  }
+
+
 }

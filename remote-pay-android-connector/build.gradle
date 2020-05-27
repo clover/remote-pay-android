@@ -1,5 +1,5 @@
 group = 'com.clover.sdk'
-version = '2.0.1'
+version = '3.0.0'
 
 apply plugin: 'com.android.library'
 //apply plugin: 'android-maven'
@@ -10,12 +10,11 @@ android {
   lintOptions {
     abortOnError false
   }
-  compileSdkVersion 21
-  buildToolsVersion "25.0.2"
+  compileSdkVersion 28
 
   defaultConfig {
     minSdkVersion 17
-    targetSdkVersion 21
+    targetSdkVersion 17
   }
 
   packagingOptions {
@@ -26,8 +25,8 @@ android {
 defaultTasks 'install'
 
 dependencies {
-  compile 'com.clover:clover-remote-interface:238.1'
-  compile 'com.clover.sdk:clover-android-sdk:210.1'
+  compile 'com.clover:clover-remote-interface:276.4'
+  compile 'com.clover.sdk:clover-android-sdk:248.4'
   compile 'com.google.code.gson:gson:2.3.1'
   compile 'com.neovisionaries:nv-websocket-client:1.31'
   testCompile 'junit:junit:4.12'

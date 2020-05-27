@@ -38,9 +38,10 @@ public class RetrievePaymentResponse extends BaseResponse {
    * @param queryStatus the status of the payment
    * @param payment the payment object, if found
    */
-  public RetrievePaymentResponse(ResultCode code, String message, String externalPaymentId, QueryStatus queryStatus, Payment payment) {
+  public RetrievePaymentResponse(ResultCode code, String reason, String message, String externalPaymentId, QueryStatus queryStatus, Payment payment) {
     super(code == ResultCode.SUCCESS, code);
     this.setMessage(message);
+    this.setReason(reason);
     this.externalPaymentId = externalPaymentId;
     this.payment = payment;
     this.queryStatus = queryStatus;

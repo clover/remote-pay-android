@@ -3,6 +3,8 @@ package com.clover.remote.client.messages;
 import com.clover.common2.payments.PayIntent;
 import com.clover.sdk.v3.payments.VaultedCard;
 
+import java.util.Map;
+
 public abstract class BaseTransactionRequest extends BaseRequest {
   private Boolean disablePrinting = null;
   private Boolean cardNotPresent = null;
@@ -15,6 +17,9 @@ public abstract class BaseTransactionRequest extends BaseRequest {
   private Boolean disableDuplicateChecking = null;
   private Boolean disableReceiptSelection = null;
   private Boolean autoAcceptPaymentConfirmations = null;
+  private Map<String, String> extras = null;
+  private Map<String, String> regionalExtras = null;
+  private String externalReferenceId = null;
 
   public BaseTransactionRequest(long amount, String externalId) {
     if(externalId == null || externalId.length() > 32) {
@@ -209,6 +214,54 @@ public abstract class BaseTransactionRequest extends BaseRequest {
    */
   public Boolean getAutoAcceptPaymentConfirmations() {
     return this.autoAcceptPaymentConfirmations;
+  }
+
+  /**
+   * Get the field value
+   * @return Extra pass-through data used by external systems.
+   */
+  public Map<String, String> getExtras() {
+    return extras;
+  }
+
+  /**
+   * Set the field value
+   * @param extras Extra pass-through data used by external systems.
+   */
+  public void setExtras(Map<String, String> extras) {
+    this.extras = extras;
+  }
+
+  /**
+   * Get the field value
+   * @return A map of all the regionalExtras that have been provided
+   */
+  public Map<String, String> getRegionalExtras() {
+    return regionalExtras;
+  }
+
+  /**
+   * Set the field value
+   * @param regionalExtras any extra region specific data.  Keys are referenced in RegionalExtras.java
+   */
+  public void setRegionalExtras(Map<String, String> regionalExtras) {
+    this.regionalExtras = regionalExtras;
+  }
+
+  /**
+   * Get the field value
+   * @return An id that can be passed to the merchant's gateway, and ultimately appear in settlement records.
+   */
+  public String getExternalReferenceId() {
+    return externalReferenceId;
+  }
+
+  /**
+   * Set the field value
+   * @param externalReferenceId An id that can be passed to the merchant's gateway, and ultimately appear in settlement records.
+   */
+  public void setExternalReferenceId(String externalReferenceId) {
+    this.externalReferenceId = externalReferenceId;
   }
 
 }

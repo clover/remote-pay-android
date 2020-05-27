@@ -17,6 +17,7 @@
 package com.clover.remote.client.device;
 
 import com.clover.common2.Signature2;
+import com.clover.sdk.v3.loyalty.LoyaltyDataConfig;
 import com.clover.remote.CardData;
 import com.clover.remote.Challenge;
 import com.clover.remote.ErrorCode;
@@ -35,6 +36,7 @@ import com.clover.remote.client.messages.ResultCode;
 import com.clover.remote.message.DiscoveryResponseMessage;
 import com.clover.sdk.v3.order.Order;
 import com.clover.sdk.v3.order.VoidReason;
+import com.clover.sdk.v3.payments.Authorization;
 import com.clover.sdk.v3.payments.Batch;
 import com.clover.sdk.v3.payments.Credit;
 import com.clover.sdk.v3.payments.Payment;
@@ -49,13 +51,13 @@ public interface CloverDeviceObserver {
 
   void onTxState(TxState txState);
 
-  void onTxStartResponse(TxStartResponseResult result, String externalId, String messageInfo, String message);
+  void onTxStartResponse(TxStartResponseResult result, String externalId, String messageInfo, String message, String reason);
 
   void onUiState(UiState uiState, String uiText, UiState.UiDirection uiDirection, InputOption[] inputOptions);
 
   void onTipAdded(long tipAmount);
 
-  void onAuthTipAdjusted(String paymentId, long amount, boolean success, String message);
+  void onAuthTipAdjusted(String paymentId, long amount, boolean success, String message, String reason);
 
   void onCashbackSelected(long cashbackAmount);
 
@@ -84,6 +86,8 @@ public interface CloverDeviceObserver {
   void onVaultCardResponse(VaultedCard vaultedCard, String code, String reason);
 
   void onCapturePreAuth(ResultStatus status, String reason, String paymentId, long amount, long tipAmount, String message);
+
+  void onIncrementPreAuthResponse(ResultStatus status, String reason, String message, Authorization authorization);
 
   void onCloseoutResponse(ResultStatus status, String reason, Batch batch);
 
@@ -119,6 +123,8 @@ public interface CloverDeviceObserver {
 
   void onDeviceStatusResponse(ResultCode result, String reason, ExternalDeviceState state, ExternalDeviceStateData data);
 
+  void onInvalidStateTransitionResponse(ResultCode result, String reason, String requestedTransition, ExternalDeviceState state, ExternalDeviceStateData data);
+
   void onResetDeviceResponse(ResultCode result, String reason, ExternalDeviceState state);
 
   void onRetrievePaymentResponse(ResultCode result, String reason, String externalPaymentId, QueryStatus queryStatus, Payment payment, String message);
@@ -127,6 +133,15 @@ public interface CloverDeviceObserver {
 
   void onRetrievePrintJobStatus(String printRequestId, PrintJobStatus status);
 
+  void onCustomerProvidedDataMessage(ResultCode result, String eventId, LoyaltyDataConfig config, String data);
+
   void onDisplayReceiptOptionsResponse(ResultStatus resultStatus, String reason);
+
+  void onSignatureCollected(ResultStatus status, String reason, Signature2 signature);
+
+  void onBalanceInquiryResponse(ResultStatus status, String reason, Long amount);
+
+  void onRequestTipResponse(ResultStatus status, String reason, Long amount);
+
 
 }
