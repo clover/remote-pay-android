@@ -555,6 +555,7 @@ public class CloverConnector implements ICloverConnector {
           .transactionType(PayIntent.TransactionType.CREDIT)
           .vaultedCard(request.getVaultedCard())
           .externalPaymentId(request.getExternalId());
+      builder.requiresRemoteConfirmation(true);
 
       transactionSettings.setCardEntryMethods(request.getCardEntryMethods() != null ? request.getCardEntryMethods() : cardEntryMethods);
       if (request.getDisablePrinting() != null) {
@@ -1157,7 +1158,7 @@ public class CloverConnector implements ICloverConnector {
 
     @Override
     public void onPaymentRefundResponse(String orderId, String paymentId, Refund refund, TxState code, ErrorCode reason, String message) {
-      // hold the response for finishOk for the refund. See comments in onFinishOk(Refund)
+      // hold the response for finishOk for the refund. See comments in `onFinishOk(Refund)`
       boolean success = code == TxState.SUCCESS;
       RefundPaymentResponse prr = new RefundPaymentResponse(success, success ? ResultCode.SUCCESS : ResultCode.FAIL);
       prr.setOrderId(orderId);

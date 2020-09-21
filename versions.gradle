@@ -1,0 +1,17 @@
+// Library version numbers that should be consistent across all modules.
+// NOTE: gradle sync after modifying this file!!!
+ext {
+  // Version of these artifacts
+  REMOTE_PAY_ANDROID_VERSION= "4.3.2"
+
+  // Bump compile SDK version any time a new SDK is released, it does not affect behavior
+  COMPILE_SDK_VERSION = 29 // https://developer.android.com/studio/releases/platforms
+
+  GSON_VERSION = "2.8.5"
+  ORG_JSON_VERSION = "20190722"
+  NV_WEBSOCKET_CLIENT_VERSION = "1.31"
+  CLOVER_COMMON_VERSION = "290.8"
+  CLOVER_SDK_VERSION = "262.2"
+  JUNIT_VERSION = "4.12"
+}
+
