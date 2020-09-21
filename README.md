@@ -4,7 +4,7 @@
 
 ## Version 
 
-Current version: 4.2.3
+Current version: 4.3.2
 
 ## Overview
 
@@ -29,5 +29,5 @@ The Android project includes a connector and an example POS. To work with the pr
 * [Release Notes](https://github.com/clover/remote-pay-android/releases)
 * [Secure Network Pay Display](https://docs.clover.com/clover-platform/docs/pay-display-apps#section--secure-network-pay-display-)
 * [Tutorial for the Android SDK](https://docs.clover.com/clover-platform/docs/android)
-* [API Documentation](https://clover.github.io/remote-pay-android/4.2.3/docs/)
+* [API Documentation](https://clover.github.io/remote-pay-android/4.3.2/docs/)
 * [Clover Developer Community](https://community.clover.com/index.html)

@@ -1,10 +1,8 @@
-group = 'com.clover.sdk'
-version = '3.0.0'
-
+apply from: file("${projectDir}/../versions.gradle")
 apply plugin: 'com.android.library'
-//apply plugin: 'android-maven'
-//apply plugin: 'com.github.dcendents.android-maven'
 
+group = 'com.clover.sdk'
+version = "${REMOTE_PAY_ANDROID_VERSION}"
 
 android {
   lintOptions {
@@ -25,11 +23,12 @@ android {
 defaultTasks 'install'
 
 dependencies {
-  compile 'com.clover:clover-remote-interface:276.4'
-  compile 'com.clover.sdk:clover-android-sdk:248.4'
-  compile 'com.google.code.gson:gson:2.3.1'
-  compile 'com.neovisionaries:nv-websocket-client:1.31'
-  testCompile 'junit:junit:4.12'
+  implementation "com.clover:clover-remote-interface:${CLOVER_COMMON_VERSION}"
+  implementation "com.clover.sdk:clover-android-sdk:${CLOVER_SDK_VERSION}"
+  implementation "com.clover.sdk:clover-android-loyalty-kit:${CLOVER_SDK_VERSION}"
+  implementation "com.google.code.gson:gson:${GSON_VERSION}"
+  implementation "com.neovisionaries:nv-websocket-client:${NV_WEBSOCKET_CLIENT_VERSION}"
+  testImplementation "junit:junit:${JUNIT_VERSION}"
 }
 
 apply plugin: 'signing'
@@ -88,6 +87,32 @@ artifacts {
 signing {
     required = { gradle.taskGraph.hasTask("uploadArchives") }
     sign configurations.archives
+}
+
+task javadoc(type: Javadoc) {
+
+    doFirst {
+        configurations.implementation
+                .filter { it.name.endsWith('.aar') }
+        .each { aar ->
+            copy {
+                from zipTree(aar)
+                include "**/classes.jar"
+                into "$buildDir/tmp/aarsToJars/${aar.name.replace('.aar', '')}/"
+            }
+        }
+    }
+
+    configurations.implementation.setCanBeResolved(true)
+    title = "Android Clover Connector ${REMOTE_PAY_ANDROID_VERSION}"
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    classpath += configurations.implementation
+    classpath += fileTree(dir: "$buildDir/tmp/aarsToJars/")
+    destinationDir = file("${rootDir}/javadoc/")
+    failOnError false
+    exclude '**/BuildConfig.java'
+    exclude '**/R.java'
 }
 
 
