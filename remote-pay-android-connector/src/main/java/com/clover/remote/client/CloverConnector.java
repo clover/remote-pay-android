@@ -323,6 +323,9 @@ public class CloverConnector implements ICloverConnector {
       if (request.getExternalReferenceId() != null) {
         builder.externalReferenceId(request.getExternalReferenceId());
       }
+      if(request.getAllowPartialAuth() != null){
+        builder.allowPartialAuth(request.getAllowPartialAuth());
+      }
       builder.transactionSettings(transactionSettings);
       PayIntent payIntent = builder.build();
 
