@@ -20,6 +20,7 @@ public abstract class BaseTransactionRequest extends BaseRequest {
   private Map<String, String> extras = null;
   private Map<String, String> regionalExtras = null;
   private String externalReferenceId = null;
+  private Boolean allowPartialAuth = null;
 
   public BaseTransactionRequest(long amount, String externalId) {
     if(externalId == null || externalId.length() > 32) {
@@ -262,6 +263,24 @@ public abstract class BaseTransactionRequest extends BaseRequest {
    */
   public void setExternalReferenceId(String externalReferenceId) {
     this.externalReferenceId = externalReferenceId;
+  }
+
+  /**
+   * Get the field value
+   *
+   * @return Allow partial auth
+   */
+  public Boolean getAllowPartialAuth() {
+    return allowPartialAuth;
+  }
+
+  /**
+   * Set the field value
+   *
+   * @param allowPartialAuth Allow partial auth
+   */
+  public void setAllowPartialAuth(Boolean allowPartialAuth) {
+    this.allowPartialAuth = allowPartialAuth;
   }
 
 }
