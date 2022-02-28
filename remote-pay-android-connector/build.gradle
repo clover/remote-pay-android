@@ -8,11 +8,16 @@ android {
   lintOptions {
     abortOnError false
   }
-  compileSdkVersion 28
+  compileSdkVersion COMPILE_SDK_VERSION
 
   defaultConfig {
     minSdkVersion 17
-    targetSdkVersion 17
+    targetSdkVersion 19
+  }
+
+  compileOptions {
+    sourceCompatibility 1.8
+    targetCompatibility 1.8
   }
 
   packagingOptions {
@@ -25,7 +30,6 @@ defaultTasks 'install'
 dependencies {
   implementation "com.clover:clover-remote-interface:${CLOVER_COMMON_VERSION}"
   implementation "com.clover.sdk:clover-android-sdk:${CLOVER_SDK_VERSION}"
-  implementation "com.clover.sdk:clover-android-loyalty-kit:${CLOVER_SDK_VERSION}"
   implementation "com.google.code.gson:gson:${GSON_VERSION}"
   implementation "com.neovisionaries:nv-websocket-client:${NV_WEBSOCKET_CLIENT_VERSION}"
   testImplementation "junit:junit:${JUNIT_VERSION}"

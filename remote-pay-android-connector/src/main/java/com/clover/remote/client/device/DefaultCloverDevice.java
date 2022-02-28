@@ -45,6 +45,7 @@ import com.clover.remote.message.CloseoutResponseMessage;
 import com.clover.remote.message.CloverDeviceLogMessage;
 import com.clover.remote.message.IncrementPreauthMessage;
 import com.clover.remote.message.IncrementPreauthResponseMessage;
+import com.clover.remote.message.RemoteError;
 import com.clover.remote.message.RequestTipRequestMessage;
 import com.clover.remote.message.RequestTipResponseMessage;
 import com.clover.remote.message.SignatureRequestMessage;
@@ -55,6 +56,7 @@ import com.clover.remote.message.CustomerInfoMessage;
 import com.clover.remote.message.CustomerProvidedDataMessage;
 import com.clover.remote.message.DeclineCreditPrintMessage;
 import com.clover.remote.message.DeclinePaymentPrintMessage;
+import com.clover.remote.client.messages.CloverDeviceErrorEvent;
 import com.clover.remote.message.DiscoveryRequestMessage;
 import com.clover.remote.message.DiscoveryResponseMessage;
 import com.clover.remote.message.FinishCancelMessage;
@@ -128,6 +130,9 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.util.Base64;
 import android.util.Log;
+
+import com.clover.sdk.v3.remotepay.DeviceErrorEventCode;
+import com.clover.sdk.v3.remotepay.ErrorType;
 import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
@@ -500,6 +505,10 @@ public class DefaultCloverDevice extends CloverDevice implements ICloverTranspor
         case REQUEST_TIP_RESPONSE: // this is NOT a tip in a payment flow, but for a stanalone tip request view REQUEST_TIP
           RequestTipResponseMessage rtrm = (RequestTipResponseMessage) Message.fromJsonString(rMessage.payload);
           notifyObserverTipResponse(rtrm, rMessage.payload);
+          break;
+        case REMOTE_ERROR:
+          RemoteError re = (RemoteError) Message.fromJsonString(rMessage.payload);
+          notifyObserverRemoteError(re, rMessage.payload);
           break;
         default:
           Log.e(TAG, "Don't support COMMAND messages of method: " + rMessage.method);
@@ -1253,6 +1262,23 @@ public class DefaultCloverDevice extends CloverDevice implements ICloverTranspor
             observer.onRequestTipResponse(msg.status, msg.reason, msg.amount);
           } catch (Exception ex) {
             Log.w(getClass().getSimpleName(), "Error processing BalanceInquiry for observer: " + message, ex);
+          }
+        }
+        return null;
+      }
+    }.execute();
+  }
+
+  private void notifyObserverRemoteError(final RemoteError msg, final String message) {
+    new AsyncTask<Object, Object, Object>() {
+      @Override
+      protected Object doInBackground(Object[] params) {
+        for(CloverDeviceObserver observer : deviceObservers) {
+          try {
+            CloverDeviceErrorEvent cde = new CloverDeviceErrorEvent(CloverDeviceErrorEvent.CloverDeviceErrorType.EXCEPTION, 0, null, message);
+            observer.onDeviceError(cde);
+          } catch (Exception ex) {
+            Log.w(TAG, "Error processing RemoteError for observer:" + message, ex);
           }
         }
         return null;

@@ -22,6 +22,7 @@ import android.content.Context;
 import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbManager;
 import android.os.Build;
+import android.provider.Settings;
 import android.util.Log;
 import android.util.Pair;
 
@@ -40,8 +41,17 @@ public class UsbAccessorySetupUsbManager extends UsbCloverManager<Void> {
 
   private static final Charset US_ASCII = Charset.forName("US-ASCII");
 
+  private final String DEVICE_SERIAL;
+
   public UsbAccessorySetupUsbManager(Context context) {
     super(context);
+
+    String serial = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+    if(serial == null) {
+      // ANDROID_ID can be null in a few cases, most prominently in some android emulators. I wasn't able to reproduce this, but better safe than sorry
+      serial = "Generic Android Device";
+    }
+    DEVICE_SERIAL = serial;
   }
 
   @Override
@@ -66,18 +76,24 @@ public class UsbAccessorySetupUsbManager extends UsbCloverManager<Void> {
       Pair.create(0x28f3, 0x3000), // maplecutter adb device
       Pair.create(0x28f3, 0x4000), // bayleaf adb device
       Pair.create(0x28f3, 0x3020), // knotty pine adb device
+      Pair.create(0x28f3, 0x3050), // maplethree adb device
+      Pair.create(0x28f3, 0x4050), // ficustree adb device
 
       // Development devices (probably never used)
       Pair.create(0x28f3, 0x2001), // leafcutter rndis,adb device
       Pair.create(0x28f3, 0x3001), // maplecutter rndis,adb device
       Pair.create(0x28f3, 0x4001), // bayleaf rndis,adb device
       Pair.create(0x28f3, 0x3021), // knotty pine rndis,adb device
+      Pair.create(0x28f3, 0x3051), // maplethree rndis, adb device
+      Pair.create(0x28f3, 0x4051), // ficustree rndis, adb device
 
       // Production devices
       Pair.create(0x28f3, 0x2003), // leafcutter cloverusb device
       Pair.create(0x28f3, 0x3003), // maplecutter cloverusb device
       Pair.create(0x28f3, 0x4003), // bayleaf cloverusb device
       Pair.create(0x28f3, 0x3023), // knottypine cloverusb device
+      Pair.create(0x28f3, 0x3053), // maplethree cloverusb device
+      Pair.create(0x28f3, 0x4053), // ficustree cloverusb device
   };
 
   @Override
@@ -162,7 +178,7 @@ public class UsbAccessorySetupUsbManager extends UsbCloverManager<Void> {
     if (!sendAccessoryString(ACCESSORY_STRING_URI, "market://details?id=com.clover.remote.protocol.usb")) {
       return false;
     }
-    if (!sendAccessoryString(ACCESSORY_STRING_SERIAL, Build.SERIAL)) {
+    if (!sendAccessoryString(ACCESSORY_STRING_SERIAL, DEVICE_SERIAL)) {
       return false;
     }
 
