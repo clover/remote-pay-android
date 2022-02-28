@@ -281,9 +281,10 @@ public class CloverConnector implements ICloverConnector {
     if(request.getTippableAmount() != null) {
       transactionSettings.setTippableAmount(request.getTippableAmount());
     }
-    if(request.getTipSuggestions() != null){
+    if(request.getTipSuggestions() != null) {
       transactionSettings.setTipSuggestions(Arrays.asList(request.getTipSuggestions()));
     }
+    
     setupBaseTransactionRequest(request, transactionSettings, builder, paymentRequestType);
   }
 
@@ -322,6 +323,9 @@ public class CloverConnector implements ICloverConnector {
       }
       if (request.getExternalReferenceId() != null) {
         builder.externalReferenceId(request.getExternalReferenceId());
+      }
+      if(request.getPresentQrcOnly() != null) {
+        builder.isPresentQrcOnly(request.getPresentQrcOnly());
       }
       builder.transactionSettings(transactionSettings);
       PayIntent payIntent = builder.build();
@@ -1467,7 +1471,7 @@ public class CloverConnector implements ICloverConnector {
     @Override
     public void onVaultCardResponse(VaultedCard vaultedCard, String code, String reason) {
       boolean success = "SUCCESS".equals(code);
-      onVaultCardResponse(success, success ? ResultCode.SUCCESS : ResultCode.FAIL, null, null, vaultedCard);
+      onVaultCardResponse(success, success ? ResultCode.SUCCESS : ResultCode.FAIL, reason, null, vaultedCard);
     }
 
     @Override

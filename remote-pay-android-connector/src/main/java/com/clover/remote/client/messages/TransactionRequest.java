@@ -39,7 +39,6 @@ public abstract class TransactionRequest extends BaseTransactionRequest {
   private Long tippableAmount = null;
   private TipSuggestion[] tipSuggestions = null;
 
-
   /**
    * Constructor
    *
@@ -236,6 +235,5 @@ public abstract class TransactionRequest extends BaseTransactionRequest {
   public void setTipSuggestions(TipSuggestion[] tipSuggestions) {
     this.tipSuggestions = tipSuggestions;
   }
-
 
 }

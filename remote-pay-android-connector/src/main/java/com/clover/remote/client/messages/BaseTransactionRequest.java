@@ -20,6 +20,7 @@ public abstract class BaseTransactionRequest extends BaseRequest {
   private Map<String, String> extras = null;
   private Map<String, String> regionalExtras = null;
   private String externalReferenceId = null;
+  private Boolean presentQrcOnly = null;
 
   public BaseTransactionRequest(long amount, String externalId) {
     if(externalId == null || externalId.length() > 32) {
@@ -262,6 +263,20 @@ public abstract class BaseTransactionRequest extends BaseRequest {
    */
   public void setExternalReferenceId(String externalReferenceId) {
     this.externalReferenceId = externalReferenceId;
+  }
+
+  /**
+   * Get the field value
+   * @return If the QR Code entry method should be the only method presented
+   */
+  public Boolean getPresentQrcOnly() { return presentQrcOnly; }
+
+  /**
+   * Set the field value
+   * @param presentQrcOnly If the QR Code entry method should be the only method presented
+   */
+  public void setPresentQrcOnly(Boolean presentQrcOnly) {
+    this.presentQrcOnly = presentQrcOnly;
   }
 
 }

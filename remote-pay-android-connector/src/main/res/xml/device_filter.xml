@@ -22,6 +22,20 @@
     <!-- Clover KnottyPine prod -->
     <usb-device vendor-id="10483" product-id="12323" />
 
+    <!-- Clover MapleThree dev adb -->
+    <usb-device vendor-id="10483" product-id="12368" />
+    <!-- Clover MapleThree dev rndis -->
+    <usb-device vendor-id="10483" product-id="12369" />
+    <!-- Clover MapleThree prod -->
+    <usb-device vendor-id="10483" product-id="12371" />
+
+    <!-- Clover FicusTree dev adb -->
+    <usb-device vendor-id="10483" product-id="16464" />
+    <!-- Clover FicusTree dev rndis -->
+    <usb-device vendor-id="10483" product-id="16465" />
+    <!-- Clover FicusTree prod -->
+    <usb-device vendor-id="10483" product-id="16467" />
+
 
 
     <!-- Customer Mode IDs -->
@@ -39,11 +53,17 @@
     <!-- minis -->
     <usb-device vendor-id="10483" product-id="12292" />
     <usb-device vendor-id="10483" product-id="12290" />
+    <!-- MapleThree -->
+    <usb-device vendor-id="10483" product-id="12370" />
+    <usb-device vendor-id="10483" product-id="12372" />
     <!-- flex -->
     <usb-device vendor-id="10483" product-id="16384" />
     <usb-device vendor-id="10483" product-id="16385" />
     <usb-device vendor-id="10483" product-id="16386" />
     <usb-device vendor-id="10483" product-id="16387" />
     <usb-device vendor-id="10483" product-id="16388" />
+    <!-- FicusTree -->
+    <usb-device vendor-id="10483" product-id="16466" />
+    <usb-device vendor-id="10483" product-id="16468" />
 
 </resources>
