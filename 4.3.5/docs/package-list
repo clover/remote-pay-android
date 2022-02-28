@@ -1,0 +1,11 @@
+com.clover.remote.client
+com.clover.remote.client.device
+com.clover.remote.client.messages
+com.clover.remote.client.messages.extras
+com.clover.remote.client.messages.remote
+com.clover.remote.client.transport
+com.clover.remote.client.transport.clover
+com.clover.remote.client.transport.usb
+com.clover.remote.client.transport.usb.pos
+com.clover.remote.client.transport.websocket
+com.clover.remote.client.utils
