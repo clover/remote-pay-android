@@ -2,11 +2,11 @@ package com.clover.remote.client.transport.websocket;
 
 import android.util.Log;
 import com.neovisionaries.ws.client.WebSocket;
+import com.neovisionaries.ws.client.WebSocketAdapter;
 import com.neovisionaries.ws.client.WebSocketCloseCode;
 import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFactory;
 import com.neovisionaries.ws.client.WebSocketFrame;
-import com.neovisionaries.ws.client.WebSocketListener;
 import com.neovisionaries.ws.client.WebSocketState;
 
 import javax.net.ssl.SSLContext;
@@ -16,7 +16,7 @@ import java.security.KeyStore;
 import java.util.List;
 import java.util.Map;
 
-public class CloverNVWebSocketClient implements WebSocketListener {
+public class CloverNVWebSocketClient extends WebSocketAdapter {
 
   private static final int MISSED_PONG = 4001;
 
@@ -86,18 +86,6 @@ public class CloverNVWebSocketClient implements WebSocketListener {
     listener.onMessage(this, text);
   }
 
-  @Override public void onBinaryMessage(WebSocket websocket, byte[] binary) throws Exception {
-
-  }
-
-  @Override public void onSendingFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
-
-  }
-
-  @Override public void onFrameSent(WebSocket websocket, WebSocketFrame frame) throws Exception {
-
-  }
-
   @Override public void onFrameUnsent(WebSocket websocket, WebSocketFrame frame) throws Exception {
     Log.d(getClass().getSimpleName(), String.format("Frame Unsent frame, %s", frame));
   }
@@ -118,22 +106,6 @@ public class CloverNVWebSocketClient implements WebSocketListener {
     listener.onClose(this, closeCode, closeReason, closedByServer);
   }
 
-  @Override public void onFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
-
-  }
-
-  @Override public void onContinuationFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
-
-  }
-
-  @Override public void onTextFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
-
-  }
-
-  @Override public void onBinaryFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
-
-  }
-
   @Override public void onCloseFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
     listener.onClose(this, frame.getCloseCode(), frame.getCloseReason(), true);
   }
@@ -152,14 +124,8 @@ public class CloverNVWebSocketClient implements WebSocketListener {
     listener.onPong(this);
   }
 
-  @Override public void onStateChanged(WebSocket websocket, WebSocketState newState) throws Exception {
-  }
-
   @Override public void handleCallbackError(WebSocket websocket, Throwable cause) throws Exception {
     Log.e(getClass().getSimpleName(), "Error in callback", cause);
-  }
-
-  @Override public void onSendingHandshake(WebSocket websocket, String requestLine, List<String[]> headers) throws Exception {
   }
 
   @Override public void onFrameError(WebSocket websocket, WebSocketException cause, WebSocketFrame frame) throws Exception {
