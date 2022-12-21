@@ -13,16 +13,15 @@ buildscript {
         mavenLocal()
         mavenCentral()
         google()
-        jcenter()
     }
 
-  def mavenPlugin = "com.github.dcendents:android-maven-gradle-plugin:2.1"
-  dependencies {
-    classpath 'com.android.tools.build:gradle:3.2.1'
-    classpath mavenPlugin
-      classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.5.4'
-    classpath 'io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.10.0'
-  }
+    def mavenPlugin = "com.github.dcendents:android-maven-gradle-plugin:2.1"
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.2.1'
+        classpath mavenPlugin
+        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.28.2'
+        classpath 'io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.10.0'
+    }
 }
 
 
@@ -35,17 +34,15 @@ allprojects {
         mavenLocal()
         mavenCentral()
         google()
-        jcenter()
     }
 }
 
 subprojects {
 
-  repositories {
-    mavenLocal()
-    mavenCentral()
-    google()
-    jcenter()
-  }
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        google()
+    }
 }
 
