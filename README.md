@@ -4,14 +4,14 @@
 
 ## Version 
 
-Current version: 4.3.6
+Current version: 5.0.0
 
 ## Overview
 
 This SDK allows your Android-based Point-of-Sale (POS) system to communicate with a [Clover® payment device](https://www.clover.com/pos-hardware/) and process payments. Learn more about [Clover Integrations](https://www.clover.com/integrations).
 
 The Android project includes a connector and an example POS. To work with the project effectively, you will need:
-- [Gradle](https://gradle.org) (suggested version 4.10.3).
+- [Gradle](https://gradle.org) (suggested version 8.10.2).
 - An [Android SDK](http://developer.android.com/sdk/index.html) (17+).
 - An IDE, such as [Android Studio](http://developer.android.com/tools/studio/index.html).
 - To experience transactions end-to-end from the merchant and customer perspectives, we also recommend ordering a [Clover DevKit](http://cloverdevkit.com/collections/devkits/products/clover-mini-dev-kit).
@@ -29,5 +29,5 @@ The Android project includes a connector and an example POS. To work with the pr
 * [Release Notes](https://github.com/clover/remote-pay-android/releases)
 * [Secure Network Pay Display](https://docs.clover.com/clover-platform/docs/pay-display-apps#section--secure-network-pay-display-)
 * [Tutorial for the Android SDK](https://docs.clover.com/clover-platform/docs/android)
-* [API Documentation](https://clover.github.io/remote-pay-android/4.3.6/docs/)
+* [API Documentation](https://clover.github.io/remote-pay-android/5.0.0/docs/)
 * [Clover Developer Community](https://community.clover.com/index.html)

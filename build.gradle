@@ -6,39 +6,40 @@
 
 */
 
-
-
 buildscript {
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        google()
-    }
-
-    def mavenPlugin = "com.github.dcendents:android-maven-gradle-plugin:2.1"
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.1'
-        classpath mavenPlugin
-        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.28.2'
-        classpath 'io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.10.0'
-    }
+    // nothing for the project
 }
 
-
+apply from: file("${projectDir}/versions.gradle")
 
 allprojects {
-    apply plugin: 'com.jfrog.artifactory'
-    apply plugin: 'maven-publish'
-    apply plugin: 'com.github.dcendents.android-maven'
     repositories {
         mavenLocal()
         mavenCentral()
         google()
+    }
+    buildscript {
+        repositories {
+            mavenLocal()
+            mavenCentral()
+            google()
+        }
+        dependencies {
+            classpath "com.android.tools.build:gradle:$ANDROID_PLUGIN_VERSION"
+        }
     }
 }
 
 subprojects {
-
+    afterEvaluate { project ->
+        if (project.hasProperty('android')) {
+            project.android {
+                if (namespace == null) {
+                    namespace 'com.clover.remote.client.lib'
+                }
+            }
+        }
+    }
     repositories {
         mavenLocal()
         mavenCentral()
