@@ -82,6 +82,8 @@ public class RemoteUsbManager extends UsbCloverManager<Void> {
       Pair.create(0x28f3, 0x3022), // knottypine cloverusb device
       Pair.create(0x28f3, 0x3052), // maplethree accessory usb device
       Pair.create(0x28f3, 0x4052), // ficustree accessory usb device
+      Pair.create(0x28f3, 0x8002), // pinetree-semi cloverusb device
+      Pair.create(0x28f3, 0x8012), // pinetree cloverusb device
 
       // Development devices
       Pair.create(0x28f3, 0x2004), // leafcutter adb,accessory usb device
@@ -90,6 +92,8 @@ public class RemoteUsbManager extends UsbCloverManager<Void> {
       Pair.create(0x28f3, 0x4004), // bayleaf adb,accessory usb device
       Pair.create(0x28f3, 0x3054), // maplethree adb,accessory usb device
       Pair.create(0x28f3, 0x4054), // ficustree adb,accessory usb device
+      Pair.create(0x28f3, 0x8004), // pinetree-semi adb,accessory usb device
+      Pair.create(0x28f3, 0x8014), // pinetree adb,accessory usb device
 
   };
 

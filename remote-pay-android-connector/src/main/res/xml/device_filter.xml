@@ -36,7 +36,19 @@
     <!-- Clover FicusTree prod -->
     <usb-device vendor-id="10483" product-id="16467" />
 
+    <!-- Clover Pinetree-Semi dev adb -->
+    <usb-device vendor-id="10483" product-id="32768" />
+    <!-- Clover Pinetree-Semi dev rndis -->
+    <usb-device vendor-id="10483" product-id="32769" />
+    <!-- Clover PineTree-Semi prod -->
+    <usb-device vendor-id="10483" product-id="32771" />
 
+    <!-- Clover Pinetree dev adb -->
+    <usb-device vendor-id="10483" product-id="32784" />
+    <!-- Clover Pinetree dev rndis -->
+    <usb-device vendor-id="10483" product-id="32785" />
+    <!-- Clover PineTree prod -->
+    <usb-device vendor-id="10483" product-id="32787" />
 
     <!-- Customer Mode IDs -->
     <!-- mobiles -->
@@ -65,5 +77,11 @@
     <!-- FicusTree -->
     <usb-device vendor-id="10483" product-id="16466" />
     <usb-device vendor-id="10483" product-id="16468" />
+    <!-- PineTree-Semi -->
+    <usb-device vendor-id="10483" product-id="32770" />
+    <usb-device vendor-id="10483" product-id="32772" />
+    <!-- PineTree -->
+    <usb-device vendor-id="10483" product-id="32786" />
+    <usb-device vendor-id="10483" product-id="32788" />
 
 </resources>

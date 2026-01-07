@@ -25,7 +25,7 @@ import java.io.Serializable;
  */
 public interface CloverDeviceConfiguration extends Serializable {
 
-  public static final String REMOTE_SDK = "com.clover.cloverconnector.android:4.3.6-Public";
+  public static final String REMOTE_SDK = "com.clover.cloverconnector.android:5.0.0-Public";
 
   /**
    * Retrieve the class name of the clover device instantiated during the {@link CloverConnector#initializeConnection()} call.

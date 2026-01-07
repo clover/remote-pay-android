@@ -78,6 +78,8 @@ public class UsbAccessorySetupUsbManager extends UsbCloverManager<Void> {
       Pair.create(0x28f3, 0x3020), // knotty pine adb device
       Pair.create(0x28f3, 0x3050), // maplethree adb device
       Pair.create(0x28f3, 0x4050), // ficustree adb device
+      Pair.create(0x28f3, 0x8000), // pinetree-semi adb device
+      Pair.create(0x28f3, 0x8010), // pinetree adb device
 
       // Development devices (probably never used)
       Pair.create(0x28f3, 0x2001), // leafcutter rndis,adb device
@@ -86,6 +88,8 @@ public class UsbAccessorySetupUsbManager extends UsbCloverManager<Void> {
       Pair.create(0x28f3, 0x3021), // knotty pine rndis,adb device
       Pair.create(0x28f3, 0x3051), // maplethree rndis, adb device
       Pair.create(0x28f3, 0x4051), // ficustree rndis, adb device
+      Pair.create(0x28f3, 0x8001), // pinetree-semi rndis, adb device
+      Pair.create(0x28f3, 0x8011), // pinetree rndis, adb device
 
       // Production devices
       Pair.create(0x28f3, 0x2003), // leafcutter cloverusb device
@@ -94,6 +98,8 @@ public class UsbAccessorySetupUsbManager extends UsbCloverManager<Void> {
       Pair.create(0x28f3, 0x3023), // knottypine cloverusb device
       Pair.create(0x28f3, 0x3053), // maplethree cloverusb device
       Pair.create(0x28f3, 0x4053), // ficustree cloverusb device
+      Pair.create(0x28f3, 0x8003), // pinetree-semi cloverusb device
+      Pair.create(0x28f3, 0x8013), // pinetree cloverusb device
   };
 
   @Override

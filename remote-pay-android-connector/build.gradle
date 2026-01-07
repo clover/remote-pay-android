@@ -8,16 +8,11 @@ android {
   lintOptions {
     abortOnError false
   }
-  compileSdkVersion COMPILE_SDK_VERSION
 
   defaultConfig {
     minSdkVersion 17
     targetSdkVersion 19
-  }
-
-  compileOptions {
-    sourceCompatibility 1.8
-    targetCompatibility 1.8
+    compileSdk COMPILE_SDK_VERSION
   }
 
   packagingOptions {
@@ -26,6 +21,10 @@ android {
   }
 }
 defaultTasks 'install'
+java {
+  sourceCompatibility = JavaVersion.VERSION_1_8
+  targetCompatibility = JavaVersion.VERSION_1_8
+}
 
 dependencies {
   implementation "com.clover:clover-remote-interface:${CLOVER_COMMON_VERSION}"
@@ -37,63 +36,16 @@ dependencies {
 
 apply plugin: 'signing'
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-            repository(url: "${upload_release_url}") {
-              authentication(userName: "${upload_user}", password: "${upload_password}")
-            }
-            snapshotRepository(url: "${upload_snapshot_url}") {
-              authentication(userName: "${upload_user}", password: "${upload_password}")
-            }
-
-            pom.project {
-                name 'Clover Connector Android library'
-                description 'Clover Connector Android library'
-                url 'http://www.clover.com/'
-
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0'
-                        distribution 'repo'
-                    }
-                }
-
-                scm {
-                    url "https://github.com/clover/remote-pay-android"
-                    connection "https://github.com/clover/remote-pay-android.git"
-                    developerConnection "git@github.com:clover/remote-pay-android.git"
-                }
-
-                developers {
-                    developer {
-                        name 'Clover Engineering Team'
-                        url 'https://www.clover.com/team'
-                    }
-                }
-            }
-        }
-    }
-}
-
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from android.sourceSets.main.java.srcDirs
+tasks.register('sourcesJar', Jar) {
+  archiveClassifier = 'sources'
+  from android.sourceSets.main.java.srcDirs
 }
 
 artifacts {
     archives sourcesJar
 }
 
-signing {
-    required = { gradle.taskGraph.hasTask("uploadArchives") }
-    sign configurations.archives
-}
-
-task javadoc(type: Javadoc) {
+tasks.register('javadoc', Javadoc) {
 
     doFirst {
         configurations.implementation
@@ -118,5 +70,3 @@ task javadoc(type: Javadoc) {
     exclude '**/BuildConfig.java'
     exclude '**/R.java'
 }
-
-
